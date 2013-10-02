@@ -4,27 +4,32 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import net.rpeti.clusterdemo.data.spi.DataContainer;
+import net.rpeti.clusterdemo.data.spi.DataReceiver;
+
 /**
  * A class for storing and accessing data for the Olary algorithm.
  * Usage: first add attributes, then add data rows.
  * 
  * @author rpeti
  */
-public class DataSet {
+public class OlaryDataSet implements DataReceiver, DataContainer {
 
 	private List<String> attributes;
 	private int differentValues[];
 	private List<List<String>> data;
 	
-	public DataSet(){
+	public OlaryDataSet(){
 		attributes = new ArrayList<String>();
 		data = new ArrayList<List<String>>();
 	}
 	
+	@Override
 	public int getNumberOfRows(){
 		return data.size();
 	}
 	
+	@Override
 	public int getNumberOfColumns(){
 		return attributes.size();
 	}
@@ -33,6 +38,7 @@ public class DataSet {
 	 * 
 	 * @param attribute
 	 */
+	@Override
 	public void addAttribute(String attribute){
 		if(data.size() != 0) throw new UnsupportedOperationException(
 				"Cannot add attribute after data has been added.");
@@ -44,6 +50,7 @@ public class DataSet {
 	 * For attributes you don't want to supply, you can provide an empty string.
 	 * @param row
 	 */
+	@Override
 	public void addData(List<String> row){
 		if(row.size() != attributes.size())
 			throw new IllegalArgumentException("The data should have " + attributes.size() + 
@@ -89,6 +96,7 @@ public class DataSet {
 	 * Get the list of attributes in the data set.
 	 * @return
 	 */
+	@Override
 	public List<String> getAttributes(){
 		return new ArrayList<String>(attributes);
 	}
@@ -98,6 +106,7 @@ public class DataSet {
 	 * @param id 
 	 * 		the row number
 	 */
+	@Override
 	public List<String> getDataRow(int id){
 		return new ArrayList<String>(data.get(id));
 	}
@@ -116,6 +125,7 @@ public class DataSet {
 	 * @param attribute
 	 * 		the attribute name (determines column)
 	 */
+	@Override
 	public String getDataValue(int id, String attribute){
 		int index = getIndexOfAttr(attribute);
 		return data.get(id).get(index);
