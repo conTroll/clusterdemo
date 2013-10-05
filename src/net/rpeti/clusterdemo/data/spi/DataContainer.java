@@ -2,6 +2,7 @@ package net.rpeti.clusterdemo.data.spi;
 
 import java.util.List;
 
+//TODO documentation
 public interface DataContainer {
 	public List<String> getAttributes();
 	public int getNumberOfRows();

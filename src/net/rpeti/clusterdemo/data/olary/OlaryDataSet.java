@@ -39,7 +39,7 @@ public class OlaryDataSet implements DataReceiver, DataContainer {
 	 * @param attribute
 	 */
 	@Override
-	public void addAttribute(String attribute){
+	public void addAttribute(String attribute) throws UnsupportedOperationException {
 		if(data.size() != 0) throw new UnsupportedOperationException(
 				"Cannot add attribute after data has been added.");
 		attributes.add(attribute);
@@ -51,7 +51,7 @@ public class OlaryDataSet implements DataReceiver, DataContainer {
 	 * @param row
 	 */
 	@Override
-	public void addData(List<String> row){
+	public void addData(List<String> row) throws IllegalArgumentException {
 		if(row.size() != attributes.size())
 			throw new IllegalArgumentException("The data should have " + attributes.size() + 
 					" number of attributes. For attributes you don't want to supply,"
