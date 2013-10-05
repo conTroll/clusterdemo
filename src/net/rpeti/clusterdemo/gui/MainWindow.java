@@ -17,6 +17,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JSeparator;
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -25,6 +26,9 @@ import java.awt.Toolkit;
 import javax.swing.JSplitPane;
 import javax.swing.JLabel;
 
+import net.rpeti.clusterdemo.Controller;
+import net.rpeti.clusterdemo.Main;
+import net.rpeti.clusterdemo.gui.dialog.ImportCSV;
 import edu.uci.ics.jung.visualization.BasicVisualizationServer;
 
 import java.awt.Font;
@@ -44,6 +48,8 @@ public class MainWindow {
 	private JPanel graphDrawingPanel;
 	private JPanel sidePanel;
 	private JLabel statusBarLabel;
+	
+	private Controller controller;
 
 	/**
 	 * Create the application.
@@ -56,6 +62,8 @@ public class MainWindow {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
+		controller = Main.getController();
+		
 		try {
 		    for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
 		        if ("Nimbus".equals(info.getName())) {
@@ -84,7 +92,8 @@ public class MainWindow {
 		frmClusterDemo.setMinimumSize(new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT));
 		frmClusterDemo.setBounds((screenResolution.width / 2) - (WINDOW_WIDTH / 2),
 				(screenResolution.height / 2) - (WINDOW_HEIGHT / 2), WINDOW_WIDTH, WINDOW_HEIGHT);
-		frmClusterDemo.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frmClusterDemo.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);	
+		frmClusterDemo.setLocationRelativeTo(null);
 		
 		JMenuBar menuBar = new JMenuBar();
 		frmClusterDemo.setJMenuBar(menuBar);
@@ -94,33 +103,23 @@ public class MainWindow {
 		JMenu mnFile = new JMenu("File");
 		menuBar.add(mnFile);
 		
-		JMenuItem mntmImport = new JMenuItem("Import...");
-		mntmImport.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				JFileChooser chooser = new JFileChooser();
-				chooser.setPreferredSize(new Dimension(640, 480));
-				FileFilter ff = new FileFilter() {
+		JMenu mnNewMenu = new JMenu("Import");
+		mnFile.add(mnNewMenu);
+		
+		JMenuItem mntmFromCsvFile = new JMenuItem("CSV file...");
+		mntmFromCsvFile.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
 					
-					@Override
-					public String getDescription() {
-						return "CSV file";
-					}
-					
-					@Override
-					public boolean accept(File f) {
-						if (f.isDirectory()) return true;
-						String[] split = f.getName().trim().split(".");
-						if (split.length == 0) return false;
-						return split[split.length - 1].toLowerCase().equals("csv");
-					}
-				};
-				chooser.addChoosableFileFilter(ff);
-				if(chooser.showOpenDialog(frmClusterDemo) == JFileChooser.APPROVE_OPTION){
-					//TODO fire event
-				}
+						ImportCSV dialog = new ImportCSV(frmClusterDemo);
+						if(dialog.getIsOk()){
+							controller.importCSV(dialog.getIsAttributesInFirstLine(),
+									dialog.getSeparator(), dialog.getSelectedFile());
+						}
 			}
+
 		});
-		mnFile.add(mntmImport);
+		mnNewMenu.add(mntmFromCsvFile);
 		
 		JMenuItem mntmExport = new JMenuItem("Export...");
 		mnFile.add(mntmExport);
@@ -139,7 +138,9 @@ public class MainWindow {
 			public void actionPerformed(ActionEvent e) {
 				JLabel aboutTitle = new JLabel(ABOUT_TITLE);
 				aboutTitle.setFont(new Font("SansSerif", Font.BOLD, 18));
-				JOptionPane.showMessageDialog(frmClusterDemo, new Object[]{aboutTitle, ABOUT_MESSAGE}, "About ClusterDemo", JOptionPane.INFORMATION_MESSAGE);
+				JOptionPane.showMessageDialog(frmClusterDemo, 
+						new Object[]{aboutTitle, ABOUT_MESSAGE}, "About ClusterDemo",
+						JOptionPane.INFORMATION_MESSAGE);
 			}
 		});
 		mnHelp.add(mntmAbout);
@@ -175,9 +176,6 @@ public class MainWindow {
 		statusBarLabel.setText(text);
 	}
 	
-	/**
-	 * Set up Swing settings, instantiate MainWindow, and launch Swing (and MainWindow) in a separate thread.
-	 */
 	public void show() {
 		frmClusterDemo.setVisible(true);
 	}
