@@ -93,8 +93,7 @@ public class OlaryDataSet implements DataReceiver, DataContainer {
 	}
 	
 	/**
-	 * Get the list of attributes in the data set.
-	 * @return
+	 * @return the list of attributes in the data set.
 	 */
 	@Override
 	public List<String> getAttributes(){
@@ -102,7 +101,7 @@ public class OlaryDataSet implements DataReceiver, DataContainer {
 	}
 	
 	/**
-	 * Get a data row from the data set.
+	 * @return the given data row from the data set
 	 * @param id 
 	 * 		the row number
 	 */
@@ -119,7 +118,7 @@ public class OlaryDataSet implements DataReceiver, DataContainer {
 	}
 	
 	/**
-	 * Gets a single data value (in table terms the content of a cell).
+	 * @return a single data value (in table terms the content of a cell).
 	 * @param id
 	 * 		the row number
 	 * @param attribute

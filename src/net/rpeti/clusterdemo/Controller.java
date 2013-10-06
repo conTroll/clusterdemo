@@ -7,7 +7,7 @@ import java.util.regex.PatternSyntaxException;
 import net.rpeti.clusterdemo.algorithms.Algorithms;
 
 /**
- * Gets event (like choosing a file to import) from MainWindow
+ * Gets an event (like choosing a file to import) from MainWindow
  * instantiates the correct classes for the action, and run them.
  *
  */

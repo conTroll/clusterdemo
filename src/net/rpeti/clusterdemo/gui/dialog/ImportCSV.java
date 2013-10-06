@@ -209,18 +209,35 @@ public class ImportCSV extends JDialog {
 		setVisible(true);
 	}
 	
+	/**
+	 * @return true if and only if the user clicked on OK button,
+	 * and the data provided validates correctly.
+	 */
 	public boolean getIsOk(){
 		return isOk;
 	}
 	
+	/**
+	 * @return a File object representing the file selected by the
+	 * user. Contains the absolute path to the file which is specific
+	 * to the platform being used.
+	 */
 	public File getSelectedFile(){
 		return file;
 	}
 	
+	/**
+	 * @return the regular expression provided by the user
+	 * as separator as a String
+	 */
 	public String getSeparator(){
 		return textFieldSeparator.getText();
 	}
 	
+	/**
+	 * @return true if and only if the checkbox 
+	 * 'attributes in first line' was checked by the user
+	 */
 	public boolean getIsAttributesInFirstLine(){
 		return checkBoxAttributes.isSelected();
 	}

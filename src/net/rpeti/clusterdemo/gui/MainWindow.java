@@ -86,6 +86,7 @@ public class MainWindow {
 		    }
 		}
 		
+		//Set title, position, size, etc.
 		frmClusterDemo = new JFrame();
 		frmClusterDemo.setTitle("ClusterDemo");
 		Dimension screenResolution = Toolkit.getDefaultToolkit().getScreenSize();
@@ -97,8 +98,6 @@ public class MainWindow {
 		
 		JMenuBar menuBar = new JMenuBar();
 		frmClusterDemo.setJMenuBar(menuBar);
-		
-		sidePanel = new SidePanel();
 		
 		JMenu mnFile = new JMenu("File");
 		menuBar.add(mnFile);
@@ -154,6 +153,7 @@ public class MainWindow {
 		graphDrawingPanel.setBackground(Color.WHITE);
 		splitPane.setLeftComponent(graphDrawingPanel);
 		
+		sidePanel = new SidePanel();
 		splitPane.setRightComponent(sidePanel);
 		
 		JPanel statusBar = new JPanel();
@@ -167,15 +167,24 @@ public class MainWindow {
 		statusBar.add(statusBarLabel);
 	}
 
+	/**
+	 * Method for injecting the drawing canvas for JUNG.
+	 */
 	public void setGraphDrawingComponent(BasicVisualizationServer<?,?> visualizationServer){
 		graphDrawingPanel.removeAll();
 		graphDrawingPanel.add(visualizationServer);
 	}
 	
+	/**
+	 * Change the text in the status bar located at the bottom of the main window.
+	 */
 	public void setStatusBarText(String text){
 		statusBarLabel.setText(text);
 	}
 	
+	/**
+	 * Show the window.
+	 */
 	public void show() {
 		frmClusterDemo.setVisible(true);
 	}
