@@ -4,8 +4,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import net.rpeti.clusterdemo.algorithms.olary.OlaryCodedAttribute;
 import net.rpeti.clusterdemo.data.spi.DataContainer;
 import net.rpeti.clusterdemo.data.spi.DataReceiver;
+
+//TODO alaposan átnézni + dok/komment (fieldeket nem ártana kommentelni)
 
 /**
  * A class for storing and accessing data for the Olary algorithm.
@@ -16,12 +19,18 @@ import net.rpeti.clusterdemo.data.spi.DataReceiver;
 public class OlaryDataSet implements DataReceiver, DataContainer {
 
 	private List<String> attributes;
+	private List<OlaryCodedAttribute> transformedAttributes;
 	private int differentValues[];
 	private List<List<String>> data;
+	private boolean transformed;
+	private boolean dirtyTransformation;
 	
 	public OlaryDataSet(){
 		attributes = new ArrayList<String>();
 		data = new ArrayList<List<String>>();
+		transformedAttributes = new ArrayList<OlaryCodedAttribute>();
+		transformed = false;
+		dirtyTransformation = false;
 	}
 	
 	@Override
@@ -61,6 +70,8 @@ public class OlaryDataSet implements DataReceiver, DataContainer {
 			if (item == null) 
 				throw new IllegalArgumentException("You shouldn't provide null as data. "
 						+ "Use empty string instead.");
+		
+		dirtyTransformation = true;
 		
 		data.add(row);
 		
@@ -129,9 +140,52 @@ public class OlaryDataSet implements DataReceiver, DataContainer {
 		int index = getIndexOfAttr(attribute);
 		return data.get(id).get(index);
 	}
-	
+		
 	public int getNumberOfDifferentDataValues(String attribute){
 		int index = getIndexOfAttr(attribute);
 		return differentValues[index];
-	}	
+	}
+	
+	/**
+	 * Executes Olary Transformation on the data.
+	 */
+	public void doTransformation(){
+		transformed = true;
+		dirtyTransformation = false;
+		
+		for(int i = 0; i < attributes.size(); i++){
+			transformedAttributes.add(new OlaryCodedAttribute(attributes.get(i), differentValues[i], data.get(i)));
+		}
+	}
+	
+	/** 
+	 * @param id
+	 * 		row number
+	 * @param attribute
+	 * 		column number
+	 * @return The data encoded with Olary Code.
+	 */
+	public boolean[] getEncodedAttributeValue(int id, String attribute){
+		if(!(transformed) || dirtyTransformation)
+			throw new UnsupportedOperationException(
+					"Transformation doesn't exist, or is dirty. Please transform the data.");
+		int index = getIndexOfAttr(attribute);
+		String value = data.get(id).get(index);
+		return transformedAttributes.get(index).getOlaryCodeForValue(value);
+	}
+	
+	/** 
+	 * @param value
+	 * 		the original value
+	 * @param attribute
+	 * 		column number
+	 * @return The data encoded with Olary Code.
+	 */
+	public boolean[] getEncodedAttributeValue(String value, String attribute){
+		if(!(transformed) || dirtyTransformation)
+			throw new UnsupportedOperationException(
+					"Transformation doesn't exist, or is dirty. Please transform the data.");
+		int index = getIndexOfAttr(attribute);
+		return transformedAttributes.get(index).getOlaryCodeForValue(value);
+	}
 }
