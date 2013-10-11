@@ -17,7 +17,7 @@ public interface DataContainer {
 	
 	/**
 	 * @return the given data row from the data set
-	 * @param id 
+	 * @param rowNumber 
 	 * 		the row number
 	 */
 	public List<String> getDataRow(int rowNumber);

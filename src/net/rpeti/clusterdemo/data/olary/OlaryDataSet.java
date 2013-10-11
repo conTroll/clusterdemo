@@ -8,7 +8,6 @@ import net.rpeti.clusterdemo.algorithms.olary.OlaryCodedAttribute;
 import net.rpeti.clusterdemo.data.spi.DataContainer;
 import net.rpeti.clusterdemo.data.spi.DataReceiver;
 
-//TODO alaposan átnézni + dok/komment (fieldeket nem ártana kommentelni)
 
 /**
  * A class for storing and accessing data for the Olary algorithm.
@@ -22,7 +21,10 @@ public class OlaryDataSet implements DataReceiver, DataContainer {
 	private List<OlaryCodedAttribute> transformedAttributes;
 	private int differentValues[];
 	private List<List<String>> data;
+	
 	private boolean transformed;
+	//the transformation is dirty, when new data rows have been added
+	//and no transformation have been made on them
 	private boolean dirtyTransformation;
 	
 	public OlaryDataSet(){
@@ -43,10 +45,6 @@ public class OlaryDataSet implements DataReceiver, DataContainer {
 		return attributes.size();
 	}
 	
-	/**
-	 * 
-	 * @param attribute
-	 */
 	@Override
 	public void addAttribute(String attribute) throws UnsupportedOperationException {
 		if(data.size() != 0) throw new UnsupportedOperationException(
@@ -67,7 +65,7 @@ public class OlaryDataSet implements DataReceiver, DataContainer {
 					+ " you can provide empty string.");
 		
 		for(String item : row)
-			if (item == null) 
+			if (item == null)
 				throw new IllegalArgumentException("You shouldn't provide null as data. "
 						+ "Use empty string instead.");
 		
@@ -129,7 +127,7 @@ public class OlaryDataSet implements DataReceiver, DataContainer {
 	}
 	
 	/**
-	 * @return a single data value (in table terms the content of a cell).
+	 * @return a single data value (in table terms the content of a cell)
 	 * @param id
 	 * 		the row number
 	 * @param attribute

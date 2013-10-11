@@ -3,8 +3,8 @@ package net.rpeti.clusterdemo.algorithms.olary;
 /**
  * Generates a k-length Olary Code.
  * (k is defined in the constructor)
- * @author Dev
- *
+ * 
+ * @author rpeti
  */
 public class OlaryCode {
 	

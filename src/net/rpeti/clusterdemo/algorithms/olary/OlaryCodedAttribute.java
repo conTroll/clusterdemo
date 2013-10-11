@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-//TODO alaposan átnézni + dok/komment ahol kell
 
 /**
  * Implementation of the Olary Transformation
@@ -15,10 +14,21 @@ import java.util.Map;
  */
 public class OlaryCodedAttribute {
 	
-	String name;
-	OlaryCode code;
-	Map<String, boolean[]> codesByValues;
+	private String name;
+	private OlaryCode code;
+	public Map<String, boolean[]> codesByValues;
 	
+	
+	/**
+	 * generates the Olary Code with the appropriate length, 
+	 * and assigns a binary sequence for every possible value
+	 * @param name
+	 * 		the name of the attribute
+	 * @param numberOfDifferentValues
+	 * 		the number of unique values that the attribute than take
+	 * @param values
+	 * 		the actual values
+	 */
 	public OlaryCodedAttribute(String name, int numberOfDifferentValues, List<String> values){
 		if(values == null || values.isEmpty())
 			throw new IllegalArgumentException("Values must be provided.");
@@ -45,10 +55,19 @@ public class OlaryCodedAttribute {
 		}
 	}
 
+	/**
+	 * @return the original name of the attribute.
+	 */
 	public String getName() {
 		return name;
 	}
 	
+	/**
+	 * 
+	 * @param value 
+	 * 		a possible value for the attribute
+	 * @return the binary sequence assigned to the specified value
+	 */
 	public boolean[] getOlaryCodeForValue(String value){
 		return codesByValues.get(value);
 	}
