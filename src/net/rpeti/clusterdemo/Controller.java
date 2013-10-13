@@ -31,4 +31,8 @@ public class Controller {
 			throw new IllegalArgumentException("Invalid regular expression for separator.");
 		}
 	}
+	
+	public void runClustering(Algorithms algo){
+		//TODO implement
+	}
 }
