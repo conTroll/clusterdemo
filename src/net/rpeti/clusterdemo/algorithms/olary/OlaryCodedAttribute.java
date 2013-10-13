@@ -20,7 +20,7 @@ public class OlaryCodedAttribute {
 	
 	
 	/**
-	 * generates the Olary Code with the appropriate length, 
+	 * Generates the Olary Code with the appropriate length, 
 	 * and assigns a binary sequence for every possible value
 	 * @param name
 	 * 		the name of the attribute
@@ -59,7 +59,11 @@ public class OlaryCodedAttribute {
 	 * @return the original name of the attribute.
 	 */
 	public String getName() {
-		return name;
+		return this.name;
+	}
+	
+	public int getLength(){
+		return this.code.getLength();
 	}
 	
 	/**

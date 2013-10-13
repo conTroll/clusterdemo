@@ -17,7 +17,7 @@ public class Main {
 			public void run() {
 				try {
 					MainWindow window = new MainWindow();
-					window.show();
+					window.show();					
 				} catch (Exception e) {
 					//TODO
 					e.printStackTrace();

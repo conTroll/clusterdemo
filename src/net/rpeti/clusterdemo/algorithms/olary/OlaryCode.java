@@ -51,6 +51,10 @@ public class OlaryCode {
 		return result;
 	}
 	
+	public int getLength(){
+		return length;
+	}
+	
 	/**
 	 * Gets the given sequence from the constructed Olary code, 
 	 * where the sequence is representated as an array of booleans.
