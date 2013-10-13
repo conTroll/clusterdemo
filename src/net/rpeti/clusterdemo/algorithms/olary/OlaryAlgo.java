@@ -9,15 +9,17 @@ import net.rpeti.clusterdemo.data.olary.OlaryDataSet;
 
 public class OlaryAlgo {
 	
-	//TODO finish + javadoc
-	
 	private OlaryDataSet dataSet;
 	private int k;
 	private int seed;
 	private int maxIterations;
 	private int rowCount;
-	private List<Integer> centers1;
-	private List<Integer> centers2;
+	private int colCount;
+	//stores encoded attributes of center data points
+	private List<List<boolean[]>> centers1;
+	//a copy of centers1 will be made here after each iteration
+	//so we can check the convergence criteria after the next iteration
+	private List<List<boolean[]>> centers2;
 	private int[] index;
 	
 	/**
@@ -46,6 +48,7 @@ public class OlaryAlgo {
 	 */
 	public OlaryAlgo(int k, int seed, int maxIterations, OlaryDataSet dataSet){
 		this.rowCount = dataSet.getNumberOfRows();
+		this.colCount = dataSet.getNumberOfColumns();
 		
 		if(seed == -1){
 			Random random = new Random();
@@ -67,7 +70,7 @@ public class OlaryAlgo {
 		this.seed = seed;
 		this.maxIterations = maxIterations;
 		this.dataSet = dataSet;
-		this.centers1 = new ArrayList<Integer>(k);
+		this.centers1 = new ArrayList<List<boolean[]>>(k);
 		this.index = new int[rowCount];
 		Arrays.fill(index, -1);
 	}
@@ -88,8 +91,8 @@ public class OlaryAlgo {
 			else{
 				int minDistance = Integer.MAX_VALUE;
 				int j = 0;
-				for(int centerId : centers1){
-					int currentDistance = getDistance(i, centerId);
+				for(int s = 0; s < k; s++){
+					int currentDistance = getDistanceFromClusterCenter(s, i);
 					if(currentDistance < minDistance){
 						minDistance = currentDistance;
 						index[i] = j;
@@ -119,20 +122,25 @@ public class OlaryAlgo {
 	}
 	
 	/**
-	 * @return
-	 * 		the distance between 2 data points (the sum of distances
-	 * 		between their appropriate attributes)
+	 * @param clusterID
+	 * 		the ID of the cluster 
+	 * @param id
+	 * 		the ID of the data point
+	 * @return the distance between the center of the specified cluster, and some data point
 	 */
-	private int getDistance(int id1, int id2){
-		if (id1 >= rowCount || id2 >= rowCount){
-			throw new IllegalArgumentException("IDs are indexed between 0 and " + (rowCount - 1));
-		}
+	private int getDistanceFromClusterCenter(int clusterID, int id){
+		if(clusterID >= k || clusterID < 0)
+			throw new IllegalArgumentException("clusterID must be at least 0 and less than " + k);
+		if(id >= rowCount || id < 0)
+			throw new IllegalArgumentException("id must be at least 0 and less than " + rowCount);
 		
+		int i = 0;
 		int distance = 0;
 		for(String attribute : dataSet.getAttributes()){
 			distance += this.getDistance(
-					dataSet.getEncodedAttributeValue(id1, attribute), 
-					dataSet.getEncodedAttributeValue(id2, attribute));
+					dataSet.getEncodedAttributeValue(id, attribute),
+					centers1.get(clusterID).get(i));
+			i++;
 		}
 		return distance;
 	}
@@ -144,7 +152,7 @@ public class OlaryAlgo {
 	private void initCenters(){
 		int optimalCenter;
 		//the first center will be supplied, or randomly selected
-		centers1.add(seed);
+		centers1.add(dataSet.getEncodedRow(seed));
 		//set up the remaining k-1 centers
 		for(int i = 1; i < k; i++){
 			int maxDistance = 0;
@@ -157,7 +165,7 @@ public class OlaryAlgo {
 					//sum the distances between the actual point and the
 					//previously selected centers
 					for(int s = 0; s < i; s++){
-						currentDistance += this.getDistance(j, centers1.get(s));
+						currentDistance += this.getDistanceFromClusterCenter(s, j);
 					}
 					//the one with the maximal sum wins
 					if(currentDistance > maxDistance){
@@ -166,12 +174,53 @@ public class OlaryAlgo {
 					}
 				}
 			}
-			centers1.add(optimalCenter);
+			centers1.add(dataSet.getEncodedRow(optimalCenter));
 		}
 	}
 	
+	/**
+	 * Implementation of the computeCenters() subroutine as specified in the documentation.
+	 * We determine the dominant binary attributes for every cluster.
+	 */
 	private void computeCenters(){
-		//TODO implement
+		for(int i = 0; i < k; i++){ //clusters
+			for(int attributeID = 0; attributeID < colCount; attributeID++){
+				for(int binaryID = 0; binaryID < dataSet.getCodeLength(attributeID); binaryID++){
+					int count0 = 0;
+					int count1 = 0;
+					for(int j = 0; j < rowCount; j++){ //data points
+						if(index[j] == i){
+							if(dataSet.getEncodedRow(j).get(attributeID)[binaryID] == false){
+								count0++;
+							}
+							else{
+								count1++;
+							}
+						}
+					}
+					if(count0 >= count1){
+						centers1.get(k).get(attributeID)[binaryID] = false;
+					}
+					else{
+						centers1.get(k).get(attributeID)[binaryID] = true;
+					}
+				}
+			}
+		}
+	}
+	
+	/**
+	 * Make copy of the centers, using a simple deep-copy algorithm.
+	 */
+	private void copyCenters(){
+		centers2 = new ArrayList<List<boolean[]>>(centers1.size());
+		for(List<boolean[]> center: centers1){
+			List<boolean[]> newCenter = new ArrayList<boolean[]>();
+			for(boolean[] attribute : center){
+				newCenter.add(Arrays.copyOf(attribute, attribute.length));
+			}
+			centers2.add(newCenter);
+		}
 	}
 	
 	/**
@@ -183,7 +232,7 @@ public class OlaryAlgo {
 		int iterations = 0;
 		while(iterations < maxIterations && !(centers1.equals(centers2))){
 			this.assignToClusters();
-			centers2 = new ArrayList<Integer>(centers1);
+			this.copyCenters();
 			this.computeCenters();
 		}
 	}

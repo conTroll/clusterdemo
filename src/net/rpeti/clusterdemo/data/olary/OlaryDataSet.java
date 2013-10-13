@@ -24,7 +24,7 @@ public class OlaryDataSet implements DataReceiver, DataContainer {
 	
 	private boolean transformed;
 	//the transformation is dirty, when new data rows have been added
-	//and no transformation have been made on them
+	//and no transformation have been made since
 	private boolean dirtyTransformation;
 	
 	public OlaryDataSet(){
@@ -156,6 +156,25 @@ public class OlaryDataSet implements DataReceiver, DataContainer {
 		}
 	}
 	
+	/**
+	 * @param attributeID
+	 * 		the ID of the attribute
+	 * @return the length of the Olary Code needed to encode the attribute.
+	 */
+	public int getCodeLength(int attributeID){
+		return this.transformedAttributes.get(attributeID).getLength();
+	}
+	
+	/**
+	 * 
+	 * @param attribute
+	 * 		the name of the attribute
+	 * @return the length of the Olary Code needed to encode the attribute.
+	 */
+	public int getCodeLength(String attribute){
+		return this.getCodeLength(this.getIndexOfAttr(attribute));
+	}
+	
 	/** 
 	 * @param id
 	 * 		row number
@@ -185,5 +204,18 @@ public class OlaryDataSet implements DataReceiver, DataContainer {
 					"Transformation doesn't exist, or is dirty. Please transform the data.");
 		int index = getIndexOfAttr(attribute);
 		return transformedAttributes.get(index).getOlaryCodeForValue(value);
+	}
+	
+	/**
+	 * @param id
+	 * 		row number
+	 * @return All the encoded values for that data row.
+	 */
+	public List<boolean[]> getEncodedRow(int id){
+		List<boolean[]> result = new ArrayList<boolean[]>(getAttributes().size());
+		for(String attribute : getAttributes()){
+			result.add(getEncodedAttributeValue(id, attribute));
+		}
+		return result;
 	}
 }
