@@ -12,8 +12,6 @@ import net.rpeti.clusterdemo.data.spi.DataReceiver;
 /**
  * A class for storing and accessing data for the Olary algorithm.
  * Usage: first add attributes, then add data rows.
- * 
- * @author rpeti
  */
 public class OlaryDataSet implements DataReceiver, DataContainer {
 

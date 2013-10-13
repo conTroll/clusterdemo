@@ -8,9 +8,6 @@ import java.util.Map;
 /**
  * Implementation of the Olary Transformation
  * for a single nominal attribute.
- * 
- * @author rpeti
- *
  */
 public class OlaryCodedAttribute {
 	
