@@ -23,9 +23,16 @@ import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.DefaultComboBoxModel;
 
+import net.rpeti.clusterdemo.Controller;
+import net.rpeti.clusterdemo.Main;
+import net.rpeti.clusterdemo.algorithms.Algorithms;
+
 public class SidePanel extends JPanel {
 
 	private static final long serialVersionUID = 7654943576215466209L;
+	
+	private Controller controller = Main.getController();
+	private JComboBox<String> comboBoxAlgo;
 
 	/**
 	 * Create the panel.
@@ -57,19 +64,20 @@ public class SidePanel extends JPanel {
 		gbc_lblAlgorithm.gridy = 1;
 		add(lblAlgorithm, gbc_lblAlgorithm);
 		
-		JComboBox comboBox = new JComboBox();
-		comboBox.setModel(new DefaultComboBoxModel(new String[] {"Olary"}));
-		comboBox.setSelectedIndex(0);
+		comboBoxAlgo = new JComboBox<>();
+		comboBoxAlgo.setModel(new DefaultComboBoxModel<String>(new String[] {"Olary"}));
+		comboBoxAlgo.setSelectedIndex(0);
 		GridBagConstraints gbc_comboBox = new GridBagConstraints();
 		gbc_comboBox.insets = new Insets(0, 0, 5, 0);
 		gbc_comboBox.fill = GridBagConstraints.HORIZONTAL;
 		gbc_comboBox.gridx = 1;
 		gbc_comboBox.gridy = 1;
-		add(comboBox, gbc_comboBox);
+		add(comboBoxAlgo, gbc_comboBox);
 		
 		JButton btnRun = new JButton("Run Clustering");
 		btnRun.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				controller.runClustering(SidePanel.this.getSelectedAlgorithm());
 			}
 		});
 		
@@ -132,6 +140,13 @@ public class SidePanel extends JPanel {
 		gbc_lblDataEditor.gridy = 6;
 		add(lblDataEditor, gbc_lblDataEditor);
 
+	}
+	
+	public Algorithms getSelectedAlgorithm(){
+		if (comboBoxAlgo.getSelectedItem().equals("Olary"))
+			return Algorithms.OLARY;
+		else
+			return null;
 	}
 
 }

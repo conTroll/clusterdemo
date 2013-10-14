@@ -69,10 +69,8 @@ public class OlaryDataSet implements DataReceiver, DataContainer {
 		
 		dirtyTransformation = true;
 		
-		data.add(row);
-		
 		//if this is the first row of data, all possible values for attributes should be set to 1
-		if(data.size() == 1){
+		if(data.size() == 0){
 			differentValues = new int[attributes.size()];
 			Arrays.fill(differentValues, 1);
 		} 
@@ -94,9 +92,11 @@ public class OlaryDataSet implements DataReceiver, DataContainer {
 			}
 			
 			for (i = 0; i < isNewValue.length; i++){
-				if(isNewValue[i]) differentValues[i]++;
+				if(isNewValue[i]) (differentValues[i])++;
 			}
 		}
+		
+		data.add(row);
 	}
 	
 	/**
@@ -110,11 +110,25 @@ public class OlaryDataSet implements DataReceiver, DataContainer {
 	/**
 	 * @return the given data row from the data set
 	 * @param id 
-	 * 		the row number
+	 * 		the row ID
 	 */
 	@Override
 	public List<String> getDataRow(int id){
 		return new ArrayList<String>(data.get(id));
+	}
+	
+	/**
+	 * @return the given data column from the data set
+	 * @param id
+	 * 		the column ID
+	 */
+	@Override
+	public List<String> getDataColumn(int id){
+		List<String> result = new ArrayList<>();
+		for (int i = 0; i < getNumberOfRows(); i++){
+			result.add(data.get(i).get(id));
+		}
+		return result;
 	}
 	
 	private int getIndexOfAttr(String attribute){
@@ -150,7 +164,7 @@ public class OlaryDataSet implements DataReceiver, DataContainer {
 		dirtyTransformation = false;
 		
 		for(int i = 0; i < attributes.size(); i++){
-			transformedAttributes.add(new OlaryCodedAttribute(attributes.get(i), differentValues[i], data.get(i)));
+			transformedAttributes.add(new OlaryCodedAttribute(attributes.get(i), differentValues[i], getDataColumn(i)));
 		}
 	}
 	
@@ -161,6 +175,7 @@ public class OlaryDataSet implements DataReceiver, DataContainer {
 	 */
 	public int getCodeLength(int attributeID){
 		return this.transformedAttributes.get(attributeID).getLength();
+		
 	}
 	
 	/**

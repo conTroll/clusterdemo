@@ -7,6 +7,7 @@ import java.util.Random;
 
 import net.rpeti.clusterdemo.data.olary.OlaryDataSet;
 
+//TODO konvergencia kritériumot ellenõrizni
 public class OlaryAlgo {
 	
 	private OlaryDataSet dataSet;
@@ -199,10 +200,10 @@ public class OlaryAlgo {
 						}
 					}
 					if(count0 >= count1){
-						centers1.get(k).get(attributeID)[binaryID] = false;
+						centers1.get(i).get(attributeID)[binaryID] = false;
 					}
 					else{
-						centers1.get(k).get(attributeID)[binaryID] = true;
+						centers1.get(i).get(attributeID)[binaryID] = true;
 					}
 				}
 			}
@@ -231,9 +232,11 @@ public class OlaryAlgo {
 		this.initCenters();
 		int iterations = 0;
 		while(iterations < maxIterations && !(centers1.equals(centers2))){
+			System.err.println(iterations); //TODO
 			this.assignToClusters();
 			this.copyCenters();
 			this.computeCenters();
+			iterations++;
 		}
 	}
 

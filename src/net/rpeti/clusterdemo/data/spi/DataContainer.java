@@ -23,6 +23,13 @@ public interface DataContainer {
 	public List<String> getDataRow(int rowNumber);
 	
 	/**
+	 * @return the given column from the data set
+	 * @param colNumber
+	 * 		the column number
+	 */
+	public List<String> getDataColumn(int colNumber);
+	
+	/**
 	 * @return a single data value (in table terms the content of a cell).
 	 * @param id
 	 * 		the row number

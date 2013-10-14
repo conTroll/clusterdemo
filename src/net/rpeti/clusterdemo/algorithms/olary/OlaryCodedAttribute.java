@@ -40,7 +40,7 @@ public class OlaryCodedAttribute {
 		else
 			code = new OlaryCode(numberOfDifferentValues - 1);
 		
-		name = this.name;
+		this.name = name;
 		codesByValues = new HashMap<String, boolean[]>();
 		
 		int i = 0;

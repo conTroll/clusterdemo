@@ -63,6 +63,7 @@ public class MainWindow {
 	 */
 	private void initialize() {
 		controller = Main.getController();
+		controller.setMainWindow(this);
 		
 		try {
 		    for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
@@ -167,6 +168,17 @@ public class MainWindow {
 		statusBar.add(statusBarLabel);
 	}
 
+	public void showMessage(String title, String message){
+		JOptionPane.showMessageDialog(frmClusterDemo, message, title, JOptionPane.INFORMATION_MESSAGE);
+	}
+	
+	/**
+	 * Method for displaying an error message.
+	 */
+	public void showErrorMessage(String title, String message){
+		JOptionPane.showMessageDialog(frmClusterDemo, message, title, JOptionPane.ERROR_MESSAGE);
+	}
+	
 	/**
 	 * Method for injecting the drawing canvas for JUNG.
 	 */

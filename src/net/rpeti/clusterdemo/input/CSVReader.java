@@ -83,7 +83,7 @@ public class CSVReader {
 		try{
 			while((line = reader.readLine()) != null){
 				line = line.trim();
-				String[] row = line.split(separator);
+				String[] row = line.split(separator, -1);
 				dataSet.addData(Arrays.asList(row));
 			}
 		} catch (IllegalArgumentException e){
