@@ -27,6 +27,7 @@ import net.rpeti.clusterdemo.Controller;
 import net.rpeti.clusterdemo.Main;
 import net.rpeti.clusterdemo.algorithms.Algorithms;
 
+//TODO algoritmus megszakítás gomb + progress bar
 public class SidePanel extends JPanel {
 
 	private static final long serialVersionUID = 7654943576215466209L;

@@ -4,12 +4,10 @@ import javax.swing.JFrame;
 import javax.swing.UIManager;
 import javax.swing.UIManager.*;
 import javax.swing.border.EtchedBorder;
-import javax.swing.filechooser.FileFilter;
 import javax.swing.UnsupportedLookAndFeelException;
 
 import java.awt.BorderLayout;
 
-import javax.swing.JFileChooser;
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -17,7 +15,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JSeparator;
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -34,7 +31,6 @@ import edu.uci.ics.jung.visualization.BasicVisualizationServer;
 import java.awt.Font;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
-import java.io.File;
 
 public class MainWindow {
 	

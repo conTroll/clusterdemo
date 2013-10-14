@@ -21,7 +21,6 @@ public class Controller {
 	private boolean attributesInFirstLine;
 	private String separator;
 	private File file;
-	private Algorithms algo;
 	private MainWindow mainWindow;
 	
 	public void importCSV(boolean attributesInFirstLine, String separator, File file){
@@ -42,24 +41,37 @@ public class Controller {
 		this.mainWindow = mainWindow;
 	}
 	
-	public void runClustering(Algorithms algo){
-		if(file == null){
-			mainWindow.showErrorMessage("Error", "Please import data first.");
-			return;
-		}
-		
-		if(algo == Algorithms.OLARY){
-			OlaryDataSet dataSet = new OlaryDataSet();
-			CSVReader reader = new CSVReader(dataSet);
-			try {
-				reader.read(file, attributesInFirstLine, separator);
-				OlaryAlgo algorithm = new OlaryAlgo(3, 2, 50, dataSet);
-				algorithm.run();
-				mainWindow.showMessage("Finished.", "Clustering finished.");
-			} catch (IOException e) {
-				mainWindow.showErrorMessage("I/O Error", "Couldn't read input file.\nPlease import file, and try again.");
-				e.printStackTrace();
+	public void runClustering(final Algorithms algo){
+		Runnable thread = new Runnable(){
+
+			@Override
+			public void run() {
+
+				if(file == null){
+					mainWindow.showErrorMessage("Error", "Please import data first.");
+					return;
+				}
+
+				if(algo == Algorithms.OLARY){
+					OlaryDataSet dataSet = new OlaryDataSet();
+					CSVReader reader = new CSVReader(dataSet);
+					try {
+						reader.read(file, attributesInFirstLine, separator);
+						//TODO set parameters from GUI
+						OlaryAlgo algorithm = new OlaryAlgo(3, 2, 50, dataSet);
+						algorithm.run();
+						mainWindow.showMessage("Finished.", "Clustering finished.");
+					} catch (IOException e) {
+						mainWindow.showErrorMessage("I/O Error", "Couldn't read input file.\nPlease import file, and try again.");
+						e.printStackTrace();
+					}
+				}
+
 			}
-		}
+
+		};
+
+		new Thread(thread).start();
+
 	}
 }

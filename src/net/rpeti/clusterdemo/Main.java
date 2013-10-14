@@ -12,7 +12,6 @@ public class Main {
 		return controller;
 	}
 
-	//TODO GUI megfagy, ha az algoritmus teker, miért nem fut külön szálon?
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {

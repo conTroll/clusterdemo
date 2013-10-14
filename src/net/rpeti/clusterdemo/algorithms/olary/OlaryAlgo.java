@@ -7,7 +7,7 @@ import java.util.Random;
 
 import net.rpeti.clusterdemo.data.olary.OlaryDataSet;
 
-//TODO konvergencia kritériumot ellenõrizni
+//TODO konvergencia kritériumot ellenõrizni, elõrehaladást jelezni GUI felé
 public class OlaryAlgo {
 	
 	private OlaryDataSet dataSet;
