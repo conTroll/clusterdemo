@@ -2,11 +2,8 @@ package net.rpeti.clusterdemo;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.concurrent.ExecutorService;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
-
-import javax.swing.SwingUtilities;
 
 import net.rpeti.clusterdemo.algorithms.Algorithms;
 import net.rpeti.clusterdemo.algorithms.olary.OlaryAlgo;
@@ -24,12 +21,16 @@ import net.rpeti.clusterdemo.input.InvalidFileException;
  */
 public class Controller {
 	
+	//TODO prepare for other algorithms
+	//TODO set status bar messages on main window
+	
 	private boolean attributesInFirstLine;
 	private String separator;
 	private File file;
 	private MainWindow mainWindow;
 	private Thread backgroundThread;
 	private ClusteringProgress progressDialog;
+	private boolean shouldStop;
 	
 	/**
 	 * Start importing the CSV file.
@@ -70,6 +71,7 @@ public class Controller {
 	 * 		the maximal number of iterations before the algorithm will terminate
 	 */
 	public void runClustering(final Algorithms algo, final int k, final int seed, final int maxIterations){
+		shouldStop = false;
 			
 		progressDialog = new ClusteringProgress(mainWindow.getFrame());
 		mainWindow.getFrame().setEnabled(false);
@@ -92,9 +94,10 @@ public class Controller {
 					try {
 						reader.read(file, attributesInFirstLine, separator);
 						OlaryAlgo algorithm = new OlaryAlgo(k, seed, maxIterations, dataSet);
+						algorithm.setController(Controller.this);
 						algorithm.run();
 						progressDialog.close();
-						mainWindow.showMessage("Finished.", "Clustering finished.");
+						if(!shouldStop) mainWindow.showMessage("Finished.", "Clustering finished.");
 					} catch (EmptyFileException e){
 						progressDialog.close();
 						mainWindow.showErrorMessage("Empty file.", "You provided an empty file.\nPlease select a valid file.");
@@ -122,8 +125,15 @@ public class Controller {
 		backgroundThread.start();
 	}
 	
+	public boolean shouldStop(){
+		return shouldStop;
+	}
+	
 	public void cancelClustering(){
-		//TODO: deprecated -> másik megoldás
-		backgroundThread.stop();
+		shouldStop = true;
+	}
+	
+	public void setProgress(int value){
+		progressDialog.setProgress(value);
 	}
 }

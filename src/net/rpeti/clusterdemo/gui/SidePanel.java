@@ -30,6 +30,12 @@ import net.rpeti.clusterdemo.algorithms.Algorithms;
 import javax.swing.JCheckBox;
 
 public class SidePanel extends JPanel {
+	
+	// TODO set it dynamic to algorithm selection
+	// TODO ability to select file to import from here too
+	// TODO ability to select attributes to cluster on
+	// TODO validate parameters
+	// TODO implement data editor (for a single data)
 
 	private static final long serialVersionUID = 7654943576215466209L;
 	

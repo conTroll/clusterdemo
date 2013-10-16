@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
+import net.rpeti.clusterdemo.Controller;
 import net.rpeti.clusterdemo.data.olary.OlaryDataSet;
 
 //TODO konvergencia kritériumot ellenőrizni, előrehaladást jelezni GUI felé
@@ -22,6 +23,8 @@ public class OlaryAlgo {
 	//so we can check the convergence criteria after the next iteration
 	private List<List<boolean[]>> centers2;
 	private int[] index;
+	
+	private Controller controller;
 	
 	/**
 	 * Initializes Olary Algorithm with a random seed.
@@ -186,6 +189,7 @@ public class OlaryAlgo {
 	private void computeCenters(){
 		for(int i = 0; i < k; i++){ //clusters
 			for(int attributeID = 0; attributeID < colCount; attributeID++){
+				if(controller.shouldStop()) return;
 				for(int binaryID = 0; binaryID < dataSet.getCodeLength(attributeID); binaryID++){
 					int count0 = 0;
 					int count1 = 0;
@@ -224,6 +228,21 @@ public class OlaryAlgo {
 		}
 	}
 	
+	private boolean isConvergence(){
+		int i = 0;
+		for(List<boolean[]> attribute : centers1){
+			int j = 0;
+			for(boolean[] binAttribute : attribute){
+				if(!Arrays.equals(binAttribute, centers2.get(i).get(j))){
+					return false;
+				}
+				j++;
+			}
+			i++;
+		}
+		return true;
+	}
+	
 	/**
 	 * Run the Olary algorithm with the supplied parameters on the supplied data set.
 	 */
@@ -231,13 +250,19 @@ public class OlaryAlgo {
 		dataSet.doTransformation();
 		this.initCenters();
 		int iterations = 0;
-		while(iterations < maxIterations && !(centers1.equals(centers2))){
-			System.err.println(iterations); //TODO
+		while(iterations < maxIterations){
+			controller.setProgress((iterations * 100) / maxIterations);
 			this.assignToClusters();
 			this.copyCenters();
 			this.computeCenters();
 			iterations++;
+			
+			if(isConvergence()) break;
 		}
+	}
+	
+	public void setController(Controller controller){
+		this.controller = controller;
 	}
 
 }

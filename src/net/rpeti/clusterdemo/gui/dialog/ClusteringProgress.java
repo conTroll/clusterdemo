@@ -1,6 +1,5 @@
 package net.rpeti.clusterdemo.gui.dialog;
 
-import java.awt.EventQueue;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -10,7 +9,6 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
-import javax.swing.SwingUtilities;
 
 import net.rpeti.clusterdemo.Controller;
 import net.rpeti.clusterdemo.Main;
@@ -54,8 +52,9 @@ public class ClusteringProgress extends JDialog {
 					public void actionPerformed(ActionEvent e) {
 						controller.cancelClustering();
 						setVisible(false);
-						ClusteringProgress.this.parent.setEnabled(true);
 						dispose();
+						ClusteringProgress.this.parent.setEnabled(true);
+						ClusteringProgress.this.parent.toFront();
 					}
 				});
 				cancelButton.setActionCommand("Cancel");
@@ -87,7 +86,8 @@ public class ClusteringProgress extends JDialog {
 	 */
 	public void close(){
 		setVisible(false);
-		this.parent.setEnabled(true);
 		dispose();
+		this.parent.setEnabled(true);
+		this.parent.toFront();
 	}
 }
