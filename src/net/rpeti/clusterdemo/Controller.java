@@ -2,14 +2,20 @@ package net.rpeti.clusterdemo;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.ExecutorService;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+
+import javax.swing.SwingUtilities;
 
 import net.rpeti.clusterdemo.algorithms.Algorithms;
 import net.rpeti.clusterdemo.algorithms.olary.OlaryAlgo;
 import net.rpeti.clusterdemo.data.olary.OlaryDataSet;
 import net.rpeti.clusterdemo.gui.MainWindow;
+import net.rpeti.clusterdemo.gui.dialog.ClusteringProgress;
 import net.rpeti.clusterdemo.input.CSVReader;
+import net.rpeti.clusterdemo.input.EmptyFileException;
+import net.rpeti.clusterdemo.input.InvalidFileException;
 
 /**
  * Gets an event (like choosing a file to import) from MainWindow
@@ -22,7 +28,18 @@ public class Controller {
 	private String separator;
 	private File file;
 	private MainWindow mainWindow;
+	private Thread backgroundThread;
+	private ClusteringProgress progressDialog;
 	
+	/**
+	 * Start importing the CSV file.
+	 * @param attributesInFirstLine
+	 * 		are the attribute names present in the first row of the file?
+	 * @param separator
+	 * 		a valid Java Regular Expression, that will be used as separator
+	 * @param file
+	 * 		the File object containing the absolute path
+	 */
 	public void importCSV(boolean attributesInFirstLine, String separator, File file){
 		if(!(file.isAbsolute() && file.isFile() && file.exists())){
 			throw new IllegalArgumentException("Invalid file.");
@@ -41,37 +58,72 @@ public class Controller {
 		this.mainWindow = mainWindow;
 	}
 	
-	public void runClustering(final Algorithms algo){
+	/**
+	 * Start the clustering algorithm.
+	 * @param algo
+	 * 		the type of the algorithm
+	 * @param k
+	 * 		the number of desired clusters
+	 * @param seed
+	 * 		the ID of data that will be used as seed (if you pass -1, one will be selected randomly)
+	 * @param maxIterations
+	 * 		the maximal number of iterations before the algorithm will terminate
+	 */
+	public void runClustering(final Algorithms algo, final int k, final int seed, final int maxIterations){
+			
+		progressDialog = new ClusteringProgress(mainWindow.getFrame());
+		mainWindow.getFrame().setEnabled(false);
+		
 		Runnable thread = new Runnable(){
 
 			@Override
 			public void run() {
 
 				if(file == null){
+					progressDialog.close();
 					mainWindow.showErrorMessage("Error", "Please import data first.");
 					return;
 				}
 
 				if(algo == Algorithms.OLARY){
+					
 					OlaryDataSet dataSet = new OlaryDataSet();
 					CSVReader reader = new CSVReader(dataSet);
 					try {
 						reader.read(file, attributesInFirstLine, separator);
-						//TODO set parameters from GUI
-						OlaryAlgo algorithm = new OlaryAlgo(3, 2, 50, dataSet);
+						OlaryAlgo algorithm = new OlaryAlgo(k, seed, maxIterations, dataSet);
 						algorithm.run();
+						progressDialog.close();
 						mainWindow.showMessage("Finished.", "Clustering finished.");
+					} catch (EmptyFileException e){
+						progressDialog.close();
+						mainWindow.showErrorMessage("Empty file.", "You provided an empty file.\nPlease select a valid file.");
+					} catch (InvalidFileException e){
+						progressDialog.close();
+						mainWindow.showErrorMessage("Invalid file provided.", "You provided an invalid CSV file.");
 					} catch (IOException e) {
-						mainWindow.showErrorMessage("I/O Error", "Couldn't read input file.\nPlease import file, and try again.");
-						e.printStackTrace();
+						progressDialog.close();
+						mainWindow.showErrorMessage("I/O Error", 
+								"Couldn't read input file.\nPlease import file, and try again.");
+						e.printStackTrace(); //TODO
+					} catch (IllegalArgumentException e){
+						progressDialog.close();
+						mainWindow.showErrorMessage("Error processing file.", 
+								"An error has occurred processing the file.\n"
+								+ "The CSV file is badly formatted (" + e.getMessage() + ")");
 					}
 				}
 
 			}
 
 		};
-
-		new Thread(thread).start();
-
+		
+		backgroundThread = new Thread(thread);
+		backgroundThread.start();
+	}
+	
+	public void cancelClustering(){
+		//TODO: deprecated -> másik megoldás
+		backgroundThread.stop();
 	}
 }

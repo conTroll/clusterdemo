@@ -19,6 +19,7 @@ import javax.swing.JButton;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
+import javax.swing.JComponent;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.DefaultComboBoxModel;
@@ -26,14 +27,17 @@ import javax.swing.DefaultComboBoxModel;
 import net.rpeti.clusterdemo.Controller;
 import net.rpeti.clusterdemo.Main;
 import net.rpeti.clusterdemo.algorithms.Algorithms;
+import javax.swing.JCheckBox;
 
-//TODO algoritmus megszakítás gomb + progress bar
 public class SidePanel extends JPanel {
 
 	private static final long serialVersionUID = 7654943576215466209L;
 	
 	private Controller controller = Main.getController();
 	private JComboBox<String> comboBoxAlgo;
+	private JSpinner spinnerMaxIterations;
+	private JSpinner spinnerClusters;
+	private JSpinner spinnerSeed;
 
 	/**
 	 * Create the panel.
@@ -42,9 +46,9 @@ public class SidePanel extends JPanel {
 		this.setMinimumSize(new Dimension(275, 400));
 		GridBagLayout gridBagLayout = new GridBagLayout();
 		gridBagLayout.columnWidths = new int[]{0, 0, 0};
-		gridBagLayout.rowHeights = new int[]{0, 0, 0, 0, 0, 0, 0, 0};
+		gridBagLayout.rowHeights = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0};
 		gridBagLayout.columnWeights = new double[]{0.0, 1.0, Double.MIN_VALUE};
-		gridBagLayout.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
+		gridBagLayout.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
 		setLayout(gridBagLayout);
 		
 		JLabel lblSettingsAndData = new JLabel("Settings and Data");
@@ -78,7 +82,9 @@ public class SidePanel extends JPanel {
 		JButton btnRun = new JButton("Run Clustering");
 		btnRun.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				controller.runClustering(SidePanel.this.getSelectedAlgorithm());
+				controller.runClustering(SidePanel.this.getSelectedAlgorithm(), 
+						(int)SidePanel.this.spinnerClusters.getValue(), (int)SidePanel.this.spinnerSeed.getValue(),
+						(int)SidePanel.this.spinnerMaxIterations.getValue());
 			}
 		});
 		
@@ -101,36 +107,64 @@ public class SidePanel extends JPanel {
 		gbc_lblMaxIterations.gridy = 3;
 		add(lblMaxIterations, gbc_lblMaxIterations);
 		
-		JSpinner spinner = new JSpinner();
-		spinner.setModel(new SpinnerNumberModel(new Integer(200), null, null, new Integer(10)));
-		GridBagConstraints gbc_spinner = new GridBagConstraints();
-		gbc_spinner.anchor = GridBagConstraints.WEST;
-		gbc_spinner.insets = new Insets(0, 0, 5, 0);
-		gbc_spinner.gridx = 1;
-		gbc_spinner.gridy = 3;
-		add(spinner, gbc_spinner);
+		spinnerMaxIterations = new JSpinner();
+		spinnerMaxIterations.setModel(new SpinnerNumberModel(new Integer(50), new Integer(1), null, new Integer(5)));
+		JComponent componentMaxIter = (JSpinner.DefaultEditor) spinnerMaxIterations.getEditor();
+		Dimension sizeMaxIter = componentMaxIter.getPreferredSize();
+		sizeMaxIter = new Dimension(45, sizeMaxIter.height);
+		componentMaxIter.setPreferredSize(sizeMaxIter);
 		
-		JLabel lblThreshold = new JLabel("Threshold");
-		lblThreshold.setFont(new Font("Tahoma", Font.BOLD, 11));
-		GridBagConstraints gbc_lblThreshold = new GridBagConstraints();
-		gbc_lblThreshold.anchor = GridBagConstraints.WEST;
-		gbc_lblThreshold.insets = new Insets(0, 0, 5, 5);
-		gbc_lblThreshold.gridx = 0;
-		gbc_lblThreshold.gridy = 4;
-		add(lblThreshold, gbc_lblThreshold);
+		GridBagConstraints gbc_spinnerMaxIterations = new GridBagConstraints();
+		gbc_spinnerMaxIterations.anchor = GridBagConstraints.WEST;
+		gbc_spinnerMaxIterations.insets = new Insets(0, 0, 5, 0);
+		gbc_spinnerMaxIterations.gridx = 1;
+		gbc_spinnerMaxIterations.gridy = 3;
+		add(spinnerMaxIterations, gbc_spinnerMaxIterations);
 		
-		JSpinner spinner_1 = new JSpinner();
-		GridBagConstraints gbc_spinner_1 = new GridBagConstraints();
-		gbc_spinner_1.anchor = GridBagConstraints.WEST;
-		gbc_spinner_1.insets = new Insets(0, 0, 5, 0);
-		gbc_spinner_1.gridx = 1;
-		gbc_spinner_1.gridy = 4;
-		add(spinner_1, gbc_spinner_1);
+		JLabel lblClusters = new JLabel("Clusters");
+		lblClusters.setFont(new Font("Tahoma", Font.BOLD, 11));
+		GridBagConstraints gbc_lblClusters = new GridBagConstraints();
+		gbc_lblClusters.anchor = GridBagConstraints.WEST;
+		gbc_lblClusters.insets = new Insets(0, 0, 5, 5);
+		gbc_lblClusters.gridx = 0;
+		gbc_lblClusters.gridy = 4;
+		add(lblClusters, gbc_lblClusters);
+		
+		spinnerClusters = new JSpinner();
+		spinnerClusters.setModel(new SpinnerNumberModel(new Integer(3), new Integer(1), null, new Integer(1)));
+		JComponent componentClusters = (JSpinner.DefaultEditor) spinnerClusters.getEditor();
+		componentClusters.setPreferredSize(sizeMaxIter);
+		GridBagConstraints gbc_spinnerClusters = new GridBagConstraints();
+		gbc_spinnerClusters.anchor = GridBagConstraints.WEST;
+		gbc_spinnerClusters.insets = new Insets(0, 0, 5, 0);
+		gbc_spinnerClusters.gridx = 1;
+		gbc_spinnerClusters.gridy = 4;
+		add(spinnerClusters, gbc_spinnerClusters);
+		
+		JCheckBox chckbxSeed = new JCheckBox("Seed");
+		chckbxSeed.setFont(new Font("Tahoma", Font.BOLD, 11));
+		GridBagConstraints gbc_chckbxSeed = new GridBagConstraints();
+		gbc_chckbxSeed.anchor = GridBagConstraints.WEST;
+		gbc_chckbxSeed.insets = new Insets(0, 0, 5, 5);
+		gbc_chckbxSeed.gridx = 0;
+		gbc_chckbxSeed.gridy = 5;
+		add(chckbxSeed, gbc_chckbxSeed);
+		
+		spinnerSeed = new JSpinner();
+		spinnerSeed.setModel(new SpinnerNumberModel(new Integer(1), new Integer(1), null, new Integer(1)));
+		JComponent componentSeed = (JSpinner.DefaultEditor) spinnerSeed.getEditor();
+		componentSeed.setPreferredSize(sizeMaxIter);
+		GridBagConstraints gbc_spinnerSeed = new GridBagConstraints();
+		gbc_spinnerSeed.anchor = GridBagConstraints.WEST;
+		gbc_spinnerSeed.insets = new Insets(0, 0, 5, 0);
+		gbc_spinnerSeed.gridx = 1;
+		gbc_spinnerSeed.gridy = 5;
+		add(spinnerSeed, gbc_spinnerSeed);
 		GridBagConstraints gbc_btnRun = new GridBagConstraints();
 		gbc_btnRun.insets = new Insets(0, 0, 5, 0);
 		gbc_btnRun.anchor = GridBagConstraints.EAST;
 		gbc_btnRun.gridx = 1;
-		gbc_btnRun.gridy = 5;
+		gbc_btnRun.gridy = 6;
 		add(btnRun, gbc_btnRun);
 		
 		JLabel lblDataEditor = new JLabel("Data Editor");
@@ -138,7 +172,7 @@ public class SidePanel extends JPanel {
 		GridBagConstraints gbc_lblDataEditor = new GridBagConstraints();
 		gbc_lblDataEditor.gridwidth = 2;
 		gbc_lblDataEditor.gridx = 0;
-		gbc_lblDataEditor.gridy = 6;
+		gbc_lblDataEditor.gridy = 7;
 		add(lblDataEditor, gbc_lblDataEditor);
 
 	}

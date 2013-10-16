@@ -35,14 +35,14 @@ import java.awt.event.ActionEvent;
 public class MainWindow {
 	
 	private static final String ABOUT_TITLE = "ClusterDemo";
-	private static final String ABOUT_MESSAGE = "v0.01 Alpha\n\nRónai Péter\n(ROPSAAI.ELTE | KD1OUR)";
+	private static final String ABOUT_MESSAGE = "v0.01 Alpha\n\nRÃ³nai PÃ©ter\n(ROPSAAI.ELTE | KD1OUR)";
 	
 	private static final int WINDOW_WIDTH = 800;
 	private static final int WINDOW_HEIGHT = 600;
 
 	private JFrame frmClusterDemo;
 	private JPanel graphDrawingPanel;
-	private JPanel sidePanel;
+	private SidePanel sidePanel;
 	private JLabel statusBarLabel;
 	
 	private Controller controller;
@@ -195,5 +195,12 @@ public class MainWindow {
 	 */
 	public void show() {
 		frmClusterDemo.setVisible(true);
+	}
+	
+	/**
+	 * @return the frame, which for eg. can be passed to a child window (like a dialog).
+	 */
+	public JFrame getFrame(){
+		return frmClusterDemo;
 	}
 }
