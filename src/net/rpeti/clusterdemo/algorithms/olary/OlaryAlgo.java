@@ -6,10 +6,10 @@ import java.util.List;
 import java.util.Random;
 
 import net.rpeti.clusterdemo.Controller;
+import net.rpeti.clusterdemo.algorithms.ClusteringAlgorithm;
 import net.rpeti.clusterdemo.data.olary.OlaryDataSet;
 
-//TODO konvergencia kritériumot ellenőrizni, előrehaladást jelezni GUI felé
-public class OlaryAlgo {
+public class OlaryAlgo implements ClusteringAlgorithm {
 	
 	private OlaryDataSet dataSet;
 	private int k;
@@ -244,8 +244,10 @@ public class OlaryAlgo {
 	}
 	
 	/**
-	 * Run the Olary algorithm with the supplied parameters on the supplied data set.
+	 * Run the Olary algorithm with the supplied parameters
+	 * on the supplied data set.
 	 */
+	@Override
 	public void run(){
 		dataSet.doTransformation();
 		this.initCenters();
@@ -261,8 +263,26 @@ public class OlaryAlgo {
 		}
 	}
 	
+	/**
+	 * Sets the application controller for the algorithm to be
+	 * able to communicate with it.
+	 * @param controller
+	 */
+	@Override
 	public void setController(Controller controller){
 		this.controller = controller;
+	}
+	
+	/**
+	 * Returns the result of the algorithm.
+	 * @return
+	 * 		an integer array, where the n-th item
+	 * 		represents the cluster that was assigned
+	 * 		to the data point with ID n
+	 */
+	@Override
+	public int[] getResult(){
+		return this.index;
 	}
 
 }

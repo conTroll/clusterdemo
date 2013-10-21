@@ -34,6 +34,8 @@ import java.awt.event.ActionEvent;
 
 public class MainWindow {
 	
+	//TODO toolbar for common functions like importing, etc.
+	
 	private static final String ABOUT_TITLE = "ClusterDemo";
 	private static final String ABOUT_MESSAGE = "v0.01 Alpha\n\nRónai Péter\n(ROPSAAI.ELTE | KD1OUR)";
 	
