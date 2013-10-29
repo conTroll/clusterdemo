@@ -10,6 +10,7 @@ import net.rpeti.clusterdemo.algorithms.olary.OlaryAlgo;
 import net.rpeti.clusterdemo.data.olary.OlaryDataSet;
 import net.rpeti.clusterdemo.gui.MainWindow;
 import net.rpeti.clusterdemo.gui.dialog.ClusteringProgress;
+import net.rpeti.clusterdemo.gui.visualization.DataSetVisualizer;
 import net.rpeti.clusterdemo.input.CSVReader;
 import net.rpeti.clusterdemo.input.EmptyFileException;
 import net.rpeti.clusterdemo.input.InvalidFileException;
@@ -19,11 +20,21 @@ import net.rpeti.clusterdemo.input.InvalidFileException;
  * instantiates the correct classes for the action, and run them.
  *
  */
+//TODO prepare for other algorithms
 public class Controller {
+	private static final String NEWLINE = System.getProperty("line.separator");
 	
-	//TODO prepare for other algorithms
-	//TODO set status bar messages on main window
-	
+	private static final String BAD_FORMATTING = "An error has occurred processing the file." + NEWLINE + "The CSV file is badly formatted." + NEWLINE;
+	private static final String EMPTY_FILE = "You provided an empty file. Please select a valid file.";
+	private static final String PLEASE_IMPORT_DATA_FIRST = "Please import data first.";
+	private static final String FINISHED = "Finished.";
+	private static final String CANT_READ_FILE = "Couldn't read input file." + NEWLINE + "Please import file, and try again.";
+	private static final String INVALID_CSV = "You provided an invalid CSV file.";
+	private static final String ERROR = "Error";
+	private static final String CSV_SELECTED = "CSV data file has been selected. You can now run the algorithm.";
+	private static final String CLUSTERING_FINISHED = "Clustering finished.";
+	private static final String CLUSTERING_CANCELLED = "Clustering cancelled.";
+
 	private boolean attributesInFirstLine;
 	private String separator;
 	private File file;
@@ -50,6 +61,7 @@ public class Controller {
 			this.attributesInFirstLine = attributesInFirstLine;
 			this.separator = separator;
 			this.file = file;
+			mainWindow.setStatusBarText(CSV_SELECTED);
 		} catch (PatternSyntaxException e){
 			throw new IllegalArgumentException("Invalid regular expression for separator.");
 		}
@@ -83,7 +95,7 @@ public class Controller {
 
 				if(file == null){
 					progressDialog.close();
-					mainWindow.showErrorMessage("Error", "Please import data first.");
+					mainWindow.showErrorMessage(ERROR, PLEASE_IMPORT_DATA_FIRST);
 					return;
 				}
 
@@ -93,32 +105,32 @@ public class Controller {
 					CSVReader reader = new CSVReader(dataSet);
 					try {
 						reader.read(file, attributesInFirstLine, separator);
+						DataSetVisualizer visualizer = new DataSetVisualizer(dataSet);
 						OlaryAlgo algorithm = new OlaryAlgo(k, seed, maxIterations, dataSet);
 						algorithm.setController(Controller.this);
 						algorithm.run();
 						progressDialog.close();
-						if(!shouldStop) mainWindow.showMessage("Finished.", "Clustering finished.");
+						if(!shouldStop){
+							mainWindow.setStatusBarText(CLUSTERING_FINISHED);
+							visualizer.showClusteringResult(algorithm.getResult(), k);
+							mainWindow.setGraphDrawingComponent(visualizer.getCanvas());
+							mainWindow.showMessage(FINISHED, CLUSTERING_FINISHED);
+						}
 					} catch (EmptyFileException e){
 						progressDialog.close();
-						mainWindow.showErrorMessage("Empty file.", "You provided an empty file.\nPlease select a valid file.");
+						mainWindow.showErrorMessage(ERROR, EMPTY_FILE);
 					} catch (InvalidFileException e){
 						progressDialog.close();
-						mainWindow.showErrorMessage("Invalid file provided.", "You provided an invalid CSV file.");
+						mainWindow.showErrorMessage(ERROR, INVALID_CSV);
 					} catch (IOException e) {
 						progressDialog.close();
-						mainWindow.showErrorMessage("I/O Error", 
-								"Couldn't read input file.\nPlease import file, and try again.");
-						e.printStackTrace(); //TODO
+						mainWindow.showErrorMessage(ERROR, CANT_READ_FILE + NEWLINE + NEWLINE + e.getMessage());
 					} catch (IllegalArgumentException e){
 						progressDialog.close();
-						mainWindow.showErrorMessage("Error processing file.", 
-								"An error has occurred processing the file.\n"
-								+ "The CSV file is badly formatted (" + e.getMessage() + ")");
+						mainWindow.showErrorMessage(ERROR, BAD_FORMATTING + e.getMessage());
 					}
 				}
-
 			}
-
 		};
 		
 		backgroundThread = new Thread(thread);
@@ -131,6 +143,7 @@ public class Controller {
 	
 	public void cancelClustering(){
 		shouldStop = true;
+		mainWindow.setStatusBarText(CLUSTERING_CANCELLED);
 	}
 	
 	public void setProgress(int value){

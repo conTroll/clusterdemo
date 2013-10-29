@@ -18,14 +18,16 @@ public class VertexTransformer implements Transformer<Integer, String> {
 			throw new IllegalArgumentException("Invalid ID.");
 		
 		StringBuilder sb = new StringBuilder();
+		sb.append("<html>");
 		
 		for(String attribute : data.getAttributes()){
-			sb.append(attribute);
-			sb.append(": ");
+			sb.append("<b>" + attribute);
+			sb.append(":</b> ");
 			sb.append(data.getDataValue(input, attribute));
-			sb.append(System.getProperty("line.separator"));
+			sb.append("<br>");
 		}
 		
+		sb.append("</html>");
 		return sb.toString();
 	}
 
