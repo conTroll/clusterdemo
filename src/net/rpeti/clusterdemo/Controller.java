@@ -41,6 +41,7 @@ public class Controller {
 	private MainWindow mainWindow;
 	private Thread backgroundThread;
 	private ClusteringProgress progressDialog;
+	private DataSetVisualizer visualizer;
 	private boolean shouldStop;
 	
 	/**
@@ -105,15 +106,15 @@ public class Controller {
 					CSVReader reader = new CSVReader(dataSet);
 					try {
 						reader.read(file, attributesInFirstLine, separator);
-						DataSetVisualizer visualizer = new DataSetVisualizer(dataSet);
+						visualizer = new DataSetVisualizer(dataSet);
 						OlaryAlgo algorithm = new OlaryAlgo(k, seed, maxIterations, dataSet);
 						algorithm.setController(Controller.this);
 						algorithm.run();
 						progressDialog.close();
 						if(!shouldStop){
-							mainWindow.setStatusBarText(CLUSTERING_FINISHED);
 							visualizer.showClusteringResult(algorithm.getResult(), k);
 							mainWindow.setGraphDrawingComponent(visualizer.getCanvas());
+							mainWindow.setStatusBarText(CLUSTERING_FINISHED);
 							mainWindow.showMessage(FINISHED, CLUSTERING_FINISHED);
 						}
 					} catch (EmptyFileException e){
@@ -135,6 +136,10 @@ public class Controller {
 		
 		backgroundThread = new Thread(thread);
 		backgroundThread.start();
+	}
+	
+	public void changeMouseMode(){
+		visualizer.setMouseMode(mainWindow.getMouseMode());
 	}
 	
 	public boolean shouldStop(){

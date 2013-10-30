@@ -32,7 +32,6 @@ import javax.swing.JCheckBox;
 public class SidePanel extends JPanel {
 	
 	// TODO set it dynamic to algorithm selection
-	// TODO ability to select file to import from here too
 	// TODO ability to select attributes to cluster on
 	// TODO validate parameters
 	// TODO implement data editor (for a single data)
@@ -49,7 +48,7 @@ public class SidePanel extends JPanel {
 	 * Create the panel.
 	 */
 	public SidePanel() {
-		this.setMinimumSize(new Dimension(275, 400));
+		this.setMinimumSize(new Dimension(200, 400));
 		GridBagLayout gridBagLayout = new GridBagLayout();
 		gridBagLayout.columnWidths = new int[]{0, 0, 0};
 		gridBagLayout.rowHeights = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0};

@@ -21,11 +21,17 @@ import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.UndirectedSparseGraph;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
+import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
+import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
 import edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position;
 
-//TODO: optimalizáció
-//TODO: interakció
+//TODO: layout optimalizáció
+//TODO: színlista modernizálása
+//TODO: kiválasztásnál stroke szín és event fire
+//TODO: kontextusmenü
+//TODO: konzisztens refreshelő mechanizmus
+//TODO: bugfix: második klaszterezés eredményét mozgatva visszajön az első
 
 public class DataSetVisualizer {
 	
@@ -34,6 +40,7 @@ public class DataSetVisualizer {
 	UndirectedSparseGraph<Integer, Integer> representation;
 	VisualizationViewer<Integer, Integer> canvas;
 	VertexTransformer vertexTransformer;
+	DefaultModalGraphMouse<Integer, Integer> mouse;
 	AggregateLayout<Integer, Integer> layout;
 	KKLayout<Integer, Integer> groupLayout;
 	Dimension size;
@@ -63,8 +70,11 @@ public class DataSetVisualizer {
 		groupLayout.setSize(size);
 		groupLayout.setDisconnectedDistanceMultiplier(0.1);
 		layout = new AggregateLayout<>(groupLayout);
+		mouse = new DefaultModalGraphMouse<>();
 		canvas = new VisualizationViewer<>(layout, size);
 		canvas.setVertexToolTipTransformer(vertexTransformer);
+		mouse.setMode(ModalGraphMouse.Mode.TRANSFORMING);
+		canvas.setGraphMouse(mouse);
 		canvas.getRenderContext().setVertexFillPaintTransformer(MapTransformer.getInstance(vertexPaints));
 		canvas.getRenderContext().setVertexLabelTransformer(new ToStringLabeller<Integer>());
 		canvas.getRenderer().getVertexLabelRenderer().setPosition(Position.CNTR);
@@ -137,7 +147,14 @@ public class DataSetVisualizer {
 		}
 	}
 
+	/**
+	 * @return the JPanel containing the canvas to be drawn.
+	 */
 	public VisualizationViewer<Integer, Integer> getCanvas(){
 		return canvas;
+	}
+	
+	public void setMouseMode(ModalGraphMouse.Mode mouseMode){
+		mouse.setMode(mouseMode);
 	}
 }

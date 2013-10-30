@@ -5,19 +5,16 @@ import java.awt.FlowLayout;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
-import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
-import javax.swing.filechooser.FileFilter;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
-
 import javax.swing.JLabel;
 
 import java.awt.Desktop;
-import java.awt.Dimension;
+import java.awt.FileDialog;
 import java.awt.Font;
 
 import javax.swing.JCheckBox;
@@ -27,7 +24,6 @@ import javax.swing.LayoutStyle.ComponentPlacement;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.io.File;
-import java.io.IOException;
 import java.net.URI;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -102,32 +98,14 @@ public class ImportCSV extends JDialog {
 		JButton btnBrowse = new JButton("Browse...");
 		btnBrowse.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				JFileChooser chooser = new JFileChooser();
-				chooser.setPreferredSize(new Dimension(640, 480));
-				FileFilter ff = new FileFilter() {
-
-					@Override
-					public String getDescription() {
-						return "CSV file";
-					}
-
-					@Override
-					public boolean accept(File f) {
-						if (f.isDirectory()) return true;
-						String[] split = f.getName().trim().split(".");
-						if (split.length == 0) return false;
-						return split[split.length - 1].toLowerCase().equals("csv");
-					}
-				};
-				chooser.addChoosableFileFilter(ff);
-				if(chooser.showOpenDialog(ImportCSV.this) == JFileChooser.APPROVE_OPTION){
-					try {
-						file = chooser.getSelectedFile();
-						textFieldPath.setText(file.getCanonicalPath());
-					} catch (IOException e) {
-						JOptionPane.showMessageDialog(ImportCSV.this, "Invalid file selected.\nPlease select a valid file.", "Error", JOptionPane.ERROR_MESSAGE);
-					}
-					
+				//TODO: pozíció, filefilter más platformokon?
+				FileDialog chooser = new FileDialog(ImportCSV.this, "Choose a file", FileDialog.LOAD);
+				chooser.setFile("*.csv");
+				chooser.setVisible(true);
+				String filename = chooser.getDirectory() + chooser.getFile();
+				if(chooser.getFile() != null){
+					textFieldPath.setText(filename);
+					file = new File(filename);
 				}
 			}
 		});

@@ -15,8 +15,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JSeparator;
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
+import javax.swing.JToggleButton;
 
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 
@@ -27,14 +27,18 @@ import net.rpeti.clusterdemo.Controller;
 import net.rpeti.clusterdemo.Main;
 import net.rpeti.clusterdemo.gui.dialog.ImportCSV;
 import edu.uci.ics.jung.visualization.BasicVisualizationServer;
+import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
 
 import java.awt.Font;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
+import javax.swing.JToolBar;
+import javax.swing.JButton;
+import javax.swing.ImageIcon;
+import javax.swing.SwingConstants;
+
 public class MainWindow {
-	
-	//TODO toolbar for common functions like importing, etc.
 	
 	private static final String ABOUT_TITLE = "ClusterDemo";
 	private static final String ABOUT_MESSAGE = "v0.01 Alpha\n\nRónai Péter\n(ROPSAAI.ELTE | KD1OUR)";
@@ -48,6 +52,12 @@ public class MainWindow {
 	private JLabel statusBarLabel;
 	
 	private Controller controller;
+	private JToggleButton pickingModeButton;
+	private JToggleButton moveModeButton;
+	private JToggleButton editingModeButton;
+	private JToolBar graphMouseToolbar;
+	
+	private JLabel modeLabel;
 
 	/**
 	 * Create the application.
@@ -70,6 +80,7 @@ public class MainWindow {
 		            break;
 		        }
 		    }
+//			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (Exception e) {
 		    if(e instanceof UnsupportedLookAndFeelException){
 		    	try{
@@ -95,6 +106,9 @@ public class MainWindow {
 		frmClusterDemo.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);	
 		frmClusterDemo.setLocationRelativeTo(null);
 		
+		graphMouseToolbar = new JToolBar();
+		graphMouseToolbar.setFloatable(false);
+		
 		JMenuBar menuBar = new JMenuBar();
 		frmClusterDemo.setJMenuBar(menuBar);
 		
@@ -108,12 +122,7 @@ public class MainWindow {
 		mntmFromCsvFile.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-					
-						ImportCSV dialog = new ImportCSV(frmClusterDemo);
-						if(dialog.getIsOk()){
-							controller.importCSV(dialog.getIsAttributesInFirstLine(),
-									dialog.getSeparator(), dialog.getSelectedFile());
-						}
+				importFromCSV();
 			}
 
 		});
@@ -149,8 +158,9 @@ public class MainWindow {
 		frmClusterDemo.getContentPane().add(splitPane);
 		
 		graphDrawingPanel = new JPanel();
-		graphDrawingPanel.setBackground(Color.WHITE);
 		splitPane.setLeftComponent(graphDrawingPanel);
+		graphDrawingPanel.setLayout(new BorderLayout(0, 0));
+		graphDrawingPanel.add(graphMouseToolbar, BorderLayout.SOUTH);
 		
 		sidePanel = new SidePanel();
 		splitPane.setRightComponent(sidePanel);
@@ -164,6 +174,86 @@ public class MainWindow {
 		statusBarLabel = new JLabel("Welcome to Clustering Demo application.");
 		statusBarLabel.setFont(new Font("SansSerif", Font.BOLD, 11));
 		statusBar.add(statusBarLabel);
+		
+		pickingModeButton = new JToggleButton("");
+		pickingModeButton.setEnabled(false);
+		pickingModeButton.setSelectedIcon(new ImageIcon(MainWindow.class.getResource("/icons/picking_on.png")));
+		pickingModeButton.setContentAreaFilled(false);
+		pickingModeButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				moveModeButton.setSelected(false);
+				editingModeButton.setSelected(false);
+				pickingModeButton.setSelected(true);
+				modeLabel.setText("<html><b>Selected Mode:</b> PICKING</html>");
+				controller.changeMouseMode();
+			}
+		});
+		pickingModeButton.setToolTipText("Picking");
+		pickingModeButton.setIcon(new ImageIcon(MainWindow.class.getResource("/icons/picking_off.png")));
+		graphMouseToolbar.add(pickingModeButton);
+		
+		moveModeButton = new JToggleButton("");
+		moveModeButton.setEnabled(false);
+		moveModeButton.setSelected(true);
+		moveModeButton.setSelectedIcon(new ImageIcon(MainWindow.class.getResource("/icons/move_on.png")));
+		moveModeButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				moveModeButton.setSelected(true);
+				editingModeButton.setSelected(false);
+				pickingModeButton.setSelected(false);
+				modeLabel.setText("<html><b>Selected Mode:</b> MOVING</html>");
+				controller.changeMouseMode();
+			}
+		});
+		moveModeButton.setToolTipText("Move");
+		moveModeButton.setContentAreaFilled(false);
+		moveModeButton.setIcon(new ImageIcon(MainWindow.class.getResource("/icons/move_off.png")));
+		graphMouseToolbar.add(moveModeButton);
+		
+		editingModeButton = new JToggleButton("");
+		editingModeButton.setEnabled(false);
+		editingModeButton.setContentAreaFilled(false);
+		editingModeButton.setSelectedIcon(new ImageIcon(MainWindow.class.getResource("/icons/editing_on.png")));
+		editingModeButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				moveModeButton.setSelected(false);
+				editingModeButton.setSelected(true);
+				pickingModeButton.setSelected(false);
+				modeLabel.setText("<html><b>Selected Mode:</b> EDITING</html>");
+				controller.changeMouseMode();
+			}
+		});
+		editingModeButton.setToolTipText("Editing");
+		editingModeButton.setIcon(new ImageIcon(MainWindow.class.getResource("/icons/editing_off.png")));
+		graphMouseToolbar.add(editingModeButton);
+		
+		JSeparator separator_1 = new JSeparator();
+		separator_1.setOrientation(SwingConstants.VERTICAL);
+		graphMouseToolbar.add(separator_1);
+		
+		modeLabel = new JLabel("<html><b>Selected Mode:</b> MOVING</html>");
+		graphMouseToolbar.add(modeLabel);
+		
+		JToolBar toolBar = new JToolBar();
+		toolBar.setFloatable(false);
+		frmClusterDemo.getContentPane().add(toolBar, BorderLayout.NORTH);
+		
+		JButton btnCsvImport = new JButton("CSV Import...");
+		btnCsvImport.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				importFromCSV();
+			}
+		});
+		btnCsvImport.setIcon(new ImageIcon(MainWindow.class.getResource("/icons/import_csv.png")));
+		toolBar.add(btnCsvImport);
+	}
+	
+	private void importFromCSV(){
+		ImportCSV dialog = new ImportCSV(frmClusterDemo);
+		if(dialog.getIsOk()){
+			controller.importCSV(dialog.getIsAttributesInFirstLine(),
+					dialog.getSeparator(), dialog.getSelectedFile());
+		}
 	}
 
 	public void showMessage(String title, String message){
@@ -181,8 +271,12 @@ public class MainWindow {
 	 * Method for injecting the drawing canvas for JUNG.
 	 */
 	public void setGraphDrawingComponent(BasicVisualizationServer<?,?> visualizationServer){
-		graphDrawingPanel.removeAll();
-		graphDrawingPanel.add(visualizationServer);
+		visualizationServer.setLocation(0, 0);
+		visualizationServer.setSize(graphDrawingPanel.getSize());
+		graphDrawingPanel.add(visualizationServer, BorderLayout.NORTH);
+		moveModeButton.setEnabled(true);
+		pickingModeButton.setEnabled(true);
+		editingModeButton.setEnabled(true);
 	}
 	
 	/**
@@ -204,5 +298,16 @@ public class MainWindow {
 	 */
 	public JFrame getFrame(){
 		return frmClusterDemo;
+	}
+	
+	public ModalGraphMouse.Mode getMouseMode(){
+		if(moveModeButton.isSelected()) 
+			return ModalGraphMouse.Mode.TRANSFORMING;
+		if(editingModeButton.isSelected())
+			return ModalGraphMouse.Mode.EDITING;
+		if(pickingModeButton.isSelected())
+			return ModalGraphMouse.Mode.PICKING;
+		else
+			return ModalGraphMouse.Mode.TRANSFORMING;
 	}
 }

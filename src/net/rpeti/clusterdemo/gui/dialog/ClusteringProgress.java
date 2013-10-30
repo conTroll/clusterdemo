@@ -13,6 +13,8 @@ import javax.swing.JProgressBar;
 import net.rpeti.clusterdemo.Controller;
 import net.rpeti.clusterdemo.Main;
 
+//TODO iterációk számát kiíratni
+
 /**
  * Gets the needed parameters for reading a CSV file.
  * Validates user input.
