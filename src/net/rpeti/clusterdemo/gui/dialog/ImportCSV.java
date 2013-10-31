@@ -47,7 +47,7 @@ public class ImportCSV extends JDialog {
 	/**
 	 * Create the dialog.
 	 */
-	public ImportCSV(JFrame parent) {
+	public ImportCSV(final JFrame parent) {
 		super(parent, true);
 		setModalExclusionType(ModalExclusionType.APPLICATION_EXCLUDE);
 		setTitle("Import CSV...");
@@ -98,7 +98,7 @@ public class ImportCSV extends JDialog {
 		JButton btnBrowse = new JButton("Browse...");
 		btnBrowse.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				//TODO: pozíció, filefilter más platformokon?
+				//TODO: filefilter más platformokon?
 				FileDialog chooser = new FileDialog(ImportCSV.this, "Choose a file", FileDialog.LOAD);
 				chooser.setFile("*.csv");
 				chooser.setVisible(true);

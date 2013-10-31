@@ -30,20 +30,20 @@ import edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position;
 //TODO: színlista modernizálása
 //TODO: kiválasztásnál stroke szín és event fire
 //TODO: kontextusmenü
-//TODO: konzisztens refreshelő mechanizmus
-//TODO: bugfix: második klaszterezés eredményét mozgatva visszajön az első
+//TODO: bugfix: valami.csv fájlon 3 klaszterre exception (ötlet: üres klaszterre hibás)
+//TODO: bugfix: splitpane állításnál, illetve módválasztásnál elromlik a méret
 
 public class DataSetVisualizer {
 	
 	//vertices are represented with the data points ID
 	DataContainer data;
+	Dimension size;
 	UndirectedSparseGraph<Integer, Integer> representation;
 	VisualizationViewer<Integer, Integer> canvas;
 	VertexTransformer vertexTransformer;
 	DefaultModalGraphMouse<Integer, Integer> mouse;
 	AggregateLayout<Integer, Integer> layout;
 	KKLayout<Integer, Integer> groupLayout;
-	Dimension size;
 	Map<Integer, Paint> vertexPaints;
 	
 	public final Color[] colors =
@@ -60,18 +60,19 @@ public class DataSetVisualizer {
 			new Color(30, 250, 100)
 		};
 
-	public DataSetVisualizer(DataContainer data){
+	public DataSetVisualizer(DataContainer data, Dimension size){
 		this.data = data;
+		this.size = size;
 		vertexTransformer = new VertexTransformer(data);
 		vertexPaints = new HashMap<>();
 		representation = new UndirectedSparseGraph<>();
-		size = new Dimension(600, 600);
 		groupLayout = new KKLayout<>(representation);
-		groupLayout.setSize(size);
 		groupLayout.setDisconnectedDistanceMultiplier(0.1);
 		layout = new AggregateLayout<>(groupLayout);
+		layout.setSize(size);
 		mouse = new DefaultModalGraphMouse<>();
 		canvas = new VisualizationViewer<>(layout, size);
+		canvas.setSize(size);
 		canvas.setVertexToolTipTransformer(vertexTransformer);
 		mouse.setMode(ModalGraphMouse.Mode.TRANSFORMING);
 		canvas.setGraphMouse(mouse);
@@ -127,6 +128,7 @@ public class DataSetVisualizer {
 		}
 	}
 	
+	//TODO átgondolni
 	private void groupCluster(AggregateLayout<Integer, Integer> layout, Set<Integer> vertices, int numberOfClusters) {
 		if(vertices.size() < layout.getGraph().getVertexCount()) {
 			Point2D center = layout.transform(vertices.iterator().next());
@@ -139,12 +141,12 @@ public class DataSetVisualizer {
 					new CircleLayout<Integer, Integer>(subGraph);
 			subLayout.setInitializer(canvas.getGraphLayout());
 			subLayout.setSize(new Dimension(
-					(int)(size.width * ((double)vertices.size() / (double)data.getNumberOfRows())),
-					(int)(size.height * ((double)vertices.size() / (double)data.getNumberOfRows()))));
+					(int)(size.getWidth() * ((double)vertices.size() / (double)data.getNumberOfRows())),
+					(int)(size.getHeight() * ((double)vertices.size() / (double)data.getNumberOfRows()))));
 
 			layout.put(subLayout,center);
-			canvas.repaint();
 		}
+		canvas.repaint();
 	}
 
 	/**
@@ -152,6 +154,12 @@ public class DataSetVisualizer {
 	 */
 	public VisualizationViewer<Integer, Integer> getCanvas(){
 		return canvas;
+	}
+	
+	public void setSize(Dimension size){
+		this.size = size;
+		layout.setSize(size);
+		canvas.setSize(size);
 	}
 	
 	public void setMouseMode(ModalGraphMouse.Mode mouseMode){

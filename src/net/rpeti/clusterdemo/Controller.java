@@ -27,7 +27,6 @@ public class Controller {
 	private static final String BAD_FORMATTING = "An error has occurred processing the file." + NEWLINE + "The CSV file is badly formatted." + NEWLINE;
 	private static final String EMPTY_FILE = "You provided an empty file. Please select a valid file.";
 	private static final String PLEASE_IMPORT_DATA_FIRST = "Please import data first.";
-	private static final String FINISHED = "Finished.";
 	private static final String CANT_READ_FILE = "Couldn't read input file." + NEWLINE + "Please import file, and try again.";
 	private static final String INVALID_CSV = "You provided an invalid CSV file.";
 	private static final String ERROR = "Error";
@@ -106,16 +105,15 @@ public class Controller {
 					CSVReader reader = new CSVReader(dataSet);
 					try {
 						reader.read(file, attributesInFirstLine, separator);
-						visualizer = new DataSetVisualizer(dataSet);
+						visualizer = new DataSetVisualizer(dataSet, mainWindow.getSizeForCanvas());
 						OlaryAlgo algorithm = new OlaryAlgo(k, seed, maxIterations, dataSet);
 						algorithm.setController(Controller.this);
 						algorithm.run();
 						progressDialog.close();
 						if(!shouldStop){
-							visualizer.showClusteringResult(algorithm.getResult(), k);
 							mainWindow.setGraphDrawingComponent(visualizer.getCanvas());
+							visualizer.showClusteringResult(algorithm.getResult(), k);
 							mainWindow.setStatusBarText(CLUSTERING_FINISHED);
-							mainWindow.showMessage(FINISHED, CLUSTERING_FINISHED);
 						}
 					} catch (EmptyFileException e){
 						progressDialog.close();
@@ -136,6 +134,13 @@ public class Controller {
 		
 		backgroundThread = new Thread(thread);
 		backgroundThread.start();
+	}
+	
+	public void updateCanvasSize(){
+		if (visualizer != null){
+			visualizer.setSize(mainWindow.getSizeForCanvas());
+			System.err.println(mainWindow.getSizeForCanvas());
+		}
 	}
 	
 	public void changeMouseMode(){

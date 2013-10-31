@@ -16,9 +16,9 @@ import javax.swing.JSeparator;
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
+import javax.swing.ToolTipManager;
 
 import java.awt.Dimension;
-import java.awt.Toolkit;
 
 import javax.swing.JSplitPane;
 import javax.swing.JLabel;
@@ -32,22 +32,27 @@ import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
 import java.awt.Font;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 
 import javax.swing.JToolBar;
 import javax.swing.JButton;
 import javax.swing.ImageIcon;
 import javax.swing.SwingConstants;
 
+//TODO nimbus specifikus exception-ökkel lehet valamit kezdeni?
+
 public class MainWindow {
 	
 	private static final String ABOUT_TITLE = "ClusterDemo";
-	private static final String ABOUT_MESSAGE = "v0.01 Alpha\n\nRónai Péter\n(ROPSAAI.ELTE | KD1OUR)";
+	private static final String ABOUT_MESSAGE = "v0.2 Alpha\n\nRónai Péter\n(ROPSAAI.ELTE | KD1OUR)";
 	
 	private static final int WINDOW_WIDTH = 800;
 	private static final int WINDOW_HEIGHT = 600;
 
 	private JFrame frmClusterDemo;
 	private JPanel graphDrawingPanel;
+	private BasicVisualizationServer<?,?> canvas;
 	private SidePanel sidePanel;
 	private JLabel statusBarLabel;
 	
@@ -80,7 +85,6 @@ public class MainWindow {
 		            break;
 		        }
 		    }
-//			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (Exception e) {
 		    if(e instanceof UnsupportedLookAndFeelException){
 		    	try{
@@ -96,13 +100,13 @@ public class MainWindow {
 		    }
 		}
 		
+		ToolTipManager.sharedInstance().setDismissDelay(60000);
+		
 		//Set title, position, size, etc.
 		frmClusterDemo = new JFrame();
 		frmClusterDemo.setTitle("ClusterDemo");
-		Dimension screenResolution = Toolkit.getDefaultToolkit().getScreenSize();
 		frmClusterDemo.setMinimumSize(new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT));
-		frmClusterDemo.setBounds((screenResolution.width / 2) - (WINDOW_WIDTH / 2),
-				(screenResolution.height / 2) - (WINDOW_HEIGHT / 2), WINDOW_WIDTH, WINDOW_HEIGHT);
+		frmClusterDemo.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
 		frmClusterDemo.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);	
 		frmClusterDemo.setLocationRelativeTo(null);
 		
@@ -238,7 +242,8 @@ public class MainWindow {
 		toolBar.setFloatable(false);
 		frmClusterDemo.getContentPane().add(toolBar, BorderLayout.NORTH);
 		
-		JButton btnCsvImport = new JButton("CSV Import...");
+		JButton btnCsvImport = new JButton("");
+		btnCsvImport.setToolTipText("CSV Import...");
 		btnCsvImport.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				importFromCSV();
@@ -246,6 +251,15 @@ public class MainWindow {
 		});
 		btnCsvImport.setIcon(new ImageIcon(MainWindow.class.getResource("/icons/import_csv.png")));
 		toolBar.add(btnCsvImport);
+		
+		//tell the canvas to resize itself when main window gets resized by the user
+		frmClusterDemo.addComponentListener(new ComponentAdapter() {
+			@Override
+			public void componentResized(ComponentEvent e){
+				controller.updateCanvasSize();
+			}
+		});
+		
 	}
 	
 	private void importFromCSV(){
@@ -271,8 +285,8 @@ public class MainWindow {
 	 * Method for injecting the drawing canvas for JUNG.
 	 */
 	public void setGraphDrawingComponent(BasicVisualizationServer<?,?> visualizationServer){
-		visualizationServer.setLocation(0, 0);
-		visualizationServer.setSize(graphDrawingPanel.getSize());
+		if (canvas != null) graphDrawingPanel.remove(canvas);
+		canvas = visualizationServer;
 		graphDrawingPanel.add(visualizationServer, BorderLayout.NORTH);
 		moveModeButton.setEnabled(true);
 		pickingModeButton.setEnabled(true);
@@ -298,6 +312,14 @@ public class MainWindow {
 	 */
 	public JFrame getFrame(){
 		return frmClusterDemo;
+	}
+	
+	/**
+	 * @return the actual available space for drawing the canvas
+	 */
+	public Dimension getSizeForCanvas(){
+		return new Dimension(graphDrawingPanel.getWidth(),
+				graphDrawingPanel.getHeight() - graphMouseToolbar.getHeight());
 	}
 	
 	public ModalGraphMouse.Mode getMouseMode(){

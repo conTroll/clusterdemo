@@ -4,6 +4,7 @@ import net.rpeti.clusterdemo.data.spi.DataContainer;
 
 import org.apache.commons.collections15.Transformer;
 
+//TODO ékezetes betűkkel valamit kezdeni
 public class VertexTransformer implements Transformer<Integer, String> {
 
 	private DataContainer data;
