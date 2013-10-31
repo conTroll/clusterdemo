@@ -35,6 +35,7 @@ public class SidePanel extends JPanel {
 	// TODO ability to select attributes to cluster on
 	// TODO validate parameters
 	// TODO implement data editor (for a single data)
+	// TODO comments
 
 	private static final long serialVersionUID = 7654943576215466209L;
 	

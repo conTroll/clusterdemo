@@ -15,6 +15,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JSeparator;
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
+import javax.swing.JTextArea;
 import javax.swing.JToggleButton;
 import javax.swing.ToolTipManager;
 
@@ -40,12 +41,22 @@ import javax.swing.JButton;
 import javax.swing.ImageIcon;
 import javax.swing.SwingConstants;
 
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
 //TODO nimbus specifikus exception-ökkel lehet valamit kezdeni?
+// ötletek:
+// https://forums.oracle.com/message/5700281
+// ellenőrizni, hogy minden GUI komponenst EDT-ben hozzunk létre
 
 public class MainWindow {
 	
 	private static final String ABOUT_TITLE = "ClusterDemo";
 	private static final String ABOUT_MESSAGE = "v0.2 Alpha\n\nRónai Péter\n(ROPSAAI.ELTE | KD1OUR)";
+	
+	private static final String UNHANDLED_EXCEPTION = "Unhandled exception";
 	
 	private static final int WINDOW_WIDTH = 800;
 	private static final int WINDOW_HEIGHT = 600;
@@ -78,6 +89,7 @@ public class MainWindow {
 		controller = Main.getController();
 		controller.setMainWindow(this);
 		
+		//setting the Swing Look and Feel for the application
 		try {
 		    for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
 		        if ("Nimbus".equals(info.getName())) {
@@ -88,14 +100,14 @@ public class MainWindow {
 		} catch (Exception e) {
 		    if(e instanceof UnsupportedLookAndFeelException){
 		    	try{
-		    		UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+		    		UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		    	} catch (Exception e1){
-		    		//TODO
+		    		showUnhandledException(e1);
 		    		e1.printStackTrace();
 		    	}
 		    }
 		    else {
-		    	//TODO
+		    	showUnhandledException(e);
 		    	e.printStackTrace();
 		    }
 		}
@@ -104,12 +116,15 @@ public class MainWindow {
 		
 		//Set title, position, size, etc.
 		frmClusterDemo = new JFrame();
+		frmClusterDemo.setFocusable(true);
+		
 		frmClusterDemo.setTitle("ClusterDemo");
 		frmClusterDemo.setMinimumSize(new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT));
 		frmClusterDemo.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
 		frmClusterDemo.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);	
 		frmClusterDemo.setLocationRelativeTo(null);
 		
+		//add the components
 		graphMouseToolbar = new JToolBar();
 		graphMouseToolbar.setFloatable(false);
 		
@@ -179,6 +194,7 @@ public class MainWindow {
 		statusBarLabel.setFont(new Font("SansSerif", Font.BOLD, 11));
 		statusBar.add(statusBarLabel);
 		
+		//create mouse mode toolbar
 		pickingModeButton = new JToggleButton("");
 		pickingModeButton.setEnabled(false);
 		pickingModeButton.setSelectedIcon(new ImageIcon(MainWindow.class.getResource("/icons/picking_on.png")));
@@ -238,6 +254,7 @@ public class MainWindow {
 		modeLabel = new JLabel("<html><b>Selected Mode:</b> MOVING</html>");
 		graphMouseToolbar.add(modeLabel);
 		
+		//create main toolbar
 		JToolBar toolBar = new JToolBar();
 		toolBar.setFloatable(false);
 		frmClusterDemo.getContentPane().add(toolBar, BorderLayout.NORTH);
@@ -260,6 +277,14 @@ public class MainWindow {
 			}
 		});
 		
+		frmClusterDemo.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if (e.getKeyChar() == '9'){
+					JOptionPane.showMessageDialog(frmClusterDemo, "<html><b>9: SMILE</b></html>", "=)", JOptionPane.INFORMATION_MESSAGE, new ImageIcon(MainWindow.class.getResource("/icons/smile.png")));
+				}
+			}
+		});
 	}
 	
 	private void importFromCSV(){
@@ -270,15 +295,31 @@ public class MainWindow {
 		}
 	}
 
-	public void showMessage(String title, String message){
+	/**
+	 * Method for displaying information message.
+	 */
+	public void showMessage(String title, Object message){
 		JOptionPane.showMessageDialog(frmClusterDemo, message, title, JOptionPane.INFORMATION_MESSAGE);
 	}
 	
 	/**
 	 * Method for displaying an error message.
 	 */
-	public void showErrorMessage(String title, String message){
+	public void showErrorMessage(String title, Object message){
 		JOptionPane.showMessageDialog(frmClusterDemo, message, title, JOptionPane.ERROR_MESSAGE);
+	}
+	
+	/**
+	 * Displays the unhandled exception to the user in a copyable way.
+	 * @param e 
+	 * 		the exception
+	 */
+	public void showUnhandledException(Exception e){
+		StringWriter sw = new StringWriter();
+		e.printStackTrace(new PrintWriter(sw));
+		JTextArea stacktrace = new JTextArea(sw.toString());
+		stacktrace.setEditable(false);
+		showErrorMessage(UNHANDLED_EXCEPTION, new Object[]{e.getLocalizedMessage(), stacktrace});
 	}
 	
 	/**
@@ -322,6 +363,9 @@ public class MainWindow {
 				graphDrawingPanel.getHeight() - graphMouseToolbar.getHeight());
 	}
 	
+	/**
+	 * @return the mouse mode selected by the user on the toolbar
+	 */
 	public ModalGraphMouse.Mode getMouseMode(){
 		if(moveModeButton.isSelected()) 
 			return ModalGraphMouse.Mode.TRANSFORMING;

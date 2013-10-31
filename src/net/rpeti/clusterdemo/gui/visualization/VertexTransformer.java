@@ -5,6 +5,11 @@ import net.rpeti.clusterdemo.data.spi.DataContainer;
 import org.apache.commons.collections15.Transformer;
 
 //TODO ékezetes betűkkel valamit kezdeni
+/**
+ * Transforms data point IDs to strings, containing all the
+ * attributes and values, nicely formatted. Will be used
+ * for generating the tooltip labels on the canvas.
+ */
 public class VertexTransformer implements Transformer<Integer, String> {
 
 	private DataContainer data;

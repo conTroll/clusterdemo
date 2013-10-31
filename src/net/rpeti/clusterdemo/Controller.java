@@ -114,6 +114,8 @@ public class Controller {
 							mainWindow.setGraphDrawingComponent(visualizer.getCanvas());
 							visualizer.showClusteringResult(algorithm.getResult(), k);
 							mainWindow.setStatusBarText(CLUSTERING_FINISHED);
+						} else {
+							mainWindow.setStatusBarText(CLUSTERING_CANCELLED);
 						}
 					} catch (EmptyFileException e){
 						progressDialog.close();
@@ -127,6 +129,9 @@ public class Controller {
 					} catch (IllegalArgumentException e){
 						progressDialog.close();
 						mainWindow.showErrorMessage(ERROR, BAD_FORMATTING + e.getMessage());
+					} catch (Exception e) {
+						progressDialog.close();
+						mainWindow.showUnhandledException(e);
 					}
 				}
 			}
@@ -136,26 +141,46 @@ public class Controller {
 		backgroundThread.start();
 	}
 	
+	/**
+	 * Updates the size of the canvas.
+	 * It is typically called upon resize of the main window.
+	 */
 	public void updateCanvasSize(){
 		if (visualizer != null){
 			visualizer.setSize(mainWindow.getSizeForCanvas());
-			System.err.println(mainWindow.getSizeForCanvas());
 		}
 	}
 	
+	/**
+	 * Changes the mouse mode on the canvas according to the
+	 * selected mouse mode on the toolbar.
+	 */
 	public void changeMouseMode(){
 		visualizer.setMouseMode(mainWindow.getMouseMode());
 	}
 	
+	/**
+	 * Indicates whether the algorithm should stop
+	 * @return
+	 * 		true if the user requested a cancellation,
+	 * 		false otherwise
+	 */
 	public boolean shouldStop(){
 		return shouldStop;
 	}
 	
+	/**
+	 * Calling this function indicates that the algorithm should stop.
+	 */
 	public void cancelClustering(){
 		shouldStop = true;
-		mainWindow.setStatusBarText(CLUSTERING_CANCELLED);
 	}
 	
+	/**
+	 * Sets the progress on the progress dialog.
+	 * @param value
+	 * 		percentage of progress completion
+	 */
 	public void setProgress(int value){
 		progressDialog.setProgress(value);
 	}

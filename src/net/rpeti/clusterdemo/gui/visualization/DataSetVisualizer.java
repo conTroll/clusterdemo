@@ -92,11 +92,13 @@ public class DataSetVisualizer {
 	}
 	
 	/**
-	 * Draw edges according to the clustering result.
-	 * An edge will be drawn between two data points if
-	 * and only if they are in the same cluster.
+	 * Sets up the canvas filling with vertices according to the data set,
+	 * and the clustering result. Data points in the same cluster will
+	 * have the same color, and will be close to each other.
 	 * @param clusterResult
 	 * 		the array containing the cluster number for every data point
+	 * @param numberOfClusters
+	 * 		the number of clusters 
 	 */
 	public void showClusteringResult(int[] clusterResult, int numberOfClusters){
 		if(clusterResult.length != data.getNumberOfRows()){
@@ -156,12 +158,20 @@ public class DataSetVisualizer {
 		return canvas;
 	}
 	
+	/**
+	 * Sets size for the canvas.
+	 * @param size
+	 */
 	public void setSize(Dimension size){
 		this.size = size;
 		layout.setSize(size);
 		canvas.setSize(size);
 	}
 	
+	/**
+	 * Sets the mouse mode for the canvas.
+	 * @param mouseMode
+	 */
 	public void setMouseMode(ModalGraphMouse.Mode mouseMode){
 		mouse.setMode(mouseMode);
 	}
