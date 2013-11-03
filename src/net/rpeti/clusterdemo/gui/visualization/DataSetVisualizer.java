@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Paint;
 import java.awt.geom.Point2D;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -31,7 +32,6 @@ import edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position;
 //TODO: kiválasztásnál stroke szín és event fire
 //TODO: kontextusmenü
 //TODO: bugfix: valami.csv fájlon 3 klaszterre exception (ötlet: üres klaszterre hibás)
-//TODO: bugfix: splitpane állításnál, illetve módválasztásnál elromlik a méret
 
 public class DataSetVisualizer {
 	
@@ -69,10 +69,12 @@ public class DataSetVisualizer {
 		groupLayout = new KKLayout<>(representation);
 		groupLayout.setDisconnectedDistanceMultiplier(0.1);
 		layout = new AggregateLayout<>(groupLayout);
-		layout.setSize(size);
+		//TODO tesztelni, hogy megéri-e?
+		//layout.setSize(size);
 		mouse = new DefaultModalGraphMouse<>();
 		canvas = new VisualizationViewer<>(layout, size);
 		canvas.setSize(size);
+		canvas.setPreferredSize(size);
 		canvas.setVertexToolTipTransformer(vertexTransformer);
 		mouse.setMode(ModalGraphMouse.Mode.TRANSFORMING);
 		canvas.setGraphMouse(mouse);
@@ -128,6 +130,8 @@ public class DataSetVisualizer {
 			groupCluster(layout, cluster, numberOfClusters);
 			i++;
 		}
+		
+		canvas.repaint();
 	}
 	
 	//TODO átgondolni
@@ -148,7 +152,6 @@ public class DataSetVisualizer {
 
 			layout.put(subLayout,center);
 		}
-		canvas.repaint();
 	}
 
 	/**
@@ -164,8 +167,10 @@ public class DataSetVisualizer {
 	 */
 	public void setSize(Dimension size){
 		this.size = size;
-		layout.setSize(size);
+		//TODO tesztelni hogy megéri-e?
+		//layout.setSize(size);
 		canvas.setSize(size);
+		canvas.setPreferredSize(size);
 	}
 	
 	/**
@@ -174,5 +179,17 @@ public class DataSetVisualizer {
 	 */
 	public void setMouseMode(ModalGraphMouse.Mode mouseMode){
 		mouse.setMode(mouseMode);
+	}
+	
+	/**
+	 * @return the contents of the canvas as an image which can be saved later on
+	 * 		(for eg. with javax.imageio.ImageIO library)
+	 */
+	public BufferedImage getCanvasAsImage(){
+		canvas.setDoubleBuffered(false);
+		BufferedImage bi = new BufferedImage(size.width, size.height, BufferedImage.TYPE_INT_ARGB);
+		canvas.paint(bi.createGraphics());
+		canvas.setDoubleBuffered(true);
+		return bi;
 	}
 }

@@ -99,6 +99,7 @@ public class ImportCSV extends JDialog {
 		btnBrowse.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				//TODO: filefilter más platformokon?
+				ImportCSV.this.setEnabled(false);
 				FileDialog chooser = new FileDialog(ImportCSV.this, "Choose a file", FileDialog.LOAD);
 				chooser.setFile("*.csv");
 				chooser.setVisible(true);
@@ -107,6 +108,8 @@ public class ImportCSV extends JDialog {
 					textFieldPath.setText(filename);
 					file = new File(filename);
 				}
+				ImportCSV.this.setEnabled(true);
+				ImportCSV.this.toFront();
 			}
 		});
 		GroupLayout gl_contentPanel = new GroupLayout(contentPanel);

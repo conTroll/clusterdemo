@@ -52,11 +52,17 @@ import java.io.StringWriter;
 // ellenőrizni, hogy minden GUI komponenst EDT-ben hozzunk létre
 
 public class MainWindow {
+
+	private static final String NEWLINE = System.getProperty("line.separator");
 	
-	private static final String ABOUT_TITLE = "ClusterDemo";
-	private static final String ABOUT_MESSAGE = "v0.2 Alpha\n\nRónai Péter\n(ROPSAAI.ELTE | KD1OUR)";
+	private static final String TITLE = "ClusterDemo";
+	private static final String ABOUT_TITLE = TITLE;
+	private static final String ABOUT_MESSAGE = "v0.2 Alpha" + NEWLINE + NEWLINE + "Rónai Péter" + NEWLINE + "(ROPSAAI.ELTE | KD1OUR)";
+	private static final String ABOUT_WINDOW_TITLE = "About ClusterDemo";
 	
-	private static final String UNHANDLED_EXCEPTION = "Unhandled exception";
+	private static final String UNHANDLED_EXCEPTION_TITLE = "Unhandled Exception";
+	private static final String UNHANDLED_EXCEPTION_TEXT = "Unhandled exception has occurred in the application." + NEWLINE +
+			"This behavior is unintended." + NEWLINE + "Technical information can be found in the stack trace below.";
 	
 	private static final int WINDOW_WIDTH = 800;
 	private static final int WINDOW_HEIGHT = 600;
@@ -118,7 +124,7 @@ public class MainWindow {
 		frmClusterDemo = new JFrame();
 		frmClusterDemo.setFocusable(true);
 		
-		frmClusterDemo.setTitle("ClusterDemo");
+		frmClusterDemo.setTitle(TITLE);
 		frmClusterDemo.setMinimumSize(new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT));
 		frmClusterDemo.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
 		frmClusterDemo.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);	
@@ -165,7 +171,7 @@ public class MainWindow {
 				JLabel aboutTitle = new JLabel(ABOUT_TITLE);
 				aboutTitle.setFont(new Font("SansSerif", Font.BOLD, 18));
 				JOptionPane.showMessageDialog(frmClusterDemo, 
-						new Object[]{aboutTitle, ABOUT_MESSAGE}, "About ClusterDemo",
+						new Object[]{aboutTitle, ABOUT_MESSAGE}, ABOUT_WINDOW_TITLE,
 						JOptionPane.INFORMATION_MESSAGE);
 			}
 		});
@@ -269,8 +275,8 @@ public class MainWindow {
 		btnCsvImport.setIcon(new ImageIcon(MainWindow.class.getResource("/icons/import_csv.png")));
 		toolBar.add(btnCsvImport);
 		
-		//tell the canvas to resize itself when main window gets resized by the user
-		frmClusterDemo.addComponentListener(new ComponentAdapter() {
+		//tell the canvas to resize when the main window gets resized
+		graphDrawingPanel.addComponentListener(new ComponentAdapter() {
 			@Override
 			public void componentResized(ComponentEvent e){
 				controller.updateCanvasSize();
@@ -319,7 +325,8 @@ public class MainWindow {
 		e.printStackTrace(new PrintWriter(sw));
 		JTextArea stacktrace = new JTextArea(sw.toString());
 		stacktrace.setEditable(false);
-		showErrorMessage(UNHANDLED_EXCEPTION, new Object[]{e.getLocalizedMessage(), stacktrace});
+		showErrorMessage(UNHANDLED_EXCEPTION_TITLE, 
+				new Object[]{UNHANDLED_EXCEPTION_TEXT + NEWLINE, e.getLocalizedMessage(), stacktrace});
 	}
 	
 	/**

@@ -86,7 +86,6 @@ public class Controller {
 		shouldStop = false;
 			
 		progressDialog = new ClusteringProgress(mainWindow.getFrame());
-		mainWindow.getFrame().setEnabled(false);
 		
 		Runnable thread = new Runnable(){
 
@@ -131,6 +130,7 @@ public class Controller {
 						mainWindow.showErrorMessage(ERROR, BAD_FORMATTING + e.getMessage());
 					} catch (Exception e) {
 						progressDialog.close();
+						e.printStackTrace();
 						mainWindow.showUnhandledException(e);
 					}
 				}
@@ -146,9 +146,8 @@ public class Controller {
 	 * It is typically called upon resize of the main window.
 	 */
 	public void updateCanvasSize(){
-		if (visualizer != null){
+		if (visualizer != null)
 			visualizer.setSize(mainWindow.getSizeForCanvas());
-		}
 	}
 	
 	/**
@@ -156,7 +155,10 @@ public class Controller {
 	 * selected mouse mode on the toolbar.
 	 */
 	public void changeMouseMode(){
-		visualizer.setMouseMode(mainWindow.getMouseMode());
+		if (visualizer != null)
+			visualizer.setMouseMode(mainWindow.getMouseMode());
+		updateCanvasSize();
+		
 	}
 	
 	/**
