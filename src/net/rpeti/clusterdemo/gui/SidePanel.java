@@ -31,6 +31,7 @@ import javax.swing.JCheckBox;
 
 public class SidePanel extends JPanel {
 	
+	// TODO shall be able to turn off seed selection
 	// TODO set it dynamic to algorithm selection
 	// TODO ability to select attributes to cluster on
 	// TODO validate parameters
@@ -113,6 +114,7 @@ public class SidePanel extends JPanel {
 		gbc_lblMaxIterations.gridy = 3;
 		add(lblMaxIterations, gbc_lblMaxIterations);
 		
+		//adjust the spinner's width
 		spinnerMaxIterations = new JSpinner();
 		spinnerMaxIterations.setModel(new SpinnerNumberModel(new Integer(50), new Integer(1), null, new Integer(5)));
 		JComponent componentMaxIter = (JSpinner.DefaultEditor) spinnerMaxIterations.getEditor();

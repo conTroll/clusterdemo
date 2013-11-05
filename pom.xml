@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>net.rpeti.clusterdemo</groupId>
   <artifactId>clusterdemo</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>0.2-alpha</version>
   <build>
     <sourceDirectory>src</sourceDirectory>
     <plugins>
@@ -14,7 +14,36 @@
           <target>1.7</target>
         </configuration>
       </plugin>
+      <plugin>
+      	<groupId>org.apache.maven.plugins</groupId>
+      	<artifactId>maven-jar-plugin</artifactId>
+      	<configuration>
+      		<archive>
+      			<manifest>
+      				<mainClass>net.rpeti.clusterdemo.Main</mainClass>
+      			</manifest>
+      		</archive>
+      	</configuration>
+      </plugin>
+      <plugin>
+      	<groupId>org.apache.maven.plugins</groupId>
+      	<artifactId>maven-shade-plugin</artifactId>
+      	<executions>
+      		 <execution>
+      		 	<phase>package</phase>
+      		 	<goals>
+      		 		<goal>shade</goal>
+      		 	</goals>
+      		 </execution>
+      	</executions>
+      </plugin>
     </plugins>
+    <resources>
+    	<resource>
+    		<filtering>false</filtering>
+    		<directory>${basedir}/resources</directory>
+    	</resource>
+    </resources>
   </build>
   <dependencies>
   	<dependency>

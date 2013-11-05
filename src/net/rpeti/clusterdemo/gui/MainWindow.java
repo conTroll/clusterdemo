@@ -46,11 +46,6 @@ import java.awt.event.KeyEvent;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
-//TODO nimbus specifikus exception-ökkel lehet valamit kezdeni?
-// ötletek:
-// https://forums.oracle.com/message/5700281
-// ellenőrizni, hogy minden GUI komponenst EDT-ben hozzunk létre
-
 public class MainWindow {
 
 	private static final String NEWLINE = System.getProperty("line.separator");
@@ -287,7 +282,7 @@ public class MainWindow {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				if (e.getKeyChar() == '9'){
-					JOptionPane.showMessageDialog(frmClusterDemo, "<html><b>9: SMILE</b></html>", "=)", JOptionPane.INFORMATION_MESSAGE, new ImageIcon(MainWindow.class.getResource("/icons/smile.png")));
+					JOptionPane.showMessageDialog(frmClusterDemo, "", "=)", JOptionPane.INFORMATION_MESSAGE, new ImageIcon(MainWindow.class.getResource("/icons/smile.png")));
 				}
 			}
 		});

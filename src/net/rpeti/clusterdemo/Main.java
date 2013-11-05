@@ -4,8 +4,7 @@ import java.awt.EventQueue;
 
 import net.rpeti.clusterdemo.gui.MainWindow;
 
-//TODO elkapni az exception-öket EventQueue-ból is és megjeleníteni
-// http://ruben42.wordpress.com/2009/03/30/catching-all-runtime-exceptions-in-swing/
+//TODO validáció, hibaüzenetek
 
 public class Main {
 	
