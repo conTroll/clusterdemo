@@ -4,6 +4,7 @@ import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -13,6 +14,15 @@ import javax.swing.JProgressBar;
 import net.rpeti.clusterdemo.Controller;
 import net.rpeti.clusterdemo.Main;
 
+import javax.swing.JLabel;
+import javax.swing.SwingConstants;
+
+import java.awt.BorderLayout;
+import java.awt.GridBagLayout;
+import java.awt.GridBagConstraints;
+import java.awt.Insets;
+import java.awt.Font;
+
 //TODO iterációk számát kiíratni
 
 /**
@@ -20,11 +30,14 @@ import net.rpeti.clusterdemo.Main;
  * Validates user input.
  */
 public class ClusteringProgress extends JDialog {
+	
+	private static final String ITERATIONS = "Iterations";
 
 	private static final long serialVersionUID = -6923122498143969365L;
 	private JProgressBar progressBar;
 	private Controller controller;
 	private JFrame parent;
+	private JLabel status;
 
 	/**
 	 * Create the dialog.
@@ -47,21 +60,41 @@ public class ClusteringProgress extends JDialog {
 	
 			JPanel buttonPane = new JPanel();
 			buttonPane.setBounds(0, 40, 264, 33);
-			buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
 			getContentPane().add(buttonPane);
-				JButton cancelButton = new JButton("Cancel");
-				cancelButton.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						controller.cancelClustering();
-						setVisible(false);
-						dispose();
-						ClusteringProgress.this.parent.setEnabled(true);
-						ClusteringProgress.this.parent.toFront();
-					}
-				});
-				cancelButton.setActionCommand("Cancel");
-				buttonPane.add(cancelButton);
-	
+				GridBagLayout gbl_buttonPane = new GridBagLayout();
+				gbl_buttonPane.columnWidths = new int[] {5, 0, 0};
+				gbl_buttonPane.rowHeights = new int[]{33, 0};
+				gbl_buttonPane.columnWeights = new double[]{0.0, 1.0, 0.0, 0.0};
+				gbl_buttonPane.rowWeights = new double[]{0.0, Double.MIN_VALUE};
+				buttonPane.setLayout(gbl_buttonPane);
+		JButton cancelButton = new JButton("Cancel");
+		cancelButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				controller.cancelClustering();
+				setVisible(false);
+				dispose();
+				ClusteringProgress.this.parent.setEnabled(true);
+				ClusteringProgress.this.parent.toFront();
+			}
+		});
+		
+		status = new JLabel("Initializing...");
+		status.setFont(new Font("Tahoma", Font.BOLD, 11));
+		GridBagConstraints gbc_status = new GridBagConstraints();
+		gbc_status.anchor = GridBagConstraints.WEST;
+		gbc_status.fill = GridBagConstraints.VERTICAL;
+		gbc_status.insets = new Insets(0, 0, 0, 5);
+		gbc_status.gridx = 1;
+		gbc_status.gridy = 0;
+		buttonPane.add(status, gbc_status);
+		cancelButton.setActionCommand("Cancel");
+		GridBagConstraints gbc_cancelButton = new GridBagConstraints();
+		gbc_cancelButton.anchor = GridBagConstraints.WEST;
+		gbc_cancelButton.fill = GridBagConstraints.VERTICAL;
+		gbc_cancelButton.gridx = 3;
+		gbc_cancelButton.gridy = 0;
+		buttonPane.add(cancelButton, gbc_cancelButton);
+		//status.setHorizontalAlignment(SwingConstants.LEFT);
 
 		
 		progressBar = new JProgressBar();
@@ -78,9 +111,10 @@ public class ClusteringProgress extends JDialog {
 	 * @param value
 	 * 		a number between 0 and 100 (indicating progress)
 	 */
-	public void setProgress(int value){
+	public void setProgress(int iteration, int maxIterations){
 		progressBar.setIndeterminate(false);
-		progressBar.setValue(value);
+		progressBar.setValue((iteration * 100) / maxIterations);
+		status.setText(ITERATIONS + ": " + iteration + "/" + maxIterations);
 	}
 	
 	/**

@@ -183,7 +183,7 @@ public class DataSetVisualizer {
 	
 	/**
 	 * @return the contents of the canvas as an image which can be saved later on
-	 * 		(for eg. with javax.imageio.ImageIO library)
+	 * 		(for eg. with javax.imageio.ImageIO class)
 	 */
 	public BufferedImage getCanvasAsImage(){
 		canvas.setDoubleBuffered(false);

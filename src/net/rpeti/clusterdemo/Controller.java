@@ -2,10 +2,13 @@ package net.rpeti.clusterdemo;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import net.rpeti.clusterdemo.algorithms.Algorithms;
+import net.rpeti.clusterdemo.algorithms.olary.IllegalClusterNumberException;
+import net.rpeti.clusterdemo.algorithms.olary.IllegalSeedException;
 import net.rpeti.clusterdemo.algorithms.olary.OlaryAlgo;
 import net.rpeti.clusterdemo.data.olary.OlaryDataSet;
 import net.rpeti.clusterdemo.gui.MainWindow;
@@ -33,6 +36,8 @@ public class Controller {
 	private static final String CSV_SELECTED = "CSV data file has been selected. You can now run the algorithm.";
 	private static final String CLUSTERING_FINISHED = "Clustering finished.";
 	private static final String CLUSTERING_CANCELLED = "Clustering cancelled.";
+	private static final String INVALID_CLUSTER_NUMBER = "Invalid cluster number provided." + NEWLINE + "It cannot be greater than the number of data points.";
+	private static final String INVALID_SEED = "Invalid seed ID provided." + NEWLINE + "IDs are indexed between 0 and m-1, where m is the number of data points.";
 
 	private boolean attributesInFirstLine;
 	private String separator;
@@ -125,7 +130,14 @@ public class Controller {
 					} catch (IOException e) {
 						progressDialog.close();
 						mainWindow.showErrorMessage(ERROR, CANT_READ_FILE + NEWLINE + NEWLINE + e.getMessage());
+					} catch (IllegalSeedException e) {
+						progressDialog.close();
+						mainWindow.showErrorMessage(ERROR, INVALID_SEED);
+					} catch (IllegalClusterNumberException e) {
+						progressDialog.close();
+						mainWindow.showErrorMessage(ERROR, INVALID_CLUSTER_NUMBER);
 					} catch (IllegalArgumentException e){
+						e.printStackTrace();
 						progressDialog.close();
 						mainWindow.showErrorMessage(ERROR, BAD_FORMATTING + e.getMessage());
 					} catch (Exception e) {
@@ -183,7 +195,7 @@ public class Controller {
 	 * @param value
 	 * 		percentage of progress completion
 	 */
-	public void setProgress(int value){
-		progressDialog.setProgress(value);
+	public void setProgress(int iterations, int maxIterations){
+		progressDialog.setProgress(iterations, maxIterations);
 	}
 }

@@ -60,14 +60,14 @@ public class OlaryAlgo implements ClusteringAlgorithm {
 			this.seed = random.nextInt(this.rowCount);
 		}
 		
-		if(seed > this.rowCount){
-			throw new IllegalArgumentException("Seed must be less than the number of rows in the dataset!");
+		if(seed >= this.rowCount || seed < -1){
+			throw new IllegalSeedException();
 		}
 		if(maxIterations < 1){
 			throw new IllegalArgumentException("Maximum iterations must be a positive integer!");
 		}
 		if(k > this.rowCount || k < 1){
-			throw new IllegalArgumentException("0 < k < # of rows in data set");
+			throw new IllegalClusterNumberException();
 		}
 		
 		this.k = k;
@@ -253,7 +253,7 @@ public class OlaryAlgo implements ClusteringAlgorithm {
 		this.initCenters();
 		int iterations = 0;
 		while(iterations < maxIterations){
-			controller.setProgress((iterations * 100) / maxIterations);
+			controller.setProgress(iterations, maxIterations);
 			this.assignToClusters();
 			this.copyCenters();
 			this.computeCenters();

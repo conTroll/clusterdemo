@@ -52,27 +52,27 @@ public class SidePanel extends JPanel {
 	public SidePanel() {
 		this.setMinimumSize(new Dimension(200, 400));
 		GridBagLayout gridBagLayout = new GridBagLayout();
-		gridBagLayout.columnWidths = new int[]{0, 0, 0};
+		gridBagLayout.columnWidths = new int[] {10, 0, 0, 0};
 		gridBagLayout.rowHeights = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0};
-		gridBagLayout.columnWeights = new double[]{0.0, 1.0, Double.MIN_VALUE};
+		gridBagLayout.columnWeights = new double[]{0.0, 0.0, 1.0};
 		gridBagLayout.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
 		setLayout(gridBagLayout);
 		
 		JLabel lblSettingsAndData = new JLabel("Settings and Data");
 		lblSettingsAndData.setFont(new Font("Tahoma", Font.BOLD, 14));
 		GridBagConstraints gbc_lblSettingsAndData = new GridBagConstraints();
-		gbc_lblSettingsAndData.gridwidth = 2;
+		gbc_lblSettingsAndData.gridwidth = 3;
 		gbc_lblSettingsAndData.insets = new Insets(0, 0, 5, 0);
 		gbc_lblSettingsAndData.gridx = 0;
 		gbc_lblSettingsAndData.gridy = 0;
 		add(lblSettingsAndData, gbc_lblSettingsAndData);
 		
 		JLabel lblAlgorithm = new JLabel("Algorithm");
-		lblAlgorithm.setFont(new Font("Tahoma", Font.BOLD, 11));
+		lblAlgorithm.setFont(new Font("Tahoma", Font.PLAIN, 11));
 		GridBagConstraints gbc_lblAlgorithm = new GridBagConstraints();
 		gbc_lblAlgorithm.insets = new Insets(0, 0, 5, 5);
 		gbc_lblAlgorithm.anchor = GridBagConstraints.WEST;
-		gbc_lblAlgorithm.gridx = 0;
+		gbc_lblAlgorithm.gridx = 1;
 		gbc_lblAlgorithm.gridy = 1;
 		add(lblAlgorithm, gbc_lblAlgorithm);
 		
@@ -82,7 +82,7 @@ public class SidePanel extends JPanel {
 		GridBagConstraints gbc_comboBox = new GridBagConstraints();
 		gbc_comboBox.insets = new Insets(0, 0, 5, 0);
 		gbc_comboBox.fill = GridBagConstraints.HORIZONTAL;
-		gbc_comboBox.gridx = 1;
+		gbc_comboBox.gridx = 2;
 		gbc_comboBox.gridy = 1;
 		add(comboBoxAlgo, gbc_comboBox);
 		
@@ -98,21 +98,11 @@ public class SidePanel extends JPanel {
 		JLabel lblParameters = new JLabel("Parameters");
 		lblParameters.setFont(new Font("Tahoma", Font.BOLD, 14));
 		GridBagConstraints gbc_lblParameters = new GridBagConstraints();
-		gbc_lblParameters.gridwidth = 2;
+		gbc_lblParameters.gridwidth = 3;
 		gbc_lblParameters.insets = new Insets(0, 0, 5, 0);
 		gbc_lblParameters.gridx = 0;
 		gbc_lblParameters.gridy = 2;
 		add(lblParameters, gbc_lblParameters);
-		
-		JLabel lblMaxIterations = new JLabel("Max iterations");
-		lblMaxIterations.setToolTipText("The algorithm will stop after this number of iterations even if the convergence criteria haven't met.");
-		lblMaxIterations.setFont(new Font("Tahoma", Font.BOLD, 11));
-		GridBagConstraints gbc_lblMaxIterations = new GridBagConstraints();
-		gbc_lblMaxIterations.anchor = GridBagConstraints.WEST;
-		gbc_lblMaxIterations.insets = new Insets(0, 0, 5, 5);
-		gbc_lblMaxIterations.gridx = 0;
-		gbc_lblMaxIterations.gridy = 3;
-		add(lblMaxIterations, gbc_lblMaxIterations);
 		
 		//adjust the spinner's width
 		spinnerMaxIterations = new JSpinner();
@@ -122,63 +112,73 @@ public class SidePanel extends JPanel {
 		sizeMaxIter = new Dimension(45, sizeMaxIter.height);
 		componentMaxIter.setPreferredSize(sizeMaxIter);
 		
+		JLabel lblMaxIterations = new JLabel("Max iterations");
+		lblMaxIterations.setToolTipText("The algorithm will stop after this number of iterations even if the convergence criteria haven't met.");
+		lblMaxIterations.setFont(new Font("Tahoma", Font.PLAIN, 11));
+		GridBagConstraints gbc_lblMaxIterations = new GridBagConstraints();
+		gbc_lblMaxIterations.anchor = GridBagConstraints.WEST;
+		gbc_lblMaxIterations.insets = new Insets(0, 0, 5, 5);
+		gbc_lblMaxIterations.gridx = 1;
+		gbc_lblMaxIterations.gridy = 3;
+		add(lblMaxIterations, gbc_lblMaxIterations);
+		
 		GridBagConstraints gbc_spinnerMaxIterations = new GridBagConstraints();
 		gbc_spinnerMaxIterations.anchor = GridBagConstraints.WEST;
 		gbc_spinnerMaxIterations.insets = new Insets(0, 0, 5, 0);
-		gbc_spinnerMaxIterations.gridx = 1;
+		gbc_spinnerMaxIterations.gridx = 2;
 		gbc_spinnerMaxIterations.gridy = 3;
 		add(spinnerMaxIterations, gbc_spinnerMaxIterations);
-		
-		JLabel lblClusters = new JLabel("Clusters");
-		lblClusters.setFont(new Font("Tahoma", Font.BOLD, 11));
-		GridBagConstraints gbc_lblClusters = new GridBagConstraints();
-		gbc_lblClusters.anchor = GridBagConstraints.WEST;
-		gbc_lblClusters.insets = new Insets(0, 0, 5, 5);
-		gbc_lblClusters.gridx = 0;
-		gbc_lblClusters.gridy = 4;
-		add(lblClusters, gbc_lblClusters);
 		
 		spinnerClusters = new JSpinner();
 		spinnerClusters.setModel(new SpinnerNumberModel(new Integer(3), new Integer(1), null, new Integer(1)));
 		JComponent componentClusters = (JSpinner.DefaultEditor) spinnerClusters.getEditor();
 		componentClusters.setPreferredSize(sizeMaxIter);
+		
+		JLabel lblClusters = new JLabel("Clusters");
+		lblClusters.setFont(new Font("Tahoma", Font.PLAIN, 11));
+		GridBagConstraints gbc_lblClusters = new GridBagConstraints();
+		gbc_lblClusters.anchor = GridBagConstraints.WEST;
+		gbc_lblClusters.insets = new Insets(0, 0, 5, 5);
+		gbc_lblClusters.gridx = 1;
+		gbc_lblClusters.gridy = 4;
+		add(lblClusters, gbc_lblClusters);
 		GridBagConstraints gbc_spinnerClusters = new GridBagConstraints();
 		gbc_spinnerClusters.anchor = GridBagConstraints.WEST;
 		gbc_spinnerClusters.insets = new Insets(0, 0, 5, 0);
-		gbc_spinnerClusters.gridx = 1;
+		gbc_spinnerClusters.gridx = 2;
 		gbc_spinnerClusters.gridy = 4;
 		add(spinnerClusters, gbc_spinnerClusters);
-		
-		JCheckBox chckbxSeed = new JCheckBox("Seed");
-		chckbxSeed.setFont(new Font("Tahoma", Font.BOLD, 11));
-		GridBagConstraints gbc_chckbxSeed = new GridBagConstraints();
-		gbc_chckbxSeed.anchor = GridBagConstraints.WEST;
-		gbc_chckbxSeed.insets = new Insets(0, 0, 5, 5);
-		gbc_chckbxSeed.gridx = 0;
-		gbc_chckbxSeed.gridy = 5;
-		add(chckbxSeed, gbc_chckbxSeed);
 		
 		spinnerSeed = new JSpinner();
 		spinnerSeed.setModel(new SpinnerNumberModel(new Integer(1), new Integer(1), null, new Integer(1)));
 		JComponent componentSeed = (JSpinner.DefaultEditor) spinnerSeed.getEditor();
 		componentSeed.setPreferredSize(sizeMaxIter);
+		
+		JCheckBox chckbxSeed = new JCheckBox("Seed");
+		chckbxSeed.setFont(new Font("Tahoma", Font.PLAIN, 11));
+		GridBagConstraints gbc_chckbxSeed = new GridBagConstraints();
+		gbc_chckbxSeed.anchor = GridBagConstraints.WEST;
+		gbc_chckbxSeed.insets = new Insets(0, 0, 5, 5);
+		gbc_chckbxSeed.gridx = 1;
+		gbc_chckbxSeed.gridy = 5;
+		add(chckbxSeed, gbc_chckbxSeed);
 		GridBagConstraints gbc_spinnerSeed = new GridBagConstraints();
 		gbc_spinnerSeed.anchor = GridBagConstraints.WEST;
 		gbc_spinnerSeed.insets = new Insets(0, 0, 5, 0);
-		gbc_spinnerSeed.gridx = 1;
+		gbc_spinnerSeed.gridx = 2;
 		gbc_spinnerSeed.gridy = 5;
 		add(spinnerSeed, gbc_spinnerSeed);
 		GridBagConstraints gbc_btnRun = new GridBagConstraints();
 		gbc_btnRun.insets = new Insets(0, 0, 5, 0);
 		gbc_btnRun.anchor = GridBagConstraints.EAST;
-		gbc_btnRun.gridx = 1;
+		gbc_btnRun.gridx = 2;
 		gbc_btnRun.gridy = 6;
 		add(btnRun, gbc_btnRun);
 		
 		JLabel lblDataEditor = new JLabel("Data Editor");
 		lblDataEditor.setFont(new Font("Tahoma", Font.BOLD, 14));
 		GridBagConstraints gbc_lblDataEditor = new GridBagConstraints();
-		gbc_lblDataEditor.gridwidth = 2;
+		gbc_lblDataEditor.gridwidth = 3;
 		gbc_lblDataEditor.gridx = 0;
 		gbc_lblDataEditor.gridy = 7;
 		add(lblDataEditor, gbc_lblDataEditor);

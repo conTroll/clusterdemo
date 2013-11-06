@@ -7,6 +7,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Arrays;
 
+//TODO kezelni az idézőjeles védőblokkot
+
 import net.rpeti.clusterdemo.data.spi.DataReceiver;
 
 public class CSVReader {
@@ -53,10 +55,14 @@ public class CSVReader {
 	 */
 	public DataReceiver read(File file, boolean attributesInFirstLine, String separator) throws IOException {
 		BufferedReader reader = new BufferedReader(new FileReader(file));
-		String line;
+		String line = "";
+		
+		while("".equals(line)){
+			line = reader.readLine().trim();
+		}
 
 		//read or generate the attributes
-		if((line = reader.readLine()) != null){
+		if(line != null){
 			if(attributesInFirstLine){
 				line = line.trim();
 				String[] attributes = line.split(separator);
@@ -83,8 +89,10 @@ public class CSVReader {
 		try{
 			while((line = reader.readLine()) != null){
 				line = line.trim();
-				String[] row = line.split(separator, -1);
-				dataSet.addData(Arrays.asList(row));
+				if(!"".equals(line)){
+					String[] row = line.split(separator, -1);
+					dataSet.addData(Arrays.asList(row));
+				}
 			}
 		} catch (IllegalArgumentException e){
 			throw new InvalidFileException(e.getMessage());

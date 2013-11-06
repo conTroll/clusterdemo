@@ -9,8 +9,6 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
-import javax.swing.GroupLayout;
-import javax.swing.GroupLayout.Alignment;
 import javax.swing.JLabel;
 
 import java.awt.Desktop;
@@ -19,7 +17,6 @@ import java.awt.Font;
 
 import javax.swing.JCheckBox;
 import javax.swing.JTextField;
-import javax.swing.LayoutStyle.ComponentPlacement;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
@@ -27,6 +24,9 @@ import java.io.File;
 import java.net.URI;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+import java.awt.GridBagLayout;
+import java.awt.GridBagConstraints;
+import java.awt.Insets;
 
 /**
  * Gets the needed parameters for reading a CSV file.
@@ -51,7 +51,7 @@ public class ImportCSV extends JDialog {
 		super(parent, true);
 		setModalExclusionType(ModalExclusionType.APPLICATION_EXCLUDE);
 		setTitle("Import CSV...");
-		setSize(330, 170);
+		setSize(330, 160);
 		setLocationRelativeTo(parent);
 		setResizable(false);
 		getContentPane().setLayout(new BorderLayout());
@@ -59,41 +59,31 @@ public class ImportCSV extends JDialog {
 		getContentPane().add(contentPanel, BorderLayout.NORTH);
 		
 		isOk = false;
+		GridBagLayout gbl_contentPanel = new GridBagLayout();
+		gbl_contentPanel.columnWidths = new int[] {61, 53, 90, 0};
+		gbl_contentPanel.rowHeights = new int[]{23, 23, 21, 0};
+		gbl_contentPanel.columnWeights = new double[]{0.0, 0.0, 0.0, 0.0};
+		gbl_contentPanel.rowWeights = new double[]{0.0, 0.0, 0.0, Double.MIN_VALUE};
+		contentPanel.setLayout(gbl_contentPanel);
 		
-		JLabel lblSeparator = new JLabel("Separator");
-		lblSeparator.setFont(new Font("Tahoma", Font.BOLD, 11));
-		lblSeparator.setToolTipText("Can be any character, sequence of characters, or Java Regular Expression.\r\nThe default separator is a comma (\",\").");
-		
-		textFieldSeparator = new JTextField();
-		textFieldSeparator.setToolTipText("Can be any character, sequence of characters, or Java Regular Expression.\r\nThe default separator is a comma (\",\").");
-		textFieldSeparator.setText(",");
-		textFieldSeparator.setColumns(10);
-		
-		JButton btnHelp = new JButton("Help");
-		btnHelp.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
-				if(desktop != null && desktop.isSupported(Desktop.Action.BROWSE)){
-					try {
-						desktop.browse(new URI(REGEX_TUTORIAL_LINK));
-					} catch (Exception e) {
-						e.printStackTrace();
-						JOptionPane.showMessageDialog(ImportCSV.this, "Error happened while trying to open a link in the default browser.",  "Error", JOptionPane.ERROR_MESSAGE);
-					}
-				} else {
-					JOptionPane.showMessageDialog(ImportCSV.this, "Can't reach browser in the current platform.",  "Error", JOptionPane.ERROR_MESSAGE);
-				}
-			}
-		});
-		
-		checkBoxAttributes = new JCheckBox("Attributes in first line");
-		checkBoxAttributes.setToolTipText("Check if the attributes of the data set is present in the first line of the CSV file");
-		
-		JLabel lblBrowseFile = new JLabel("Browse file");
-		lblBrowseFile.setFont(new Font("Tahoma", Font.BOLD, 11));
+		JLabel lblBrowseFile = new JLabel("File");
+		lblBrowseFile.setFont(new Font("Tahoma", Font.PLAIN, 11));
+		GridBagConstraints gbc_lblBrowseFile = new GridBagConstraints();
+		gbc_lblBrowseFile.anchor = GridBagConstraints.WEST;
+		gbc_lblBrowseFile.insets = new Insets(0, 0, 5, 5);
+		gbc_lblBrowseFile.gridx = 0;
+		gbc_lblBrowseFile.gridy = 0;
+		contentPanel.add(lblBrowseFile, gbc_lblBrowseFile);
 		
 		textFieldPath = new JTextField();
 		textFieldPath.setColumns(10);
+		GridBagConstraints gbc_textFieldPath = new GridBagConstraints();
+		gbc_textFieldPath.fill = GridBagConstraints.HORIZONTAL;
+		gbc_textFieldPath.insets = new Insets(0, 0, 5, 5);
+		gbc_textFieldPath.gridwidth = 2;
+		gbc_textFieldPath.gridx = 1;
+		gbc_textFieldPath.gridy = 0;
+		contentPanel.add(textFieldPath, gbc_textFieldPath);
 		
 		JButton btnBrowse = new JButton("Browse...");
 		btnBrowse.addActionListener(new ActionListener() {
@@ -112,40 +102,69 @@ public class ImportCSV extends JDialog {
 				ImportCSV.this.toFront();
 			}
 		});
-		GroupLayout gl_contentPanel = new GroupLayout(contentPanel);
-		gl_contentPanel.setHorizontalGroup(
-			gl_contentPanel.createParallelGroup(Alignment.LEADING)
-				.addComponent(checkBoxAttributes)
-				.addGroup(gl_contentPanel.createSequentialGroup()
-					.addComponent(lblBrowseFile)
-					.addPreferredGap(ComponentPlacement.RELATED)
-					.addComponent(textFieldPath, GroupLayout.DEFAULT_SIZE, 160, Short.MAX_VALUE)
-					.addPreferredGap(ComponentPlacement.RELATED)
-					.addComponent(btnBrowse))
-				.addGroup(gl_contentPanel.createSequentialGroup()
-					.addComponent(lblSeparator)
-					.addGap(5)
-					.addComponent(textFieldSeparator, GroupLayout.DEFAULT_SIZE, 189, Short.MAX_VALUE)
-					.addPreferredGap(ComponentPlacement.RELATED)
-					.addComponent(btnHelp))
-		);
-		gl_contentPanel.setVerticalGroup(
-			gl_contentPanel.createParallelGroup(Alignment.LEADING)
-				.addGroup(gl_contentPanel.createSequentialGroup()
-					.addGroup(gl_contentPanel.createParallelGroup(Alignment.BASELINE)
-						.addComponent(lblBrowseFile)
-						.addComponent(textFieldPath, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-						.addComponent(btnBrowse))
-					.addGap(4)
-					.addGroup(gl_contentPanel.createParallelGroup(Alignment.BASELINE)
-						.addComponent(lblSeparator)
-						.addComponent(textFieldSeparator, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-						.addComponent(btnHelp))
-					.addPreferredGap(ComponentPlacement.UNRELATED)
-					.addComponent(checkBoxAttributes)
-					.addGap(11))
-		);
-		contentPanel.setLayout(gl_contentPanel);
+		GridBagConstraints gbc_btnBrowse = new GridBagConstraints();
+		gbc_btnBrowse.anchor = GridBagConstraints.NORTHWEST;
+		gbc_btnBrowse.insets = new Insets(0, 0, 5, 0);
+		gbc_btnBrowse.gridx = 3;
+		gbc_btnBrowse.gridy = 0;
+		contentPanel.add(btnBrowse, gbc_btnBrowse);
+		
+		JLabel lblSeparator = new JLabel("Separator");
+		lblSeparator.setFont(new Font("Tahoma", Font.PLAIN, 11));
+		lblSeparator.setToolTipText("Can be any character, sequence of characters, or Java Regular Expression.\r\nThe default separator is a comma (\",\").");
+		GridBagConstraints gbc_lblSeparator = new GridBagConstraints();
+		gbc_lblSeparator.anchor = GridBagConstraints.WEST;
+		gbc_lblSeparator.insets = new Insets(0, 0, 5, 5);
+		gbc_lblSeparator.gridx = 0;
+		gbc_lblSeparator.gridy = 1;
+		contentPanel.add(lblSeparator, gbc_lblSeparator);
+		
+		textFieldSeparator = new JTextField();
+		textFieldSeparator.setToolTipText("Can be any character, sequence of characters, or Java Regular Expression.\r\nThe default separator is a comma (\",\").");
+		textFieldSeparator.setText(",");
+		textFieldSeparator.setColumns(10);
+		GridBagConstraints gbc_textFieldSeparator = new GridBagConstraints();
+		gbc_textFieldSeparator.fill = GridBagConstraints.HORIZONTAL;
+		gbc_textFieldSeparator.insets = new Insets(0, 0, 5, 5);
+		gbc_textFieldSeparator.gridwidth = 2;
+		gbc_textFieldSeparator.gridx = 1;
+		gbc_textFieldSeparator.gridy = 1;
+		contentPanel.add(textFieldSeparator, gbc_textFieldSeparator);
+		
+		JButton btnHelp = new JButton("Help");
+		btnHelp.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
+				if(desktop != null && desktop.isSupported(Desktop.Action.BROWSE)){
+					try {
+						desktop.browse(new URI(REGEX_TUTORIAL_LINK));
+					} catch (Exception e) {
+						e.printStackTrace();
+						JOptionPane.showMessageDialog(ImportCSV.this, "Error happened while trying to open a link in the default browser.",  "Error", JOptionPane.ERROR_MESSAGE);
+					}
+				} else {
+					JOptionPane.showMessageDialog(ImportCSV.this, "Can't reach browser in the current platform.",  "Error", JOptionPane.ERROR_MESSAGE);
+				}
+			}
+		});
+		GridBagConstraints gbc_btnHelp = new GridBagConstraints();
+		gbc_btnHelp.anchor = GridBagConstraints.NORTH;
+		gbc_btnHelp.fill = GridBagConstraints.HORIZONTAL;
+		gbc_btnHelp.insets = new Insets(0, 0, 5, 0);
+		gbc_btnHelp.gridx = 3;
+		gbc_btnHelp.gridy = 1;
+		contentPanel.add(btnHelp, gbc_btnHelp);
+		
+		checkBoxAttributes = new JCheckBox();
+		checkBoxAttributes.setText("Attributes in first line");
+		checkBoxAttributes.setToolTipText("Check if the attributes of the data set is present in the first line of the CSV file");
+		GridBagConstraints gbc_checkBoxAttributes = new GridBagConstraints();
+		gbc_checkBoxAttributes.gridwidth = 3;
+		gbc_checkBoxAttributes.anchor = GridBagConstraints.NORTHWEST;
+		gbc_checkBoxAttributes.insets = new Insets(0, 0, 0, 5);
+		gbc_checkBoxAttributes.gridx = 0;
+		gbc_checkBoxAttributes.gridy = 2;
+		contentPanel.add(checkBoxAttributes, gbc_checkBoxAttributes);
 		{
 			JPanel buttonPane = new JPanel();
 			buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
