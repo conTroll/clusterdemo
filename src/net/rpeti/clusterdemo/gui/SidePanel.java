@@ -34,8 +34,7 @@ public class SidePanel extends JPanel {
 	// TODO shall be able to turn off seed selection
 	// TODO set it dynamic to algorithm selection
 	// TODO ability to select attributes to cluster on
-	// TODO validate parameters
-	// TODO implement data editor (for a single data)
+	// TODO write live statistics and info about status
 	// TODO comments
 
 	private static final long serialVersionUID = 7654943576215466209L;
@@ -58,7 +57,7 @@ public class SidePanel extends JPanel {
 		gridBagLayout.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
 		setLayout(gridBagLayout);
 		
-		JLabel lblSettingsAndData = new JLabel("Settings and Data");
+		JLabel lblSettingsAndData = new JLabel("Settings & Stats");
 		lblSettingsAndData.setFont(new Font("Tahoma", Font.BOLD, 14));
 		GridBagConstraints gbc_lblSettingsAndData = new GridBagConstraints();
 		gbc_lblSettingsAndData.gridwidth = 3;
@@ -106,7 +105,7 @@ public class SidePanel extends JPanel {
 		
 		//adjust the spinner's width
 		spinnerMaxIterations = new JSpinner();
-		spinnerMaxIterations.setModel(new SpinnerNumberModel(new Integer(50), new Integer(1), null, new Integer(5)));
+		spinnerMaxIterations.setModel(new SpinnerNumberModel(new Integer(20), new Integer(1), null, new Integer(2)));
 		JComponent componentMaxIter = (JSpinner.DefaultEditor) spinnerMaxIterations.getEditor();
 		Dimension sizeMaxIter = componentMaxIter.getPreferredSize();
 		sizeMaxIter = new Dimension(45, sizeMaxIter.height);
@@ -175,7 +174,7 @@ public class SidePanel extends JPanel {
 		gbc_btnRun.gridy = 6;
 		add(btnRun, gbc_btnRun);
 		
-		JLabel lblDataEditor = new JLabel("Data Editor");
+		JLabel lblDataEditor = new JLabel("Information");
 		lblDataEditor.setFont(new Font("Tahoma", Font.BOLD, 14));
 		GridBagConstraints gbc_lblDataEditor = new GridBagConstraints();
 		gbc_lblDataEditor.gridwidth = 3;

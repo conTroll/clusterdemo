@@ -4,10 +4,8 @@ import java.awt.EventQueue;
 
 import net.rpeti.clusterdemo.gui.MainWindow;
 
-//TODO validáció, hibaüzenetek
 
 public class Main {
-	
 	private static final Controller controller = new Controller();
 	
 	public static Controller getController(){

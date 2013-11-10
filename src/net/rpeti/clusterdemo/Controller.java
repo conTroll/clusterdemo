@@ -2,7 +2,6 @@ package net.rpeti.clusterdemo;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 

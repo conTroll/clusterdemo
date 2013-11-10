@@ -16,7 +16,7 @@ import org.apache.commons.collections15.functors.MapTransformer;
 
 import net.rpeti.clusterdemo.data.spi.DataContainer;
 import edu.uci.ics.jung.algorithms.layout.AggregateLayout;
-import edu.uci.ics.jung.algorithms.layout.CircleLayout;
+import edu.uci.ics.jung.algorithms.layout.DAGLayout;
 import edu.uci.ics.jung.algorithms.layout.KKLayout;
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.graph.Graph;
@@ -27,11 +27,9 @@ import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
 import edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position;
 
-//TODO: layout optimalizáció
-//TODO: színlista modernizálása
+//TODO: layout optimalizáció: saját layout groupLayout-nak (ami egyenlően felosztja a canvast)
 //TODO: kiválasztásnál stroke szín és event fire
 //TODO: kontextusmenü
-//TODO: bugfix: valami.csv fájlon 3 klaszterre exception (ötlet: üres klaszterre hibás)
 
 public class DataSetVisualizer {
 	
@@ -43,22 +41,22 @@ public class DataSetVisualizer {
 	VertexTransformer vertexTransformer;
 	DefaultModalGraphMouse<Integer, Integer> mouse;
 	AggregateLayout<Integer, Integer> layout;
-	KKLayout<Integer, Integer> groupLayout;
+	Layout<Integer, Integer> groupLayout;
 	Map<Integer, Paint> vertexPaints;
 	
-	public final Color[] colors =
-		{
-			new Color(216, 134, 134),
-			new Color(135, 137, 211),
-			new Color(134, 206, 189),
-			new Color(206, 176, 134),
-			new Color(194, 204, 134),
-			new Color(145, 214, 134),
-			new Color(133, 178, 209),
-			new Color(103, 148, 255),
-			new Color(60, 220, 220),
-			new Color(30, 250, 100)
-		};
+	//color RGB codes representing clusters
+	private final static Color[] colors = {
+			new Color(117, 184, 0),
+			new Color(78, 0, 214),
+			new Color(222, 141, 0),
+			new Color(0, 93, 255),
+			new Color(223, 230, 32),
+			new Color(25, 84, 156),
+			new Color(82, 81, 61),
+			new Color(254, 219, 7),
+			new Color(137, 65, 41),
+			new Color(18, 106, 118)
+	};
 
 	public DataSetVisualizer(DataContainer data, Dimension size){
 		this.data = data;
@@ -67,10 +65,9 @@ public class DataSetVisualizer {
 		vertexPaints = new HashMap<>();
 		representation = new UndirectedSparseGraph<>();
 		groupLayout = new KKLayout<>(representation);
-		groupLayout.setDisconnectedDistanceMultiplier(0.1);
+		groupLayout.setSize(size);
 		layout = new AggregateLayout<>(groupLayout);
-		//TODO tesztelni, hogy megéri-e?
-		//layout.setSize(size);
+		layout.setSize(size);
 		mouse = new DefaultModalGraphMouse<>();
 		canvas = new VisualizationViewer<>(layout, size);
 		canvas.setSize(size);
@@ -124,34 +121,35 @@ public class DataSetVisualizer {
 		int i = 0;
 		for(Set<Integer> cluster : clusters){
 			Color color = colors[i % colors.length];
+			
 			for(Integer vertex : cluster){
 				vertexPaints.put(vertex, color);
 			}
-			groupCluster(layout, cluster, numberOfClusters);
+			
+			if(!cluster.isEmpty())
+				groupCluster(layout, cluster, numberOfClusters);
+			
 			i++;
 		}
 		
 		canvas.repaint();
 	}
-	
-	//TODO átgondolni
-	private void groupCluster(AggregateLayout<Integer, Integer> layout, Set<Integer> vertices, int numberOfClusters) {
-		if(vertices.size() < layout.getGraph().getVertexCount()) {
-			Point2D center = layout.transform(vertices.iterator().next());
-			Graph<Integer, Integer> subGraph = 
-					UndirectedSparseGraph.<Integer, Integer>getFactory().create();
-			for(Integer v : vertices) {
-				subGraph.addVertex(v);
-			}
-			Layout<Integer, Integer> subLayout = 
-					new CircleLayout<Integer, Integer>(subGraph);
-			subLayout.setInitializer(canvas.getGraphLayout());
-			subLayout.setSize(new Dimension(
-					(int)(size.getWidth() * ((double)vertices.size() / (double)data.getNumberOfRows())),
-					(int)(size.getHeight() * ((double)vertices.size() / (double)data.getNumberOfRows()))));
 
-			layout.put(subLayout,center);
+	private void groupCluster(AggregateLayout<Integer, Integer> layout, Set<Integer> vertices, int numberOfClusters) {
+		Point2D center = layout.transform(vertices.iterator().next());
+		Graph<Integer, Integer> subGraph = 
+				UndirectedSparseGraph.<Integer, Integer>getFactory().create();
+		for(Integer v : vertices) {
+			subGraph.addVertex(v);
 		}
+		Layout<Integer, Integer> subLayout = 
+				new DAGLayout<Integer, Integer>(subGraph);
+		subLayout.setInitializer(canvas.getGraphLayout());
+		subLayout.setSize(new Dimension(
+				(int)(size.getWidth() * ((double)vertices.size() / (double)data.getNumberOfRows() / 2.0d)),
+				(int)(size.getHeight() * ((double)vertices.size() / (double)data.getNumberOfRows() / 2.0d))));
+
+		layout.put(subLayout,center);
 	}
 
 	/**

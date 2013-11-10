@@ -1,29 +1,22 @@
 package net.rpeti.clusterdemo.gui.dialog;
 
-import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
-import javax.swing.Box;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.JProgressBar;
-
-import net.rpeti.clusterdemo.Controller;
-import net.rpeti.clusterdemo.Main;
-
-import javax.swing.JLabel;
-import javax.swing.SwingConstants;
-
-import java.awt.BorderLayout;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import java.awt.Font;
 
-//TODO iterációk számát kiíratni
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JProgressBar;
+import javax.swing.JLabel;
+
+import net.rpeti.clusterdemo.Controller;
+import net.rpeti.clusterdemo.Main;
+
 
 /**
  * Gets the needed parameters for reading a CSV file.

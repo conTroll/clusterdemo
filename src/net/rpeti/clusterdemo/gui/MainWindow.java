@@ -52,7 +52,7 @@ public class MainWindow {
 	
 	private static final String TITLE = "ClusterDemo";
 	private static final String ABOUT_TITLE = TITLE;
-	private static final String ABOUT_MESSAGE = "v0.2 Alpha" + NEWLINE + NEWLINE + "Rónai Péter" + NEWLINE + "(ROPSAAI.ELTE | KD1OUR)";
+	private static final String ABOUT_MESSAGE = "v0.4 Alpha" + NEWLINE + NEWLINE + "Rónai Péter" + NEWLINE + "(ROPSAAI.ELTE | KD1OUR)";
 	private static final String ABOUT_WINDOW_TITLE = "About ClusterDemo";
 	
 	private static final String UNHANDLED_EXCEPTION_TITLE = "Unhandled Exception";
