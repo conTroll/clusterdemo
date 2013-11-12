@@ -22,27 +22,26 @@ import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.UndirectedSparseGraph;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
-import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
+import edu.uci.ics.jung.visualization.control.EditingModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
 import edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position;
 
 //TODO: layout optimalizáció: saját layout groupLayout-nak (ami egyenlően felosztja a canvast)
-//TODO: kiválasztásnál stroke szín és event fire
-//TODO: kontextusmenü
 
 public class DataSetVisualizer {
 	
 	//vertices are represented with the data points ID
-	DataContainer data;
-	Dimension size;
-	UndirectedSparseGraph<Integer, Integer> representation;
-	VisualizationViewer<Integer, Integer> canvas;
-	VertexTransformer vertexTransformer;
-	DefaultModalGraphMouse<Integer, Integer> mouse;
-	AggregateLayout<Integer, Integer> layout;
-	Layout<Integer, Integer> groupLayout;
-	Map<Integer, Paint> vertexPaints;
+	private DataContainer data;
+	private Dimension size;
+	private UndirectedSparseGraph<Integer, Integer> representation;
+	private VisualizationViewer<Integer, Integer> canvas;
+	private VertexTransformer vertexTransformer;
+	private ContextMenuPlugin contextMenu;
+	private EditingModalGraphMouse<Integer, Integer> mouse;
+	private AggregateLayout<Integer, Integer> layout;
+	private Layout<Integer, Integer> groupLayout;
+	private Map<Integer, Paint> vertexPaints;
 	
 	//color RGB codes representing clusters
 	private final static Color[] colors = {
@@ -68,11 +67,14 @@ public class DataSetVisualizer {
 		groupLayout.setSize(size);
 		layout = new AggregateLayout<>(groupLayout);
 		layout.setSize(size);
-		mouse = new DefaultModalGraphMouse<>();
 		canvas = new VisualizationViewer<>(layout, size);
 		canvas.setSize(size);
 		canvas.setPreferredSize(size);
 		canvas.setVertexToolTipTransformer(vertexTransformer);
+		mouse = new EditingModalGraphMouse<>(canvas.getRenderContext(), null, null);
+		contextMenu = new ContextMenuPlugin(canvas);
+		mouse.remove(mouse.getPopupEditingPlugin());
+		mouse.add(contextMenu);
 		mouse.setMode(ModalGraphMouse.Mode.TRANSFORMING);
 		canvas.setGraphMouse(mouse);
 		canvas.getRenderContext().setVertexFillPaintTransformer(MapTransformer.getInstance(vertexPaints));

@@ -197,4 +197,23 @@ public class Controller {
 	public void setProgress(int iterations, int maxIterations){
 		progressDialog.setProgress(iterations, maxIterations);
 	}
+	
+	//TODO actually implement
+	public void addNode(){
+		mainWindow.showMessage("Add", "User wants to add a node.");
+	}
+	
+	//TODO actually implement
+	public void deleteNode(Integer id){
+		mainWindow.showMessage("Delete", "User wants to delete node ID #" + id);
+	}
+	
+	//TODO actually implement
+	public void editNode(Integer id){
+		mainWindow.showMessage("Edit", "User wants to edit node ID #" + id);
+	}
+	
+	public MainWindow getMainWindow(){
+		return mainWindow;
+	}
 }

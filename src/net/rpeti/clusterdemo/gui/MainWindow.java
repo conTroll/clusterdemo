@@ -71,7 +71,6 @@ public class MainWindow {
 	private Controller controller;
 	private JToggleButton pickingModeButton;
 	private JToggleButton moveModeButton;
-	private JToggleButton editingModeButton;
 	private JToolBar graphMouseToolbar;
 	
 	private JLabel modeLabel;
@@ -203,7 +202,6 @@ public class MainWindow {
 		pickingModeButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				moveModeButton.setSelected(false);
-				editingModeButton.setSelected(false);
 				pickingModeButton.setSelected(true);
 				modeLabel.setText("<html><b>Selected Mode:</b> PICKING</html>");
 				controller.changeMouseMode();
@@ -220,7 +218,6 @@ public class MainWindow {
 		moveModeButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				moveModeButton.setSelected(true);
-				editingModeButton.setSelected(false);
 				pickingModeButton.setSelected(false);
 				modeLabel.setText("<html><b>Selected Mode:</b> MOVING</html>");
 				controller.changeMouseMode();
@@ -230,23 +227,6 @@ public class MainWindow {
 		moveModeButton.setContentAreaFilled(false);
 		moveModeButton.setIcon(new ImageIcon(MainWindow.class.getResource("/icons/move_off.png")));
 		graphMouseToolbar.add(moveModeButton);
-		
-		editingModeButton = new JToggleButton("");
-		editingModeButton.setEnabled(false);
-		editingModeButton.setContentAreaFilled(false);
-		editingModeButton.setSelectedIcon(new ImageIcon(MainWindow.class.getResource("/icons/editing_on.png")));
-		editingModeButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				moveModeButton.setSelected(false);
-				editingModeButton.setSelected(true);
-				pickingModeButton.setSelected(false);
-				modeLabel.setText("<html><b>Selected Mode:</b> EDITING</html>");
-				controller.changeMouseMode();
-			}
-		});
-		editingModeButton.setToolTipText("Editing");
-		editingModeButton.setIcon(new ImageIcon(MainWindow.class.getResource("/icons/editing_off.png")));
-		graphMouseToolbar.add(editingModeButton);
 		
 		JSeparator separator_1 = new JSeparator();
 		separator_1.setOrientation(SwingConstants.VERTICAL);
@@ -269,6 +249,29 @@ public class MainWindow {
 		});
 		btnCsvImport.setIcon(new ImageIcon(MainWindow.class.getResource("/icons/import_csv.png")));
 		toolBar.add(btnCsvImport);
+		
+		JButton btnHtmlExport = new JButton("");
+		btnHtmlExport.setToolTipText("Save Result...");
+		btnHtmlExport.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+			}
+		});
+		
+		JButton btnNewButton = new JButton("");
+		btnNewButton.setIcon(new ImageIcon(MainWindow.class.getResource("/icons/operation.png")));
+		btnNewButton.setToolTipText("Run Clustering");
+		toolBar.add(btnNewButton);
+		btnHtmlExport.setIcon(new ImageIcon(MainWindow.class.getResource("/icons/save.png")));
+		toolBar.add(btnHtmlExport);
+		
+		JSeparator separator_2 = new JSeparator();
+		separator_2.setOrientation(SwingConstants.VERTICAL);
+		toolBar.add(separator_2);
+		
+		JButton btnHelp = new JButton("");
+		btnHelp.setIcon(new ImageIcon(MainWindow.class.getResource("/icons/howto.png")));
+		btnHelp.setToolTipText("Help");
+		toolBar.add(btnHelp);
 		
 		//tell the canvas to resize when the main window gets resized
 		graphDrawingPanel.addComponentListener(new ComponentAdapter() {
@@ -333,7 +336,6 @@ public class MainWindow {
 		graphDrawingPanel.add(visualizationServer, BorderLayout.NORTH);
 		moveModeButton.setEnabled(true);
 		pickingModeButton.setEnabled(true);
-		editingModeButton.setEnabled(true);
 	}
 	
 	/**
@@ -371,8 +373,6 @@ public class MainWindow {
 	public ModalGraphMouse.Mode getMouseMode(){
 		if(moveModeButton.isSelected()) 
 			return ModalGraphMouse.Mode.TRANSFORMING;
-		if(editingModeButton.isSelected())
-			return ModalGraphMouse.Mode.EDITING;
 		if(pickingModeButton.isSelected())
 			return ModalGraphMouse.Mode.PICKING;
 		else
