@@ -1,6 +1,6 @@
 package net.rpeti.clusterdemo.gui.visualization;
 
-import net.rpeti.clusterdemo.data.spi.DataContainer;
+import net.rpeti.clusterdemo.data.DataContainer;
 
 import org.apache.commons.collections15.Transformer;
 

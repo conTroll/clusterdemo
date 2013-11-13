@@ -7,7 +7,7 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
-import net.rpeti.clusterdemo.data.spi.DataContainer;
+import net.rpeti.clusterdemo.data.DataContainer;
 
 public class HTMLWriter {
 
@@ -59,7 +59,7 @@ public class HTMLWriter {
 			sb.append("<td>" + i + "</td>" + NEWLINE);
 			sb.append("<td>");
 			for(int j = 0; j < clusteringResult.length; j++){
-				if(clusteringResult[j] == i){
+				if(clusteringResult[j] == i && data.getDataRow(j).size() != 0){
 					sb.append(first ? Integer.toString(j) : ", " + j);
 					first = false;
 				}
@@ -84,6 +84,7 @@ public class HTMLWriter {
 
 		//print data rows
 		for(int i = 0; i < data.getNumberOfRows(); i++){
+			if (data.getDataRow(i).size() == 0) continue;
 			sb.append("<tr>" + NEWLINE);
 			sb.append("<td>" + i + "</td>" + NEWLINE);
 			for(String value : data.getDataRow(i)){

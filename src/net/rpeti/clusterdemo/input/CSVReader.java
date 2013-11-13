@@ -9,7 +9,8 @@ import java.util.Arrays;
 
 //TODO kezelni az idézőjeles védőblokkot
 
-import net.rpeti.clusterdemo.data.spi.DataReceiver;
+
+import net.rpeti.clusterdemo.data.DataReceiver;
 
 public class CSVReader {
 	private final static String DEFAULT_SEPARATOR_REGEX = ",";

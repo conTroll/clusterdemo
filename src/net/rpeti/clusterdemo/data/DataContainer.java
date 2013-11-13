@@ -1,4 +1,4 @@
-package net.rpeti.clusterdemo.data.spi;
+package net.rpeti.clusterdemo.data;
 
 import java.util.List;
 
@@ -32,9 +32,11 @@ public interface DataContainer {
 	/**
 	 * @return a single data value (in table terms the content of a cell).
 	 * @param id
-	 * 		the row number
+	 * 		the number of the row
 	 * @param attribute
 	 * 		the attribute name (determines column)
 	 */
-	public String getDataValue(int rowNumber, String attribute);
+	public String getDataValue(int id, String attribute);
+	
+	public void removeRow(int rowNumber);
 }

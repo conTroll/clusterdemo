@@ -5,49 +5,26 @@ import java.util.Arrays;
 import java.util.List;
 
 import net.rpeti.clusterdemo.algorithms.olary.OlaryCodedAttribute;
-import net.rpeti.clusterdemo.data.spi.DataContainer;
-import net.rpeti.clusterdemo.data.spi.DataReceiver;
+import net.rpeti.clusterdemo.data.DataSet;
 
 
 /**
  * A class for storing and accessing data for the Olary algorithm.
  * Usage: first add attributes, then add data rows.
  */
-public class OlaryDataSet implements DataReceiver, DataContainer {
+public class OlaryDataSet extends DataSet {
 
-	private List<String> attributes;
 	private List<OlaryCodedAttribute> transformedAttributes;
 	private int differentValues[];
-	private List<List<String>> data;
-	
 	private boolean transformed;
 	//the transformation is dirty, when new data rows have been added
 	//and no transformation have been made since
 	private boolean dirtyTransformation;
 	
 	public OlaryDataSet(){
-		attributes = new ArrayList<String>();
-		data = new ArrayList<List<String>>();
 		transformedAttributes = new ArrayList<OlaryCodedAttribute>();
 		transformed = false;
 		dirtyTransformation = false;
-	}
-	
-	@Override
-	public int getNumberOfRows(){
-		return data.size();
-	}
-	
-	@Override
-	public int getNumberOfColumns(){
-		return attributes.size();
-	}
-	
-	@Override
-	public void addAttribute(String attribute) throws UnsupportedOperationException {
-		if(data.size() != 0) throw new UnsupportedOperationException(
-				"Cannot add attribute after data has been added.");
-		attributes.add(attribute);
 	}
 	
 	/**
@@ -96,64 +73,26 @@ public class OlaryDataSet implements DataReceiver, DataContainer {
 			}
 		}
 		
-		data.add(row);
+		super.addData(row);
 	}
 	
-	/**
-	 * @return the list of attributes in the data set.
-	 */
-	@Override
-	public List<String> getAttributes(){
-		return new ArrayList<String>(attributes);
-	}
-	
-	/**
-	 * @return the given data row from the data set
-	 * @param id 
-	 * 		the row ID
-	 */
-	@Override
-	public List<String> getDataRow(int id){
-		return new ArrayList<String>(data.get(id));
-	}
-	
-	/**
-	 * @return the given data column from the data set
-	 * @param id
-	 * 		the column ID
-	 */
-	@Override
-	public List<String> getDataColumn(int id){
-		List<String> result = new ArrayList<>();
-		for (int i = 0; i < getNumberOfRows(); i++){
-			result.add(data.get(i).get(id));
-		}
-		return result;
-	}
-	
-	private int getIndexOfAttr(String attribute){
-		int index = attributes.indexOf(attribute);
-		if (index == -1)
-			throw new IllegalArgumentException("The specified attribute doesn't exist.");
-		return index;
-	}
-	
-	/**
-	 * @return a single data value (in table terms the content of a cell)
-	 * @param id
-	 * 		the row number
-	 * @param attribute
-	 * 		the attribute name (determines column)
-	 */
-	@Override
-	public String getDataValue(int id, String attribute){
-		int index = getIndexOfAttr(attribute);
-		return data.get(id).get(index);
-	}
+	public void removeRow(int rowNumber){
+		List<String> row = this.getDataRow(rowNumber);
+		super.removeRow(rowNumber);
 		
-	public int getNumberOfDifferentDataValues(String attribute){
-		int index = getIndexOfAttr(attribute);
-		return differentValues[index];
+		dirtyTransformation = true;
+		
+		int i = 0;
+		for(String value : row){
+			for(List<String> item : this.data){
+				if (item == null) continue;
+				if (value.equals(item.get(i))){
+					differentValues[i]--;
+					break;
+				}
+			}
+			i++;
+		}
 	}
 	
 	/**
@@ -230,5 +169,10 @@ public class OlaryDataSet implements DataReceiver, DataContainer {
 			result.add(getEncodedAttributeValue(id, attribute));
 		}
 		return result;
+	}
+	
+	public int getNumberOfDifferentDataValues(String attribute){
+		int index = getIndexOfAttr(attribute);
+		return differentValues[index];
 	}
 }

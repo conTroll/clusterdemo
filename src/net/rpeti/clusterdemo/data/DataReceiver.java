@@ -1,4 +1,4 @@
-package net.rpeti.clusterdemo.data.spi;
+package net.rpeti.clusterdemo.data;
 
 import java.util.List;
 

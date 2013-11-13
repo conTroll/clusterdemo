@@ -10,8 +10,8 @@ import net.rpeti.clusterdemo.algorithms.Algorithms;
 import net.rpeti.clusterdemo.algorithms.olary.IllegalClusterNumberException;
 import net.rpeti.clusterdemo.algorithms.olary.IllegalSeedException;
 import net.rpeti.clusterdemo.algorithms.olary.OlaryAlgo;
+import net.rpeti.clusterdemo.data.DataContainer;
 import net.rpeti.clusterdemo.data.olary.OlaryDataSet;
-import net.rpeti.clusterdemo.data.spi.DataContainer;
 import net.rpeti.clusterdemo.gui.MainWindow;
 import net.rpeti.clusterdemo.gui.dialog.ClusteringProgress;
 import net.rpeti.clusterdemo.gui.visualization.DataSetVisualizer;
@@ -239,7 +239,10 @@ public class Controller {
 	
 	//TODO actually implement
 	public void deleteNode(Integer id){
-		mainWindow.showMessage("Delete", "User wants to delete node ID #" + id);
+		dataContainer.removeRow(id);
+		visualizer.removeVertex(id);
+		mainWindow.showMessage("Delete", "Node ID #" + id + " deleted successfully.");
+		
 	}
 	
 	//TODO actually implement

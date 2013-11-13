@@ -14,7 +14,7 @@ import java.util.Set;
 
 import org.apache.commons.collections15.functors.MapTransformer;
 
-import net.rpeti.clusterdemo.data.spi.DataContainer;
+import net.rpeti.clusterdemo.data.DataContainer;
 import edu.uci.ics.jung.algorithms.layout.AggregateLayout;
 import edu.uci.ics.jung.algorithms.layout.DAGLayout;
 import edu.uci.ics.jung.algorithms.layout.KKLayout;
@@ -32,6 +32,7 @@ import edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position;
 public class DataSetVisualizer {
 	
 	//vertices are represented with the data points ID
+	private List<Integer> nodes;
 	private DataContainer data;
 	private Dimension size;
 	private UndirectedSparseGraph<Integer, Integer> representation;
@@ -58,6 +59,7 @@ public class DataSetVisualizer {
 	};
 
 	public DataSetVisualizer(DataContainer data, Dimension size){
+		this.nodes = new ArrayList<Integer>(data.getNumberOfRows());
 		this.data = data;
 		this.size = size;
 		vertexTransformer = new VertexTransformer(data);
@@ -87,8 +89,9 @@ public class DataSetVisualizer {
 	 * Put the vertices on the representation object.
 	 */
 	private void addDataPoints(){
-		for(int i = 0; i < data.getNumberOfRows(); i++){
+		for(Integer i = 0; i < data.getNumberOfRows(); i++){
 			representation.addVertex(i);
+			nodes.add(i);
 		}
 	}
 	
@@ -179,6 +182,15 @@ public class DataSetVisualizer {
 	 */
 	public void setMouseMode(ModalGraphMouse.Mode mouseMode){
 		mouse.setMode(mouseMode);
+	}
+	
+	/**
+	 * Removes a node from the canvas.
+	 * @param vertexId
+	 */
+	public void removeVertex(Integer vertexId){
+		representation.removeVertex(vertexId);
+		canvas.repaint();
 	}
 	
 	/**
