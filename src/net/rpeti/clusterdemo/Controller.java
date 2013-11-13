@@ -217,10 +217,11 @@ public class Controller {
 		mainWindow.getFrame().setEnabled(false);
 		chooser.setFile("*.html");
 		chooser.setVisible(true);
+		mainWindow.getFrame().setEnabled(true);
+		mainWindow.getFrame().toFront();
 		if(chooser.getDirectory() == null || chooser.getFile() == null)
 			return;
 		String path = chooser.getDirectory() + chooser.getFile();
-		mainWindow.getFrame().setEnabled(true);
 		HTMLWriter htmlWriter = new HTMLWriter(
 				new File(path), dataContainer, clusteringResult, k, visualizer.getCanvasAsImage());
 		try {
