@@ -37,7 +37,6 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 
 import javax.swing.JToolBar;
-import javax.swing.JButton;
 import javax.swing.ImageIcon;
 import javax.swing.SwingConstants;
 
@@ -52,7 +51,7 @@ public class MainWindow {
 	
 	private static final String TITLE = "ClusterDemo";
 	private static final String ABOUT_TITLE = TITLE;
-	private static final String ABOUT_MESSAGE = "v0.4 Alpha" + NEWLINE + NEWLINE + "Rónai Péter" + NEWLINE + "(ROPSAAI.ELTE | KD1OUR)";
+	private static final String ABOUT_MESSAGE = "v0.5 Alpha" + NEWLINE + NEWLINE + "Rónai Péter" + NEWLINE + "(ROPSAAI.ELTE | KD1OUR)";
 	private static final String ABOUT_WINDOW_TITLE = "About ClusterDemo";
 	
 	private static final String UNHANDLED_EXCEPTION_TITLE = "Unhandled Exception";
@@ -74,6 +73,7 @@ public class MainWindow {
 	private JToolBar graphMouseToolbar;
 	
 	private JLabel modeLabel;
+	private JMenuItem mntmExport;
 
 	/**
 	 * Create the application.
@@ -134,32 +134,46 @@ public class MainWindow {
 		JMenu mnFile = new JMenu("File");
 		menuBar.add(mnFile);
 		
-		JMenu mnNewMenu = new JMenu("Import");
-		mnFile.add(mnNewMenu);
+		mntmExport = new JMenuItem("Export...");
+		mntmExport.setIcon(new ImageIcon(MainWindow.class.getResource("/icons/save.png")));
+		mntmExport.setEnabled(false);
+		mntmExport.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				Main.getController().exportToHtml();
+			}
+		});
 		
-		JMenuItem mntmFromCsvFile = new JMenuItem("CSV file...");
-		mntmFromCsvFile.addActionListener(new ActionListener() {
-			@Override
+		JMenuItem mntmImportcsv = new JMenuItem("Import (CSV)...");
+		mntmImportcsv.setIcon(new ImageIcon(MainWindow.class.getResource("/icons/import_csv.png")));
+		mntmImportcsv.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				importFromCSV();
 			}
-
 		});
-		mnNewMenu.add(mntmFromCsvFile);
-		
-		JMenuItem mntmExport = new JMenuItem("Export...");
+		mnFile.add(mntmImportcsv);
 		mnFile.add(mntmExport);
 		
 		JSeparator separator = new JSeparator();
 		mnFile.add(separator);
 		
 		JMenuItem mntmExit = new JMenuItem("Exit");
+		mntmExit.setIcon(new ImageIcon(MainWindow.class.getResource("/icons/exit.png")));
+		mntmExit.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				int confirm = JOptionPane.showOptionDialog(MainWindow.this.getFrame(), "Exit Application?", "Confirm Exit",
+						JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, null);
+				if(confirm == JOptionPane.YES_OPTION){
+					System.exit(0);
+				}
+			}
+		});
 		mnFile.add(mntmExit);
 		
 		JMenu mnHelp = new JMenu("Help");
 		menuBar.add(mnHelp);
 		
 		JMenuItem mntmAbout = new JMenuItem("About");
+		mntmAbout.setIcon(new ImageIcon(MainWindow.class.getResource("/icons/about.png")));
 		mntmAbout.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				JLabel aboutTitle = new JLabel(ABOUT_TITLE);
@@ -169,6 +183,10 @@ public class MainWindow {
 						JOptionPane.INFORMATION_MESSAGE);
 			}
 		});
+		
+		JMenuItem mntmHelp = new JMenuItem("Help");
+		mntmHelp.setIcon(new ImageIcon(MainWindow.class.getResource("/icons/howto.png")));
+		mnHelp.add(mntmHelp);
 		mnHelp.add(mntmAbout);
 		frmClusterDemo.getContentPane().setLayout(new BorderLayout(0, 0));
 		
@@ -234,44 +252,6 @@ public class MainWindow {
 		
 		modeLabel = new JLabel("<html><b>Selected Mode:</b> MOVING</html>");
 		graphMouseToolbar.add(modeLabel);
-		
-		//create main toolbar
-		JToolBar toolBar = new JToolBar();
-		toolBar.setFloatable(false);
-		frmClusterDemo.getContentPane().add(toolBar, BorderLayout.NORTH);
-		
-		JButton btnCsvImport = new JButton("");
-		btnCsvImport.setToolTipText("CSV Import...");
-		btnCsvImport.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				importFromCSV();
-			}
-		});
-		btnCsvImport.setIcon(new ImageIcon(MainWindow.class.getResource("/icons/import_csv.png")));
-		toolBar.add(btnCsvImport);
-		
-		JButton btnHtmlExport = new JButton("");
-		btnHtmlExport.setToolTipText("Save Result...");
-		btnHtmlExport.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-			}
-		});
-		
-		JButton btnNewButton = new JButton("");
-		btnNewButton.setIcon(new ImageIcon(MainWindow.class.getResource("/icons/operation.png")));
-		btnNewButton.setToolTipText("Run Clustering");
-		toolBar.add(btnNewButton);
-		btnHtmlExport.setIcon(new ImageIcon(MainWindow.class.getResource("/icons/save.png")));
-		toolBar.add(btnHtmlExport);
-		
-		JSeparator separator_2 = new JSeparator();
-		separator_2.setOrientation(SwingConstants.VERTICAL);
-		toolBar.add(separator_2);
-		
-		JButton btnHelp = new JButton("");
-		btnHelp.setIcon(new ImageIcon(MainWindow.class.getResource("/icons/howto.png")));
-		btnHelp.setToolTipText("Help");
-		toolBar.add(btnHelp);
 		
 		//tell the canvas to resize when the main window gets resized
 		graphDrawingPanel.addComponentListener(new ComponentAdapter() {
@@ -350,6 +330,13 @@ public class MainWindow {
 	 */
 	public void show() {
 		frmClusterDemo.setVisible(true);
+	}
+	
+	/**
+	 * Enables saving the HTML report.
+	 */
+	public void enableSave(){
+		mntmExport.setEnabled(true);
 	}
 	
 	/**

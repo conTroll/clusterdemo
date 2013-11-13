@@ -13,7 +13,7 @@ import net.rpeti.clusterdemo.data.spi.DataReceiver;
 
 public class CSVReader {
 	private final static String DEFAULT_SEPARATOR_REGEX = ",";
-	
+
 	private DataReceiver dataSet;
 
 	public CSVReader(DataReceiver dataSet){
@@ -56,7 +56,7 @@ public class CSVReader {
 	public DataReceiver read(File file, boolean attributesInFirstLine, String separator) throws IOException {
 		BufferedReader reader = new BufferedReader(new FileReader(file));
 		String line = "";
-		
+
 		while("".equals(line)){
 			line = reader.readLine().trim();
 		}
@@ -84,7 +84,7 @@ public class CSVReader {
 			reader.close();
 			throw new EmptyFileException();
 		}
-		
+
 		//add data to the receiver
 		try{
 			while((line = reader.readLine()) != null){
@@ -99,7 +99,7 @@ public class CSVReader {
 		} finally {
 			reader.close();
 		}
-		
+
 		return dataSet;
 	}
 }

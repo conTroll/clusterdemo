@@ -18,12 +18,12 @@ import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.AbstractPopupGraphMousePlugin;
 
 public class ContextMenuPlugin extends AbstractPopupGraphMousePlugin {
-	
+
 	private VisualizationViewer<Integer,Integer> canvas;
 	private JPopupMenu menu;
 	private JMenuItem addMenuItem, deleteMenuItem, editMenuItem;
 	private Integer selectedNode;
-	
+
 	public ContextMenuPlugin(VisualizationViewer<Integer,Integer> canvas) {
 		super(MouseEvent.BUTTON3_MASK);
 		menu = new JPopupMenu();
@@ -38,34 +38,34 @@ public class ContextMenuPlugin extends AbstractPopupGraphMousePlugin {
 		} catch (IOException e1) {
 			Main.getController().getMainWindow().showUnhandledException(e1);
 		}
-		
+
 		addMenuItem.addActionListener(new ActionListener(){
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				Main.getController().addNode();
 			}
-			
+
 		});
-		
+
 		deleteMenuItem.addActionListener(new ActionListener(){
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				Main.getController().deleteNode(selectedNode);
 			}
-    		
-    	});
-		
-    	editMenuItem.addActionListener(new ActionListener(){
+
+		});
+
+		editMenuItem.addActionListener(new ActionListener(){
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				Main.getController().editNode(selectedNode);
 			}
-    		
-    	});
-		
+
+		});
+
 		menu.add(addMenuItem);
 		menu.addSeparator();
 		menu.add(deleteMenuItem);
@@ -77,42 +77,27 @@ public class ContextMenuPlugin extends AbstractPopupGraphMousePlugin {
 
 	@Override
 	protected void handlePopup(MouseEvent e) {
-		
-		Point2D p = e.getPoint();
-		
-		GraphElementAccessor<Integer,Integer> pickSupport = canvas.getPickSupport();
-        if(pickSupport != null) {
-            Integer v = pickSupport.getVertex(canvas.getGraphLayout(), p.getX(), p.getY());
-            updateVertexMenu(v);
-            menu.show(canvas, e.getX(), e.getY());
-        }
-	}
-	
-	private void updateVertexMenu(Integer v) {
-        if(menu == null) return;
-        if(v == null){
-        	editMenuItem.setVisible(false);
-        	deleteMenuItem.setVisible(false);
-        }
-        else{
-        	selectedNode = v;
-        	editMenuItem.setVisible(true);
-        	deleteMenuItem.setVisible(true);
-        }
-    }
-	
-	/**
-     * Getter for the menu.
-     */
-    public JPopupMenu getVertexPopup() {
-        return menu;
-    }
-    
-    /**
-     * Setter for the menu. 
-     */
-    public void setVertexPopup(JPopupMenu menu) {
-        this.menu = menu;
-    }
 
+		Point2D p = e.getPoint();
+
+		GraphElementAccessor<Integer,Integer> pickSupport = canvas.getPickSupport();
+		if(pickSupport != null) {
+			Integer v = pickSupport.getVertex(canvas.getGraphLayout(), p.getX(), p.getY());
+			updateVertexMenu(v);
+			menu.show(canvas, e.getX(), e.getY());
+		}
+	}
+
+	private void updateVertexMenu(Integer v) {
+		if(menu == null) return;
+		if(v == null){
+			editMenuItem.setVisible(false);
+			deleteMenuItem.setVisible(false);
+		}
+		else{
+			selectedNode = v;
+			editMenuItem.setVisible(true);
+			deleteMenuItem.setVisible(true);
+		}
+	}
 }

@@ -1,5 +1,6 @@
 package net.rpeti.clusterdemo;
 
+import java.awt.FileDialog;
 import java.io.File;
 import java.io.IOException;
 import java.util.regex.Pattern;
@@ -10,12 +11,14 @@ import net.rpeti.clusterdemo.algorithms.olary.IllegalClusterNumberException;
 import net.rpeti.clusterdemo.algorithms.olary.IllegalSeedException;
 import net.rpeti.clusterdemo.algorithms.olary.OlaryAlgo;
 import net.rpeti.clusterdemo.data.olary.OlaryDataSet;
+import net.rpeti.clusterdemo.data.spi.DataContainer;
 import net.rpeti.clusterdemo.gui.MainWindow;
 import net.rpeti.clusterdemo.gui.dialog.ClusteringProgress;
 import net.rpeti.clusterdemo.gui.visualization.DataSetVisualizer;
 import net.rpeti.clusterdemo.input.CSVReader;
 import net.rpeti.clusterdemo.input.EmptyFileException;
 import net.rpeti.clusterdemo.input.InvalidFileException;
+import net.rpeti.clusterdemo.output.HTMLWriter;
 
 /**
  * Gets an event (like choosing a file to import) from MainWindow
@@ -26,6 +29,7 @@ import net.rpeti.clusterdemo.input.InvalidFileException;
 public class Controller {
 	private static final String NEWLINE = System.getProperty("line.separator");
 	
+	private static final String EXPORT_FINISHED = "Report has been saved.";
 	private static final String BAD_FORMATTING = "An error has occurred processing the file." + NEWLINE + "The CSV file is badly formatted." + NEWLINE;
 	private static final String EMPTY_FILE = "You provided an empty file. Please select a valid file.";
 	private static final String PLEASE_IMPORT_DATA_FIRST = "Please import data first.";
@@ -37,11 +41,15 @@ public class Controller {
 	private static final String CLUSTERING_CANCELLED = "Clustering cancelled.";
 	private static final String INVALID_CLUSTER_NUMBER = "Invalid cluster number provided." + NEWLINE + "It cannot be greater than the number of data points.";
 	private static final String INVALID_SEED = "Invalid seed ID provided." + NEWLINE + "IDs are indexed between 0 and m-1, where m is the number of data points.";
+	private static final String IO_ERROR_HTML_REPORT = "IO error happened saving the HTML report.";
 
 	private boolean attributesInFirstLine;
 	private String separator;
 	private File file;
 	private MainWindow mainWindow;
+	private DataContainer dataContainer;
+	private int k;
+	private int[] clusteringResult;
 	private Thread backgroundThread;
 	private ClusteringProgress progressDialog;
 	private DataSetVisualizer visualizer;
@@ -103,8 +111,8 @@ public class Controller {
 				}
 
 				if(algo == Algorithms.OLARY){
-					
 					OlaryDataSet dataSet = new OlaryDataSet();
+					dataContainer = dataSet;
 					CSVReader reader = new CSVReader(dataSet);
 					try {
 						reader.read(file, attributesInFirstLine, separator);
@@ -115,7 +123,10 @@ public class Controller {
 						progressDialog.close();
 						if(!shouldStop){
 							mainWindow.setGraphDrawingComponent(visualizer.getCanvas());
+							Controller.this.k = k;
+							Controller.this.clusteringResult = algorithm.getResult();
 							visualizer.showClusteringResult(algorithm.getResult(), k);
+							mainWindow.enableSave();
 							mainWindow.setStatusBarText(CLUSTERING_FINISHED);
 						} else {
 							mainWindow.setStatusBarText(CLUSTERING_CANCELLED);
@@ -196,6 +207,26 @@ public class Controller {
 	 */
 	public void setProgress(int iterations, int maxIterations){
 		progressDialog.setProgress(iterations, maxIterations);
+	}
+	
+	/**
+	 * Export the clustering result to an HTML report.
+	 */
+	public void exportToHtml(){
+		FileDialog chooser = new FileDialog(mainWindow.getFrame(), "Save HTML Report", FileDialog.SAVE);
+		mainWindow.getFrame().setEnabled(false);
+		chooser.setFile("*.html");
+		chooser.setVisible(true);
+		String path = chooser.getDirectory() + chooser.getFile();
+		mainWindow.getFrame().setEnabled(true);
+		HTMLWriter htmlWriter = new HTMLWriter(
+				new File(path), dataContainer, clusteringResult, k, visualizer.getCanvasAsImage());
+		try {
+			htmlWriter.write();
+			mainWindow.setStatusBarText(EXPORT_FINISHED);
+		} catch (IOException e) {
+			mainWindow.showErrorMessage(ERROR, IO_ERROR_HTML_REPORT);
+		}
 	}
 	
 	//TODO actually implement
