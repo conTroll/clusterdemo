@@ -217,6 +217,8 @@ public class Controller {
 		mainWindow.getFrame().setEnabled(false);
 		chooser.setFile("*.html");
 		chooser.setVisible(true);
+		if(chooser.getDirectory() == null || chooser.getFile() == null)
+			return;
 		String path = chooser.getDirectory() + chooser.getFile();
 		mainWindow.getFrame().setEnabled(true);
 		HTMLWriter htmlWriter = new HTMLWriter(
