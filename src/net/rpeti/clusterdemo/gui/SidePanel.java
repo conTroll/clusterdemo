@@ -149,7 +149,7 @@ public class SidePanel extends JPanel {
 		add(spinnerClusters, gbc_spinnerClusters);
 		
 		spinnerSeed = new JSpinner();
-		spinnerSeed.setModel(new SpinnerNumberModel(new Integer(1), new Integer(1), null, new Integer(1)));
+		spinnerSeed.setModel(new SpinnerNumberModel(new Integer(1), new Integer(0), null, new Integer(1)));
 		JComponent componentSeed = (JSpinner.DefaultEditor) spinnerSeed.getEditor();
 		componentSeed.setPreferredSize(sizeMaxIter);
 		
