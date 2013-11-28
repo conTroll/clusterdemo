@@ -1,10 +1,25 @@
 package net.rpeti.clusterdemo;
 
+import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.FileDialog;
+import java.awt.GridLayout;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+
+import javax.swing.Box;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
+import javax.swing.ScrollPaneConstants;
 
 import net.rpeti.clusterdemo.algorithms.Algorithms;
 import net.rpeti.clusterdemo.algorithms.olary.IllegalClusterNumberException;
@@ -231,18 +246,40 @@ public class Controller {
 			mainWindow.showErrorMessage(ERROR, IO_ERROR_HTML_REPORT);
 		}
 	}
-	
-	//TODO actually implement
+
 	public void addNode(){
-		mainWindow.showMessage("Add", "User wants to add a node.");
+		List<String> attributes = dataContainer.getAttributes();
+		
+		List<JTextField> values = new ArrayList<JTextField>();
+		JPanel panel = new JPanel();
+		panel.setLayout(new GridLayout(attributes.size(), 2, 3, 3));
+		for(String attr : attributes){
+			panel.add(new JLabel(attr));
+			JTextField textField = new JTextField();
+			panel.add(textField);
+			values.add(textField);
+		}
+		
+		//set scrollbars and maximum size of panel
+		JScrollPane scrollPane = new JScrollPane(panel, 
+				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
+				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		scrollPane.setPreferredSize(new Dimension(300, 
+				400 < 33 * attributes.size() ? 400 : 33 * attributes.size()));
+		
+		int select = JOptionPane.showConfirmDialog(mainWindow.getFrame(), scrollPane,
+				"Add", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE,
+				new ImageIcon(this.getClass().getResource("/icons/add.png")));
+		if(select == JOptionPane.OK_OPTION){
+			//TODO add the node to visualization and datacontainer
+			mainWindow.setStatusBarText("Node added.");
+		}
 	}
 	
-	//TODO actually implement
 	public void deleteNode(Integer id){
 		dataContainer.removeRow(id);
 		visualizer.removeVertex(id);
-		mainWindow.showMessage("Delete", "Node ID #" + id + " deleted successfully.");
-		
+		mainWindow.setStatusBarText("Node ID #" + id + " deleted successfully.");
 	}
 	
 	//TODO actually implement
