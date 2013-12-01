@@ -156,6 +156,7 @@ public class ImportCSV extends JDialog {
 		contentPanel.add(btnHelp, gbc_btnHelp);
 		
 		checkBoxAttributes = new JCheckBox();
+		checkBoxAttributes.setSelected(true);
 		checkBoxAttributes.setText("Attributes in first line");
 		checkBoxAttributes.setToolTipText("Check if the attributes of the data set is present in the first line of the CSV file");
 		GridBagConstraints gbc_checkBoxAttributes = new GridBagConstraints();

@@ -16,6 +16,7 @@ import javax.swing.JLabel;
 
 import net.rpeti.clusterdemo.Controller;
 import net.rpeti.clusterdemo.Main;
+import javax.swing.ImageIcon;
 
 
 /**
@@ -31,6 +32,7 @@ public class ClusteringProgress extends JDialog {
 	private Controller controller;
 	private JFrame parent;
 	private JLabel status;
+	private JLabel label;
 
 	/**
 	 * Create the dialog.
@@ -92,8 +94,13 @@ public class ClusteringProgress extends JDialog {
 		
 		progressBar = new JProgressBar();
 		progressBar.setIndeterminate(true);
-		progressBar.setBounds(6, 7, 258, 27);
+		progressBar.setBounds(34, 7, 230, 27);
 		getContentPane().add(progressBar);
+		
+		label = new JLabel("");
+		label.setIcon(new ImageIcon(ClusteringProgress.class.getResource("/icons/percent.png")));
+		label.setBounds(4, 8, 24, 27);
+		getContentPane().add(label);
 		setVisible(true);
 		
 		

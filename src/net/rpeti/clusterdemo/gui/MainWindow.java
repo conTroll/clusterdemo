@@ -45,6 +45,8 @@ import java.awt.event.KeyEvent;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
+//TODO write help
+
 public class MainWindow {
 
 	private static final String NEWLINE = System.getProperty("line.separator");
@@ -304,7 +306,7 @@ public class MainWindow {
 		JTextArea stacktrace = new JTextArea(sw.toString());
 		stacktrace.setEditable(false);
 		showErrorMessage(UNHANDLED_EXCEPTION_TITLE, 
-				new Object[]{UNHANDLED_EXCEPTION_TEXT + NEWLINE, e.getLocalizedMessage(), stacktrace});
+				new Object[]{UNHANDLED_EXCEPTION_TEXT + NEWLINE, stacktrace});
 	}
 	
 	/**
@@ -364,5 +366,9 @@ public class MainWindow {
 			return ModalGraphMouse.Mode.PICKING;
 		else
 			return ModalGraphMouse.Mode.TRANSFORMING;
+	}
+	
+	public SidePanel getSidePanel(){
+		return this.sidePanel;
 	}
 }

@@ -7,6 +7,17 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 
+
+
+
+
+
+
+
+
+
+import javax.swing.JOptionPane;
+
 import net.rpeti.clusterdemo.algorithms.Algorithms;
 import net.rpeti.clusterdemo.algorithms.olary.IllegalClusterNumberException;
 import net.rpeti.clusterdemo.algorithms.olary.IllegalSeedException;
@@ -27,8 +38,23 @@ import net.rpeti.clusterdemo.output.HTMLWriter;
  * instantiates the correct classes for the action, and run them.
  *
  */
-//TODO prepare for other algorithms
 public class Controller {
+	private static final String CONFIRMATION_TITLE = "Are you sure?";
+
+	private static final String DELETE_CONFIRMATION_MESSAGE = "Do you want to delete the node #";
+
+	private static final String MODIFIED = " modified.";
+
+	private static final String ADDED = " added.";
+
+	private static final String ADD_DATA = "Add data";
+
+	private static final String EDIT_DATA = "Edit data";
+
+	private static final String NODE_ID = "Node #";
+
+	private static final String SAVE_HTML_REPORT = "Save HTML Report";
+
 	private static final String NEWLINE = System.getProperty("line.separator");
 	
 	private static final String EXPORT_FINISHED = "Report has been saved.";
@@ -76,6 +102,7 @@ public class Controller {
 			this.separator = separator;
 			this.file = file;
 			mainWindow.setStatusBarText(CSV_SELECTED);
+			mainWindow.getSidePanel().enableRun();
 		} catch (PatternSyntaxException e){
 			throw new IllegalArgumentException("Invalid regular expression for separator.");
 		}
@@ -96,7 +123,7 @@ public class Controller {
 	 * @param maxIterations
 	 * 		the maximal number of iterations before the algorithm will terminate
 	 */
-	public void runClustering(final Algorithms algo, final int k, final int seed, final int maxIterations){
+	public void runClustering(){
 		shouldStop = false;
 			
 		progressDialog = new ClusteringProgress(mainWindow.getFrame());
@@ -105,6 +132,12 @@ public class Controller {
 
 			@Override
 			public void run() {
+				
+				Algorithms algo = Controller.this.mainWindow.getSidePanel().getSelectedAlgorithm();
+				int k = Controller.this.mainWindow.getSidePanel().getClusterNumber();
+				int maxIterations = Controller.this.mainWindow.getSidePanel().getIterations();
+				boolean manualSeed = Controller.this.mainWindow.getSidePanel().isManualSeed();
+				int seed = Controller.this.mainWindow.getSidePanel().getSeed();
 
 				if(file == null){
 					progressDialog.close();
@@ -119,7 +152,11 @@ public class Controller {
 					try {
 						reader.read(file, attributesInFirstLine, separator);
 						visualizer = new DataSetVisualizer(dataSet, mainWindow.getSizeForCanvas());
-						OlaryAlgo algorithm = new OlaryAlgo(k, seed, maxIterations, dataSet);
+						OlaryAlgo algorithm;
+						if(manualSeed)
+							algorithm = new OlaryAlgo(k, seed, maxIterations, dataSet);
+						else
+							algorithm = new OlaryAlgo(k, maxIterations, dataSet);
 						algorithm.setController(Controller.this);
 						algorithm.run();
 						progressDialog.close();
@@ -215,7 +252,7 @@ public class Controller {
 	 * Export the clustering result to an HTML report.
 	 */
 	public void exportToHtml(){
-		FileDialog chooser = new FileDialog(mainWindow.getFrame(), "Save HTML Report", FileDialog.SAVE);
+		FileDialog chooser = new FileDialog(mainWindow.getFrame(), SAVE_HTML_REPORT, FileDialog.SAVE);
 		mainWindow.getFrame().setEnabled(false);
 		chooser.setFile("*.html");
 		chooser.setVisible(true);
@@ -236,29 +273,35 @@ public class Controller {
 
 	public void addNode(){
 		NodeEditor editorDialog = 
-				new NodeEditor("Add data", dataSet.getAttributes());
+				new NodeEditor(ADD_DATA, dataSet.getAttributes());
 		
 		if(editorDialog.isOk()){
 			dataSet.addData(editorDialog.getValues());
 			visualizer.addVertex(dataSet.getNumberOfRows() - 1);
-			mainWindow.setStatusBarText("Node #" + (dataSet.getNumberOfColumns() - 1) + " added.");
+			mainWindow.setStatusBarText(NODE_ID + (dataSet.getNumberOfRows() - 1) + ADDED);
 		}
 	}
 	
 	public void deleteNode(Integer id){
-		dataSet.removeRow(id);
-		visualizer.removeVertex(id);
-		mainWindow.setStatusBarText("Node #" + id + " deleted successfully.");
+		int selected = JOptionPane.showConfirmDialog(mainWindow.getFrame(),
+				DELETE_CONFIRMATION_MESSAGE + id + "?", CONFIRMATION_TITLE,
+				JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+		
+		if(selected == JOptionPane.YES_OPTION){
+			dataSet.removeRow(id);
+			visualizer.removeVertex(id);
+			mainWindow.setStatusBarText(NODE_ID + id + " deleted successfully.");
+		}
 	}
 	
 	public void editNode(Integer id){
 		NodeEditor editorDialog =
-				new NodeEditor("Edit data", dataSet.getAttributes(), dataSet.getDataRow(id));
+				new NodeEditor(EDIT_DATA, dataSet.getAttributes(), dataSet.getDataRow(id));
 		
 		if(editorDialog.isOk()){
 			dataSet.editRow(id, editorDialog.getValues());
 			visualizer.removeVertexColor(id);
-			mainWindow.setStatusBarText("Node #" + id + " modified.");
+			mainWindow.setStatusBarText(NODE_ID + id + MODIFIED);
 		}
 	}
 	

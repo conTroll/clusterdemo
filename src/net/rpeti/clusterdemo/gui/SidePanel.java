@@ -28,22 +28,25 @@ import net.rpeti.clusterdemo.Controller;
 import net.rpeti.clusterdemo.Main;
 import net.rpeti.clusterdemo.algorithms.Algorithms;
 import javax.swing.JCheckBox;
+import javax.swing.ImageIcon;
 
 public class SidePanel extends JPanel {
 	
-	// TODO shall be able to turn off seed selection
-	// TODO set it dynamic to algorithm selection
 	// TODO ability to select attributes to cluster on
 	// TODO write live statistics and info about status
 	// TODO comments
 
 	private static final long serialVersionUID = 7654943576215466209L;
+	private static final String OLARY = "Olary";
+	private static final String KMEANS = "K-Means";
 	
 	private Controller controller = Main.getController();
 	private JComboBox<String> comboBoxAlgo;
 	private JSpinner spinnerMaxIterations;
 	private JSpinner spinnerClusters;
 	private JSpinner spinnerSeed;
+	private JCheckBox manualSeed;
+	private JButton btnRun;
 
 	/**
 	 * Create the panel.
@@ -76,7 +79,19 @@ public class SidePanel extends JPanel {
 		add(lblAlgorithm, gbc_lblAlgorithm);
 		
 		comboBoxAlgo = new JComboBox<>();
-		comboBoxAlgo.setModel(new DefaultComboBoxModel<String>(new String[] {"Olary"}));
+		comboBoxAlgo.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				if(spinnerSeed != null && manualSeed != null && getSelectedAlgorithm() == Algorithms.OLARY){
+					spinnerSeed.setEnabled(true);
+					manualSeed.setEnabled(true);
+				}
+				else if (spinnerSeed != null && manualSeed != null) {
+					spinnerSeed.setEnabled(false);
+					manualSeed.setEnabled(false);
+				}
+			}
+		});
+		comboBoxAlgo.setModel(new DefaultComboBoxModel<String>(new String[] {OLARY, KMEANS}));
 		comboBoxAlgo.setSelectedIndex(0);
 		GridBagConstraints gbc_comboBox = new GridBagConstraints();
 		gbc_comboBox.insets = new Insets(0, 0, 5, 0);
@@ -85,12 +100,12 @@ public class SidePanel extends JPanel {
 		gbc_comboBox.gridy = 1;
 		add(comboBoxAlgo, gbc_comboBox);
 		
-		JButton btnRun = new JButton("Run Clustering");
+		btnRun = new JButton("Run Clustering");
+		btnRun.setIcon(new ImageIcon(SidePanel.class.getResource("/icons/operation.png")));
+		btnRun.setEnabled(false);
 		btnRun.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				controller.runClustering(SidePanel.this.getSelectedAlgorithm(), 
-						(int)SidePanel.this.spinnerClusters.getValue(), (int)SidePanel.this.spinnerSeed.getValue(),
-						(int)SidePanel.this.spinnerMaxIterations.getValue());
+				controller.runClustering();
 			}
 		});
 		
@@ -153,14 +168,14 @@ public class SidePanel extends JPanel {
 		JComponent componentSeed = (JSpinner.DefaultEditor) spinnerSeed.getEditor();
 		componentSeed.setPreferredSize(sizeMaxIter);
 		
-		JCheckBox chckbxSeed = new JCheckBox("Seed");
-		chckbxSeed.setFont(new Font("Tahoma", Font.PLAIN, 11));
-		GridBagConstraints gbc_chckbxSeed = new GridBagConstraints();
-		gbc_chckbxSeed.anchor = GridBagConstraints.WEST;
-		gbc_chckbxSeed.insets = new Insets(0, 0, 5, 5);
-		gbc_chckbxSeed.gridx = 1;
-		gbc_chckbxSeed.gridy = 5;
-		add(chckbxSeed, gbc_chckbxSeed);
+		manualSeed = new JCheckBox("Seed");
+		manualSeed.setFont(new Font("Tahoma", Font.PLAIN, 11));
+		GridBagConstraints gbc_manualSeed = new GridBagConstraints();
+		gbc_manualSeed.anchor = GridBagConstraints.WEST;
+		gbc_manualSeed.insets = new Insets(0, 0, 5, 5);
+		gbc_manualSeed.gridx = 1;
+		gbc_manualSeed.gridy = 5;
+		add(manualSeed, gbc_manualSeed);
 		GridBagConstraints gbc_spinnerSeed = new GridBagConstraints();
 		gbc_spinnerSeed.anchor = GridBagConstraints.WEST;
 		gbc_spinnerSeed.insets = new Insets(0, 0, 5, 0);
@@ -184,9 +199,31 @@ public class SidePanel extends JPanel {
 
 	}
 	
+	public void enableRun(){
+		this.btnRun.setEnabled(true);
+	}
+	
+	public boolean isManualSeed(){
+		return this.manualSeed.isSelected();
+	}
+	
+	public int getSeed(){
+		return (int)spinnerSeed.getValue();
+	}
+	
+	public int getClusterNumber(){
+		return (int)spinnerClusters.getValue();
+	}
+	
+	public int getIterations(){
+		return (int)spinnerMaxIterations.getValue();
+	}
+	
 	public Algorithms getSelectedAlgorithm(){
-		if (comboBoxAlgo.getSelectedItem().equals("Olary"))
+		if (comboBoxAlgo.getSelectedItem().equals(OLARY))
 			return Algorithms.OLARY;
+		else if (comboBoxAlgo.getSelectedItem().equals(KMEANS))
+			return Algorithms.KMEANS;
 		else
 			return null;
 	}

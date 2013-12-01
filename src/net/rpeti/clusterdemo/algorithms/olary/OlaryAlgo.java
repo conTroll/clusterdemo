@@ -58,9 +58,11 @@ public class OlaryAlgo implements ClusteringAlgorithm {
 			Random random = new Random();
 			random.setSeed(System.currentTimeMillis());
 			this.seed = random.nextInt(this.rowCount);
+		} else {
+			this.seed = seed;
 		}
 		
-		if(seed >= this.rowCount || seed < -1){
+		if(this.seed >= this.rowCount || this.seed < 0){
 			throw new IllegalSeedException();
 		}
 		if(maxIterations < 1){
@@ -71,7 +73,6 @@ public class OlaryAlgo implements ClusteringAlgorithm {
 		}
 		
 		this.k = k;
-		this.seed = seed;
 		this.maxIterations = maxIterations;
 		this.dataSet = dataSet;
 		this.centers1 = new ArrayList<List<boolean[]>>(k);
