@@ -45,6 +45,7 @@ public class DataSetVisualizer {
 	private Map<Integer, Paint> vertexPaints;
 	
 	//color RGB codes representing clusters
+	//TODO azt a sötétlilát elpusztítani
 	private final static Color[] colors = {
 			new Color(117, 184, 0),
 			new Color(78, 0, 214),
@@ -59,12 +60,14 @@ public class DataSetVisualizer {
 	};
 
 	public DataSetVisualizer(DataContainer data, Dimension size){
-		this.nodes = new ArrayList<Integer>(data.getNumberOfRows());
 		this.data = data;
 		this.size = size;
+		
+		this.nodes = new ArrayList<Integer>(data.getNumberOfRows());
 		vertexTransformer = new VertexTransformer(data);
 		vertexPaints = new HashMap<>();
 		representation = new UndirectedSparseGraph<>();
+		
 		groupLayout = new KKLayout<>(representation);
 		groupLayout.setSize(size);
 		layout = new AggregateLayout<>(groupLayout);
@@ -72,6 +75,7 @@ public class DataSetVisualizer {
 		canvas = new VisualizationViewer<>(layout, size);
 		canvas.setSize(size);
 		canvas.setPreferredSize(size);
+		
 		canvas.setVertexToolTipTransformer(vertexTransformer);
 		mouse = new EditingModalGraphMouse<>(canvas.getRenderContext(), null, null);
 		contextMenu = new ContextMenuPlugin(canvas);
@@ -151,8 +155,8 @@ public class DataSetVisualizer {
 				new DAGLayout<Integer, Integer>(subGraph);
 		subLayout.setInitializer(canvas.getGraphLayout());
 		subLayout.setSize(new Dimension(
-				(int)(size.getWidth() * ((double)vertices.size() / (double)data.getNumberOfRows() / 2.0d)),
-				(int)(size.getHeight() * ((double)vertices.size() / (double)data.getNumberOfRows() / 2.0d))));
+				(int)(size.getWidth() * ((double)vertices.size() / (double)data.getNumberOfRows() / 1.66d)),
+				(int)(size.getHeight() * ((double)vertices.size() / (double)data.getNumberOfRows() / 1.66d))));
 
 		layout.put(subLayout,center);
 	}
@@ -182,6 +186,24 @@ public class DataSetVisualizer {
 	 */
 	public void setMouseMode(ModalGraphMouse.Mode mouseMode){
 		mouse.setMode(mouseMode);
+	}
+	
+	/**
+	 * Adds a node to the canvas.
+	 * @param vertexId
+	 */
+	public void addVertex(Integer vertexId){
+		representation.addVertex(vertexId);
+		canvas.repaint();
+	}
+	
+	/**
+	 * Remove the fill color of a vertex.
+	 * @param vertexId
+	 */
+	public void removeVertexColor(Integer vertexId){
+		vertexPaints.remove(vertexId);
+		canvas.repaint();
 	}
 	
 	/**

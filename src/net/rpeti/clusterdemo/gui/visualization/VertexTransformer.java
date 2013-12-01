@@ -4,7 +4,6 @@ import net.rpeti.clusterdemo.data.DataContainer;
 
 import org.apache.commons.collections15.Transformer;
 
-//TODO ékezetes betűkkel valamit kezdeni
 /**
  * Transforms data point IDs to strings, containing all the
  * attributes and values, nicely formatted. Will be used

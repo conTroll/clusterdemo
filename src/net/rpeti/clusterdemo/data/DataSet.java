@@ -109,4 +109,17 @@ public class DataSet implements DataContainer, DataReceiver {
 		return index;
 	}
 
+	@Override
+	public void editRow(int rowNumber, List<String> newValues) {
+		if(rowNumber >= data.size() || rowNumber < 0){
+			throw new IllegalArgumentException("Wrong index.");
+		}
+		
+		if(newValues.size() != attributes.size()){
+			throw new IllegalArgumentException("Wrong number of attributes.");
+		}
+		
+		data.set(rowNumber, newValues);
+	}
+
 }

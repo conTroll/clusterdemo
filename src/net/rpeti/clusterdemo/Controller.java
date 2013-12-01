@@ -1,34 +1,21 @@
 package net.rpeti.clusterdemo;
 
-import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.FileDialog;
-import java.awt.GridLayout;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-import javax.swing.Box;
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextField;
-import javax.swing.ScrollPaneConstants;
 
 import net.rpeti.clusterdemo.algorithms.Algorithms;
 import net.rpeti.clusterdemo.algorithms.olary.IllegalClusterNumberException;
 import net.rpeti.clusterdemo.algorithms.olary.IllegalSeedException;
 import net.rpeti.clusterdemo.algorithms.olary.OlaryAlgo;
-import net.rpeti.clusterdemo.data.DataContainer;
+import net.rpeti.clusterdemo.data.DataSet;
 import net.rpeti.clusterdemo.data.olary.OlaryDataSet;
 import net.rpeti.clusterdemo.gui.MainWindow;
 import net.rpeti.clusterdemo.gui.dialog.ClusteringProgress;
+import net.rpeti.clusterdemo.gui.dialog.NodeEditor;
 import net.rpeti.clusterdemo.gui.visualization.DataSetVisualizer;
 import net.rpeti.clusterdemo.input.CSVReader;
 import net.rpeti.clusterdemo.input.EmptyFileException;
@@ -62,7 +49,7 @@ public class Controller {
 	private String separator;
 	private File file;
 	private MainWindow mainWindow;
-	private DataContainer dataContainer;
+	private DataSet dataSet;
 	private int k;
 	private int[] clusteringResult;
 	private Thread backgroundThread;
@@ -127,7 +114,7 @@ public class Controller {
 
 				if(algo == Algorithms.OLARY){
 					OlaryDataSet dataSet = new OlaryDataSet();
-					dataContainer = dataSet;
+					Controller.this.dataSet = dataSet;
 					CSVReader reader = new CSVReader(dataSet);
 					try {
 						reader.read(file, attributesInFirstLine, separator);
@@ -238,7 +225,7 @@ public class Controller {
 			return;
 		String path = chooser.getDirectory() + chooser.getFile();
 		HTMLWriter htmlWriter = new HTMLWriter(
-				new File(path), dataContainer, clusteringResult, k, visualizer.getCanvasAsImage());
+				new File(path), dataSet, clusteringResult, k, visualizer.getCanvasAsImage());
 		try {
 			htmlWriter.write();
 			mainWindow.setStatusBarText(EXPORT_FINISHED);
@@ -248,43 +235,31 @@ public class Controller {
 	}
 
 	public void addNode(){
-		List<String> attributes = dataContainer.getAttributes();
+		NodeEditor editorDialog = 
+				new NodeEditor("Add data", dataSet.getAttributes());
 		
-		List<JTextField> values = new ArrayList<JTextField>();
-		JPanel panel = new JPanel();
-		panel.setLayout(new GridLayout(attributes.size(), 2, 3, 3));
-		for(String attr : attributes){
-			panel.add(new JLabel(attr));
-			JTextField textField = new JTextField();
-			panel.add(textField);
-			values.add(textField);
-		}
-		
-		//set scrollbars and maximum size of panel
-		JScrollPane scrollPane = new JScrollPane(panel, 
-				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
-				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-		scrollPane.setPreferredSize(new Dimension(300, 
-				400 < 33 * attributes.size() ? 400 : 33 * attributes.size()));
-		
-		int select = JOptionPane.showConfirmDialog(mainWindow.getFrame(), scrollPane,
-				"Add", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE,
-				new ImageIcon(this.getClass().getResource("/icons/add.png")));
-		if(select == JOptionPane.OK_OPTION){
-			//TODO add the node to visualization and datacontainer
-			mainWindow.setStatusBarText("Node added.");
+		if(editorDialog.isOk()){
+			dataSet.addData(editorDialog.getValues());
+			visualizer.addVertex(dataSet.getNumberOfRows() - 1);
+			mainWindow.setStatusBarText("Node #" + (dataSet.getNumberOfColumns() - 1) + " added.");
 		}
 	}
 	
 	public void deleteNode(Integer id){
-		dataContainer.removeRow(id);
+		dataSet.removeRow(id);
 		visualizer.removeVertex(id);
-		mainWindow.setStatusBarText("Node ID #" + id + " deleted successfully.");
+		mainWindow.setStatusBarText("Node #" + id + " deleted successfully.");
 	}
 	
-	//TODO actually implement
 	public void editNode(Integer id){
-		mainWindow.showMessage("Edit", "User wants to edit node ID #" + id);
+		NodeEditor editorDialog =
+				new NodeEditor("Edit data", dataSet.getAttributes(), dataSet.getDataRow(id));
+		
+		if(editorDialog.isOk()){
+			dataSet.editRow(id, editorDialog.getValues());
+			visualizer.removeVertexColor(id);
+			mainWindow.setStatusBarText("Node #" + id + " modified.");
+		}
 	}
 	
 	public MainWindow getMainWindow(){

@@ -2,18 +2,19 @@ package net.rpeti.clusterdemo.input;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Arrays;
 
 //TODO kezelni az idézőjeles védőblokkot
 
-
 import net.rpeti.clusterdemo.data.DataReceiver;
 
 public class CSVReader {
-	private final static String DEFAULT_SEPARATOR_REGEX = ",";
+	private final static String DEFAULT_SEPARATOR_REGEX = ";";
+	private final static String UTF8_BOM = "\uFEFF";
 
 	private DataReceiver dataSet;
 
@@ -55,11 +56,14 @@ public class CSVReader {
 	 * @throws InvalidFileException if the CSV file is invalid
 	 */
 	public DataReceiver read(File file, boolean attributesInFirstLine, String separator) throws IOException {
-		BufferedReader reader = new BufferedReader(new FileReader(file));
+		BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF8"));
 		String line = "";
 
 		while("".equals(line)){
 			line = reader.readLine().trim();
+			//remove UTF-8 Byte Order Mark
+			if(line.startsWith(UTF8_BOM)) 
+				line = line.substring(1);
 		}
 
 		//read or generate the attributes

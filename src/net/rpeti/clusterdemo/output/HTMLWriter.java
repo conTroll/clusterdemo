@@ -39,6 +39,7 @@ public class HTMLWriter {
 
 
 		sb.append("<h2>" + VISUALIZATION + "</h2>" + NEWLINE);
+		//TODO akkor is valid legyen ha a html-nek nincs kiterjesztése (nincs benne ".")
 		File imageDestination = 
 				new File(destination.getAbsolutePath().replaceFirst("[.][^.]+$", ".png"));
 		ImageIO.write(visualization, "png", imageDestination);

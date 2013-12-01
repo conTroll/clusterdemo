@@ -39,4 +39,6 @@ public interface DataContainer {
 	public String getDataValue(int id, String attribute);
 	
 	public void removeRow(int rowNumber);
+	
+	public void editRow(int rowNumber, List<String> newValues);
 }

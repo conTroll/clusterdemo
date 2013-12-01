@@ -111,7 +111,7 @@ public class ImportCSV extends JDialog {
 		
 		JLabel lblSeparator = new JLabel("Separator");
 		lblSeparator.setFont(new Font("Tahoma", Font.PLAIN, 11));
-		lblSeparator.setToolTipText("Can be any character, sequence of characters, or Java Regular Expression.\r\nThe default separator is a comma (\",\").");
+		lblSeparator.setToolTipText("Can be any character, sequence of characters, or Java Regular Expression.\r\nThe default separator is a semicolon (\";\").");
 		GridBagConstraints gbc_lblSeparator = new GridBagConstraints();
 		gbc_lblSeparator.anchor = GridBagConstraints.WEST;
 		gbc_lblSeparator.insets = new Insets(0, 0, 5, 5);
@@ -120,8 +120,8 @@ public class ImportCSV extends JDialog {
 		contentPanel.add(lblSeparator, gbc_lblSeparator);
 		
 		textFieldSeparator = new JTextField();
-		textFieldSeparator.setToolTipText("Can be any character, sequence of characters, or Java Regular Expression.\r\nThe default separator is a comma (\",\").");
-		textFieldSeparator.setText(",");
+		textFieldSeparator.setToolTipText("Can be any character, sequence of characters, or Java Regular Expression.\r\nThe default separator is a semicolon (\";\").");
+		textFieldSeparator.setText(";");
 		textFieldSeparator.setColumns(10);
 		GridBagConstraints gbc_textFieldSeparator = new GridBagConstraints();
 		gbc_textFieldSeparator.fill = GridBagConstraints.HORIZONTAL;

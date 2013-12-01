@@ -54,45 +54,31 @@ public class OlaryDataSet extends DataSet {
 		//else check if the row contains a different data in the attributes from the
 		//previously added rows
 		else {
-			boolean isNewValue[] = new boolean[row.size()];
-			Arrays.fill(isNewValue, true);
-			
-			int i = 0;
-			for(String value : row){
-				for(List<String> item : this.data){
-					if (value.equals(item.get(i))){
-						isNewValue[i] = false;
-						break;
-					}
-				}
-				i++;
-			}
-			
-			for (i = 0; i < isNewValue.length; i++){
-				if(isNewValue[i]) (differentValues[i])++;
-			}
+			updateDifferentValuesOnInsertion(row);
 		}
 		
 		super.addData(row);
 	}
 	
+	@Override
 	public void removeRow(int rowNumber){
 		List<String> row = this.getDataRow(rowNumber);
 		super.removeRow(rowNumber);
 		
 		dirtyTransformation = true;
 		
-		int i = 0;
-		for(String value : row){
-			for(List<String> item : this.data){
-				if (item == null) continue;
-				if (value.equals(item.get(i))){
-					differentValues[i]--;
-					break;
-				}
-			}
-			i++;
-		}
+		updateDifferentValuesOnRemoval(row);
+	}
+	
+	@Override
+	public void editRow(int rowNumber, List<String> newValues){
+		List<String> oldRow = this.getDataRow(rowNumber);
+		super.editRow(rowNumber, newValues);
+		
+		dirtyTransformation = true;
+		
+		updateDifferentValuesOnRemoval(oldRow);
+		updateDifferentValuesOnInsertion(newValues);
 	}
 	
 	/**
@@ -174,5 +160,39 @@ public class OlaryDataSet extends DataSet {
 	public int getNumberOfDifferentDataValues(String attribute){
 		int index = getIndexOfAttr(attribute);
 		return differentValues[index];
+	}
+	
+	private void updateDifferentValuesOnInsertion(List<String> newRow){
+		boolean isNewValue[] = new boolean[newRow.size()];
+		Arrays.fill(isNewValue, true);
+		
+		int i = 0;
+		for(String value : newRow){
+			for(List<String> item : this.data){
+				if (item != null && value.equals(item.get(i))){
+					isNewValue[i] = false;
+					break;
+				}
+			}
+			i++;
+		}
+		
+		for (i = 0; i < isNewValue.length; i++){
+			if(isNewValue[i]) (differentValues[i])++;
+		}
+	}
+	
+	private void updateDifferentValuesOnRemoval(List<String> removedRow){
+		int i = 0;
+		for(String value : removedRow){
+			for(List<String> item : this.data){
+				if (item == null) continue;
+				if (value.equals(item.get(i))){
+					differentValues[i]--;
+					break;
+				}
+			}
+			i++;
+		}
 	}
 }
