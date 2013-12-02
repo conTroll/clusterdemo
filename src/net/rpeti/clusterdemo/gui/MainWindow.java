@@ -53,7 +53,7 @@ public class MainWindow {
 	
 	private static final String TITLE = "ClusterDemo";
 	private static final String ABOUT_TITLE = TITLE;
-	private static final String ABOUT_MESSAGE = "v0.5 Alpha" + NEWLINE + NEWLINE + "Rónai Péter" + NEWLINE + "(ROPSAAI.ELTE | KD1OUR)";
+	private static final String ABOUT_MESSAGE = "v0.6 Alpha" + NEWLINE + NEWLINE + "Rónai Péter" + NEWLINE + "(ROPSAAI.ELTE | KD1OUR)";
 	private static final String ABOUT_WINDOW_TITLE = "About ClusterDemo";
 	
 	private static final String UNHANDLED_EXCEPTION_TITLE = "Unhandled Exception";
@@ -136,8 +136,8 @@ public class MainWindow {
 		JMenu mnFile = new JMenu("File");
 		menuBar.add(mnFile);
 		
-		mntmExport = new JMenuItem("Export...");
-		mntmExport.setIcon(new ImageIcon(MainWindow.class.getResource("/icons/save.png")));
+		mntmExport = new JMenuItem("Create Report...");
+		mntmExport.setIcon(new ImageIcon(MainWindow.class.getResource("/icons/report.png")));
 		mntmExport.setEnabled(false);
 		mntmExport.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -153,6 +153,19 @@ public class MainWindow {
 			}
 		});
 		mnFile.add(mntmImportcsv);
+		
+		JSeparator separator_2 = new JSeparator();
+		mnFile.add(separator_2);
+		
+		JMenuItem mntmSave = new JMenuItem("Save");
+		mntmSave.setEnabled(false);
+		mntmSave.setIcon(new ImageIcon(MainWindow.class.getResource("/icons/save.png")));
+		mnFile.add(mntmSave);
+		
+		JMenuItem mntmSaveAs = new JMenuItem("Save As...");
+		mntmSaveAs.setEnabled(false);
+		mntmSaveAs.setIcon(new ImageIcon(MainWindow.class.getResource("/icons/save.png")));
+		mnFile.add(mntmSaveAs);
 		mnFile.add(mntmExport);
 		
 		JSeparator separator = new JSeparator();
@@ -187,6 +200,7 @@ public class MainWindow {
 		});
 		
 		JMenuItem mntmHelp = new JMenuItem("Help");
+		mntmHelp.setEnabled(false);
 		mntmHelp.setIcon(new ImageIcon(MainWindow.class.getResource("/icons/howto.png")));
 		mnHelp.add(mntmHelp);
 		mnHelp.add(mntmAbout);

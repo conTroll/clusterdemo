@@ -18,6 +18,7 @@ import javax.swing.JButton;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.nio.channels.SeekableByteChannel;
 
 import javax.swing.JComponent;
 import javax.swing.JSpinner;
@@ -27,8 +28,10 @@ import javax.swing.DefaultComboBoxModel;
 import net.rpeti.clusterdemo.Controller;
 import net.rpeti.clusterdemo.Main;
 import net.rpeti.clusterdemo.algorithms.Algorithms;
+
 import javax.swing.JCheckBox;
 import javax.swing.ImageIcon;
+import javax.swing.SwingConstants;
 
 public class SidePanel extends JPanel {
 	
@@ -61,11 +64,11 @@ public class SidePanel extends JPanel {
 		setLayout(gridBagLayout);
 		
 		JLabel lblSettingsAndData = new JLabel("Settings & Stats");
-		lblSettingsAndData.setFont(new Font("Tahoma", Font.BOLD, 14));
+		lblSettingsAndData.setFont(new Font("Tahoma", Font.BOLD, 16));
 		GridBagConstraints gbc_lblSettingsAndData = new GridBagConstraints();
-		gbc_lblSettingsAndData.gridwidth = 3;
+		gbc_lblSettingsAndData.gridwidth = 2;
 		gbc_lblSettingsAndData.insets = new Insets(0, 0, 5, 0);
-		gbc_lblSettingsAndData.gridx = 0;
+		gbc_lblSettingsAndData.gridx = 1;
 		gbc_lblSettingsAndData.gridy = 0;
 		add(lblSettingsAndData, gbc_lblSettingsAndData);
 		
@@ -82,7 +85,7 @@ public class SidePanel extends JPanel {
 		comboBoxAlgo.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				if(spinnerSeed != null && manualSeed != null && getSelectedAlgorithm() == Algorithms.OLARY){
-					spinnerSeed.setEnabled(true);
+					if(isManualSeed()) spinnerSeed.setEnabled(true);
 					manualSeed.setEnabled(true);
 				}
 				else if (spinnerSeed != null && manualSeed != null) {
@@ -110,11 +113,13 @@ public class SidePanel extends JPanel {
 		});
 		
 		JLabel lblParameters = new JLabel("Parameters");
-		lblParameters.setFont(new Font("Tahoma", Font.BOLD, 14));
+		lblParameters.setIcon(new ImageIcon(SidePanel.class.getResource("/icons/tune.png")));
+		lblParameters.setFont(new Font("Tahoma", Font.BOLD, 12));
 		GridBagConstraints gbc_lblParameters = new GridBagConstraints();
-		gbc_lblParameters.gridwidth = 3;
+		gbc_lblParameters.anchor = GridBagConstraints.WEST;
+		gbc_lblParameters.gridwidth = 2;
 		gbc_lblParameters.insets = new Insets(0, 0, 5, 0);
-		gbc_lblParameters.gridx = 0;
+		gbc_lblParameters.gridx = 1;
 		gbc_lblParameters.gridy = 2;
 		add(lblParameters, gbc_lblParameters);
 		
@@ -164,11 +169,21 @@ public class SidePanel extends JPanel {
 		add(spinnerClusters, gbc_spinnerClusters);
 		
 		spinnerSeed = new JSpinner();
+		spinnerSeed.setEnabled(false);
 		spinnerSeed.setModel(new SpinnerNumberModel(new Integer(1), new Integer(0), null, new Integer(1)));
 		JComponent componentSeed = (JSpinner.DefaultEditor) spinnerSeed.getEditor();
 		componentSeed.setPreferredSize(sizeMaxIter);
 		
 		manualSeed = new JCheckBox("Seed");
+		manualSeed.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				if(isManualSeed() && spinnerSeed != null){
+					spinnerSeed.setEnabled(true);
+				} else if(spinnerSeed != null){
+					spinnerSeed.setEnabled(false);
+				}
+			}
+		});
 		manualSeed.setFont(new Font("Tahoma", Font.PLAIN, 11));
 		GridBagConstraints gbc_manualSeed = new GridBagConstraints();
 		gbc_manualSeed.anchor = GridBagConstraints.WEST;
@@ -183,17 +198,20 @@ public class SidePanel extends JPanel {
 		gbc_spinnerSeed.gridy = 5;
 		add(spinnerSeed, gbc_spinnerSeed);
 		GridBagConstraints gbc_btnRun = new GridBagConstraints();
+		gbc_btnRun.gridwidth = 3;
 		gbc_btnRun.insets = new Insets(0, 0, 5, 0);
 		gbc_btnRun.anchor = GridBagConstraints.EAST;
-		gbc_btnRun.gridx = 2;
+		gbc_btnRun.gridx = 0;
 		gbc_btnRun.gridy = 6;
 		add(btnRun, gbc_btnRun);
 		
 		JLabel lblDataEditor = new JLabel("Information");
-		lblDataEditor.setFont(new Font("Tahoma", Font.BOLD, 14));
+		lblDataEditor.setIcon(new ImageIcon(SidePanel.class.getResource("/icons/info.png")));
+		lblDataEditor.setFont(new Font("Tahoma", Font.BOLD, 12));
 		GridBagConstraints gbc_lblDataEditor = new GridBagConstraints();
-		gbc_lblDataEditor.gridwidth = 3;
-		gbc_lblDataEditor.gridx = 0;
+		gbc_lblDataEditor.anchor = GridBagConstraints.WEST;
+		gbc_lblDataEditor.gridwidth = 2;
+		gbc_lblDataEditor.gridx = 1;
 		gbc_lblDataEditor.gridy = 7;
 		add(lblDataEditor, gbc_lblDataEditor);
 

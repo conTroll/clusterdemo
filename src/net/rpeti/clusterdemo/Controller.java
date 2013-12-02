@@ -3,18 +3,10 @@ package net.rpeti.clusterdemo;
 import java.awt.FileDialog;
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
-
-
-
-
-
-
-
-
-
-
 
 import javax.swing.JOptionPane;
 
@@ -39,21 +31,6 @@ import net.rpeti.clusterdemo.output.HTMLWriter;
  *
  */
 public class Controller {
-	private static final String CONFIRMATION_TITLE = "Are you sure?";
-
-	private static final String DELETE_CONFIRMATION_MESSAGE = "Do you want to delete the node #";
-
-	private static final String MODIFIED = " modified.";
-
-	private static final String ADDED = " added.";
-
-	private static final String ADD_DATA = "Add data";
-
-	private static final String EDIT_DATA = "Edit data";
-
-	private static final String NODE_ID = "Node #";
-
-	private static final String SAVE_HTML_REPORT = "Save HTML Report";
 
 	private static final String NEWLINE = System.getProperty("line.separator");
 	
@@ -70,6 +47,14 @@ public class Controller {
 	private static final String INVALID_CLUSTER_NUMBER = "Invalid cluster number provided." + NEWLINE + "It cannot be greater than the number of data points.";
 	private static final String INVALID_SEED = "Invalid seed ID provided." + NEWLINE + "IDs are indexed between 0 and m-1, where m is the number of data points.";
 	private static final String IO_ERROR_HTML_REPORT = "IO error happened saving the HTML report.";
+	private static final String CONFIRMATION_TITLE = "Are you sure?";
+	private static final String DELETE_CONFIRMATION_MESSAGE = "Do you want to delete the node #";
+	private static final String MODIFIED = " modified.";
+	private static final String ADDED = " added.";
+	private static final String ADD_DATA = "Add data";
+	private static final String EDIT_DATA = "Edit data";
+	private static final String NODE_ID = "Node #";
+	private static final String SAVE_HTML_REPORT = "Save HTML Report";
 
 	private boolean attributesInFirstLine;
 	private String separator;
@@ -82,6 +67,7 @@ public class Controller {
 	private ClusteringProgress progressDialog;
 	private DataSetVisualizer visualizer;
 	private boolean shouldStop;
+	private boolean isModified = false;
 	
 	/**
 	 * Start importing the CSV file.
@@ -254,7 +240,7 @@ public class Controller {
 	public void exportToHtml(){
 		FileDialog chooser = new FileDialog(mainWindow.getFrame(), SAVE_HTML_REPORT, FileDialog.SAVE);
 		mainWindow.getFrame().setEnabled(false);
-		chooser.setFile("*.html");
+		chooser.setFile("report_" + new SimpleDateFormat("yy-MM-dd_HH-mm").format(new Date()) + ".html");
 		chooser.setVisible(true);
 		mainWindow.getFrame().setEnabled(true);
 		mainWindow.getFrame().toFront();
@@ -270,6 +256,11 @@ public class Controller {
 			mainWindow.showErrorMessage(ERROR, IO_ERROR_HTML_REPORT);
 		}
 	}
+	
+	public void saveCSV(){
+		//TODO 
+		isModified = false;
+	}
 
 	public void addNode(){
 		NodeEditor editorDialog = 
@@ -278,6 +269,7 @@ public class Controller {
 		if(editorDialog.isOk()){
 			dataSet.addData(editorDialog.getValues());
 			visualizer.addVertex(dataSet.getNumberOfRows() - 1);
+			isModified = true;
 			mainWindow.setStatusBarText(NODE_ID + (dataSet.getNumberOfRows() - 1) + ADDED);
 		}
 	}
@@ -290,6 +282,7 @@ public class Controller {
 		if(selected == JOptionPane.YES_OPTION){
 			dataSet.removeRow(id);
 			visualizer.removeVertex(id);
+			isModified = true;
 			mainWindow.setStatusBarText(NODE_ID + id + " deleted successfully.");
 		}
 	}
@@ -300,7 +293,9 @@ public class Controller {
 		
 		if(editorDialog.isOk()){
 			dataSet.editRow(id, editorDialog.getValues());
+			clusteringResult[id] = -1;
 			visualizer.removeVertexColor(id);
+			isModified = true;
 			mainWindow.setStatusBarText(NODE_ID + id + MODIFIED);
 		}
 	}

@@ -2,8 +2,10 @@ package net.rpeti.clusterdemo.output;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 
 import javax.imageio.ImageIO;
 
@@ -34,12 +36,18 @@ public class HTMLWriter {
 	}
 
 	public void write() throws IOException{
+		
 		StringBuilder sb = new StringBuilder();
-		sb.append("<!DOCTYPE html>" + NEWLINE + "<html>" + NEWLINE + "<body>");
+		sb.append("<!DOCTYPE html>" + NEWLINE + "<html>" + NEWLINE + "<head>" + NEWLINE +
+				"<meta charset=\"UTF-8\">" + NEWLINE + "</head>" + NEWLINE + "<body>");
 
 
 		sb.append("<h2>" + VISUALIZATION + "</h2>" + NEWLINE);
-		//TODO akkor is valid legyen ha a html-nek nincs kiterjesztése (nincs benne ".")
+		if (! (destination.getAbsolutePath().endsWith(".html") ||
+				destination.getAbsolutePath().endsWith(".htm"))){
+			destination = new File(destination.getAbsolutePath() + ".html");
+		}
+		
 		File imageDestination = 
 				new File(destination.getAbsolutePath().replaceFirst("[.][^.]+$", ".png"));
 		ImageIO.write(visualization, "png", imageDestination);
@@ -101,9 +109,10 @@ public class HTMLWriter {
 		sb.append("</body>" + NEWLINE + "</html>");
 
 		//write the whole thing to file
-		FileWriter fw = new FileWriter(destination);
-		fw.write(sb.toString());
-		fw.close();
+		FileOutputStream fos = new FileOutputStream(destination);
+		OutputStreamWriter sw = new OutputStreamWriter(fos, "UTF8");
+		sw.write(sb.toString());
+		sw.close();
 	}
 
 }
