@@ -42,10 +42,10 @@ import javax.swing.SwingConstants;
 
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-
-//TODO write help
+import java.util.Scanner;
 
 public class MainWindow {
 
@@ -200,7 +200,19 @@ public class MainWindow {
 		});
 		
 		JMenuItem mntmHelp = new JMenuItem("Help");
-		mntmHelp.setEnabled(false);
+		mntmHelp.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				InputStream is = MainWindow.this.getClass().getResourceAsStream("/text/help.txt");
+				Scanner scanner = new Scanner(is);
+				scanner.useDelimiter("\\Z");
+				String helpText = scanner.next();
+				helpText = helpText.replaceAll("(\\r|\\n)", "");
+				scanner.close();
+				JOptionPane.showMessageDialog(MainWindow.this.getFrame(), helpText,
+						"Quick Help", JOptionPane.INFORMATION_MESSAGE,
+						new ImageIcon(MainWindow.this.getClass().getResource("/icons/howto.png")));
+			}
+		});
 		mntmHelp.setIcon(new ImageIcon(MainWindow.class.getResource("/icons/howto.png")));
 		mnHelp.add(mntmHelp);
 		mnHelp.add(mntmAbout);

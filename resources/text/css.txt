@@ -37,6 +37,7 @@ table.gradienttable {
 	border-color: #999999;
 	border-collapse: collapse;
 }
+
 table.gradienttable th {
 	padding: 0px;
 	background: #d5e3e4;
@@ -49,6 +50,7 @@ table.gradienttable th {
 	background: linear-gradient(to bottom,  #d5e3e4 0%,#ccdee0 40%,#b3c8cc 100%);
 	border: 1px solid #999999;
 }
+
 table.gradienttable td {
 	padding: 0px;
 	background: #ebecda;
@@ -59,8 +61,9 @@ table.gradienttable td {
 	background: -o-linear-gradient(top,  #ebecda 0%,#e0e0c6 40%,#ceceb7 100%);
 	background: -ms-linear-gradient(top,  #ebecda 0%,#e0e0c6 40%,#ceceb7 100%);
 	background: linear-gradient(to bottom,  #ebecda 0%,#e0e0c6 40%,#ceceb7 100%);
-	border: 1px solid #999999;
+	border: 1px solid #fcfdec;
 }
+
 table.gradienttable th p{
 	margin:0px;
 	padding:8px;
@@ -71,10 +74,7 @@ table.gradienttable th p{
 }
 table.gradienttable td p{
 	margin:0px;
-	padding:8px;
-	border-top: 1px solid #fcfdec;
-	border-bottom:0px;
-	border-left: 1px solid #fcfdec;;
-	border-right:0px;
+	padding:4px;
+	
 }
 </style>
