@@ -27,9 +27,8 @@ public class ContextMenuPlugin extends AbstractPopupGraphMousePlugin {
 	public ContextMenuPlugin(VisualizationViewer<Integer,Integer> canvas) {
 		super(MouseEvent.BUTTON3_MASK);
 		menu = new JPopupMenu();
-		Image addImage;
 		try {
-			addImage = ImageIO.read(this.getClass().getResource("/icons/add.png"));
+			Image addImage = ImageIO.read(this.getClass().getResource("/icons/add.png"));
 			Image deleteImage = ImageIO.read(this.getClass().getResource("/icons/delete.png"));
 			Image editImage = ImageIO.read(this.getClass().getResource("/icons/edit.png"));
 			addMenuItem = new JMenuItem("Add...", new ImageIcon(addImage.getScaledInstance(16, 16, Image.SCALE_DEFAULT)));

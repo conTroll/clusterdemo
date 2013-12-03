@@ -45,10 +45,9 @@ public class DataSetVisualizer {
 	private Map<Integer, Paint> vertexPaints;
 	
 	//color RGB codes representing clusters
-	//TODO azt a sötétlilát elpusztítani
 	private final static Color[] colors = {
 			new Color(117, 184, 0),
-			new Color(78, 0, 214),
+			new Color(78, 150, 214),
 			new Color(222, 141, 0),
 			new Color(0, 93, 255),
 			new Color(223, 230, 32),

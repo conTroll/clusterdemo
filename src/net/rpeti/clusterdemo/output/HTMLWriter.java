@@ -3,26 +3,30 @@ package net.rpeti.clusterdemo.output;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.net.URISyntaxException;
+import java.util.Scanner;
 
 import javax.imageio.ImageIO;
 
+import net.rpeti.clusterdemo.Main;
 import net.rpeti.clusterdemo.data.DataContainer;
 
 public class HTMLWriter {
 
+	private static final String CLUSTER_NO = "Cluster #";
 	private static final String NEWLINE = System.getProperty("line.separator");
 	private static final String DATA = "Data";
-	private static final String CLUSTERING_RESULT = "Clustering Result";
+	private static final String STATISTICS = "Statistics";
 	private static final String VISUALIZATION = "Visualization";
 	private static final String CLUSTER = "Cluster";
-	private static final String ASSIGNED_DATA = "Assigned Data Points";
+	private static final String NUM_OF_DATA = "Number of Data";
 
 	private DataContainer data;
 	private File destination;
 	private int[] clusteringResult;
+	private int[] counts;
 	private int numOfClusters;
 	private BufferedImage visualization;
 
@@ -33,13 +37,26 @@ public class HTMLWriter {
 		this.clusteringResult = clusteringResult;
 		this.numOfClusters = numOfClusters;
 		this.visualization = visualization;
+		this.counts = new int[numOfClusters];
 	}
 
 	public void write() throws IOException{
 		
 		StringBuilder sb = new StringBuilder();
 		sb.append("<!DOCTYPE html>" + NEWLINE + "<html>" + NEWLINE + "<head>" + NEWLINE +
-				"<meta charset=\"UTF-8\">" + NEWLINE + "</head>" + NEWLINE + "<body>");
+				"<meta charset=\"UTF-8\">" + NEWLINE);
+		
+		try {
+			Scanner scanner = new Scanner(new File(this.getClass().getResource("/text/css.txt").toURI()));
+			scanner.useDelimiter("\\Z");
+			String css = scanner.next();
+			scanner.close();
+			sb.append(css);
+		} catch (URISyntaxException e) {
+			Main.getController().getMainWindow().showUnhandledException(e);
+		}
+		
+		sb.append("</head>" + NEWLINE + "<body>" + NEWLINE);
 
 
 		sb.append("<h2>" + VISUALIZATION + "</h2>" + NEWLINE);
@@ -51,61 +68,64 @@ public class HTMLWriter {
 		File imageDestination = 
 				new File(destination.getAbsolutePath().replaceFirst("[.][^.]+$", ".png"));
 		ImageIO.write(visualization, "png", imageDestination);
+		double ratio = (double)visualization.getHeight() / (double)visualization.getWidth();
 		sb.append("<a href=\"" + imageDestination.getName() + "\">" + NEWLINE);
-		sb.append("<img src=\"" + imageDestination.getName() + "\" width=\"640px\" height=\"480px\">");
+		sb.append("<img src=\"" + imageDestination.getName() + "\" width=\"640px\" height=\""+ (640 * ratio) + "px\">");
 		sb.append("</img>" + NEWLINE + "</a>" + NEWLINE);
 
-		//print clustering result
-		sb.append("<h2>" + CLUSTERING_RESULT + "</h2>" + NEWLINE);
-		sb.append("<table border=\"1\">" + NEWLINE);
+		sb.append("<h1>" + DATA + "</h1>" + NEWLINE);
+		for(int k = 0; k < numOfClusters; k++){
+			sb.append("<h2>" + CLUSTER_NO + Integer.toString(k+1) + "</h2>");
+			sb.append("<table class=\"gradienttable\">" + NEWLINE);
+			//assemble header from attributes
+			sb.append("<tr>" + NEWLINE);
+			sb.append("<th>ID</th>" + NEWLINE);
+			for(String attribute : data.getAttributes()){
+				sb.append("<th>");
+				sb.append(attribute);
+				sb.append("</th>" + NEWLINE);
+			}
+			sb.append("</tr>" + NEWLINE);
+			
+			int count = 0;
+			
+			//print data rows
+			for(int i = 0; i < data.getNumberOfRows(); i++){
+				if (clusteringResult[i] != k) continue;
+				if (data.getDataRow(i).size() == 0) continue;
+				count++;
+				sb.append("<tr>" + NEWLINE);
+				sb.append("<td>" + i + "</td>" + NEWLINE);
+				for(String value : data.getDataRow(i)){
+					sb.append("<td>");
+					sb.append(value);
+					sb.append("</td>" + NEWLINE);
+				}
+				sb.append("</tr>" + NEWLINE);
+			}
+	
+			sb.append("</table>" + NEWLINE + NEWLINE);
+			counts[k] = count;
+		}
+		
+		//print stats
+		sb.append("<h1>" + STATISTICS + "</h1>" + NEWLINE);
+		sb.append("<table class=\"gradienttable\" width=\"220px\">" + NEWLINE);
 		sb.append("<tr>" + NEWLINE);
 		sb.append("<th>" + CLUSTER + "</th>" + NEWLINE);
-		sb.append("<th>" + ASSIGNED_DATA + "</th>");
+		sb.append("<th>" + NUM_OF_DATA + "</th>");
 		sb.append("</tr>");
 		for(int i = 0; i < numOfClusters; i++){
-			boolean first = true;
 			sb.append("<tr>" + NEWLINE);
 			sb.append("<td>" + i + "</td>" + NEWLINE);
 			sb.append("<td>");
-			for(int j = 0; j < clusteringResult.length; j++){
-				if(clusteringResult[j] == i && data.getDataRow(j).size() != 0){
-					sb.append(first ? Integer.toString(j) : ", " + j);
-					first = false;
-				}
-			}
+			sb.append(counts[i]);
 			sb.append("</td>" + NEWLINE);
 			sb.append("</tr>" + NEWLINE);
 		}
 
 		sb.append("</table>" + NEWLINE);
-
-		sb.append("<h2>" + DATA + "</h2>" + NEWLINE);
-		sb.append("<table border=\"1\">" + NEWLINE);
-		//assemble header from attributes
-		sb.append("<tr>" + NEWLINE);
-		sb.append("<th>ID</th>" + NEWLINE);
-		for(String attribute : data.getAttributes()){
-			sb.append("<th>");
-			sb.append(attribute);
-			sb.append("</th>" + NEWLINE);
-		}
-		sb.append("</tr>" + NEWLINE);
-
-		//print data rows
-		for(int i = 0; i < data.getNumberOfRows(); i++){
-			if (data.getDataRow(i).size() == 0) continue;
-			sb.append("<tr>" + NEWLINE);
-			sb.append("<td>" + i + "</td>" + NEWLINE);
-			for(String value : data.getDataRow(i)){
-				sb.append("<td>");
-				sb.append(value);
-				sb.append("</td>" + NEWLINE);
-			}
-			sb.append("</tr>" + NEWLINE);
-		}
-
-		sb.append("</table>" + NEWLINE + NEWLINE);
-
+		
 		sb.append("</body>" + NEWLINE + "</html>");
 
 		//write the whole thing to file

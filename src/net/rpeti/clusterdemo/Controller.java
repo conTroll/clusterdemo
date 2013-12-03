@@ -17,6 +17,7 @@ import net.rpeti.clusterdemo.algorithms.olary.OlaryAlgo;
 import net.rpeti.clusterdemo.data.DataSet;
 import net.rpeti.clusterdemo.data.olary.OlaryDataSet;
 import net.rpeti.clusterdemo.gui.MainWindow;
+import net.rpeti.clusterdemo.gui.SidePanel;
 import net.rpeti.clusterdemo.gui.dialog.ClusteringProgress;
 import net.rpeti.clusterdemo.gui.dialog.NodeEditor;
 import net.rpeti.clusterdemo.gui.visualization.DataSetVisualizer;
@@ -36,16 +37,17 @@ public class Controller {
 	
 	private static final String EXPORT_FINISHED = "Report has been saved.";
 	private static final String BAD_FORMATTING = "An error has occurred processing the file." + NEWLINE + "The CSV file is badly formatted." + NEWLINE;
-	private static final String EMPTY_FILE = "You provided an empty file. Please select a valid file.";
+	private static final String EMPTY_FILE = "Empty data file.";
 	private static final String PLEASE_IMPORT_DATA_FIRST = "Please import data first.";
 	private static final String CANT_READ_FILE = "Couldn't read input file." + NEWLINE + "Please import file, and try again.";
-	private static final String INVALID_CSV = "You provided an invalid CSV file.";
+	private static final String INVALID_CSV = "Invalid CSV file.";
 	private static final String ERROR = "Error";
 	private static final String CSV_SELECTED = "CSV data file has been selected. You can now run the algorithm.";
+	private static final String READY = "Ready.";
 	private static final String CLUSTERING_FINISHED = "Clustering finished.";
 	private static final String CLUSTERING_CANCELLED = "Clustering cancelled.";
-	private static final String INVALID_CLUSTER_NUMBER = "Invalid cluster number provided." + NEWLINE + "It cannot be greater than the number of data points.";
-	private static final String INVALID_SEED = "Invalid seed ID provided." + NEWLINE + "IDs are indexed between 0 and m-1, where m is the number of data points.";
+	private static final String INVALID_CLUSTER_NUMBER = "Invalid cluster number provided.";
+	private static final String INVALID_SEED = "Invalid seed ID provided.";
 	private static final String IO_ERROR_HTML_REPORT = "IO error happened saving the HTML report.";
 	private static final String CONFIRMATION_TITLE = "Are you sure?";
 	private static final String DELETE_CONFIRMATION_MESSAGE = "Do you want to delete the node #";
@@ -54,7 +56,9 @@ public class Controller {
 	private static final String ADD_DATA = "Add data";
 	private static final String EDIT_DATA = "Edit data";
 	private static final String NODE_ID = "Node #";
+	private static final String DELETED_SUCCESSFULLY = " deleted successfully.";
 	private static final String SAVE_HTML_REPORT = "Save HTML Report";
+	private static final String MODIFIED_STATUS = "Modified. Please save.";
 
 	private boolean attributesInFirstLine;
 	private String separator;
@@ -88,7 +92,8 @@ public class Controller {
 			this.separator = separator;
 			this.file = file;
 			mainWindow.setStatusBarText(CSV_SELECTED);
-			mainWindow.getSidePanel().enableRun();
+			mainWindow.getSidePanel().setStatus(READY, SidePanel.STATUS_TYPE_READY);
+			mainWindow.getSidePanel().setRunEnabled(true);
 		} catch (PatternSyntaxException e){
 			throw new IllegalArgumentException("Invalid regular expression for separator.");
 		}
@@ -138,6 +143,7 @@ public class Controller {
 					try {
 						reader.read(file, attributesInFirstLine, separator);
 						visualizer = new DataSetVisualizer(dataSet, mainWindow.getSizeForCanvas());
+						visualizer.setMouseMode(mainWindow.getMouseMode());
 						OlaryAlgo algorithm;
 						if(manualSeed)
 							algorithm = new OlaryAlgo(k, seed, maxIterations, dataSet);
@@ -152,25 +158,27 @@ public class Controller {
 							Controller.this.clusteringResult = algorithm.getResult();
 							visualizer.showClusteringResult(algorithm.getResult(), k);
 							mainWindow.enableSave();
+							mainWindow.getSidePanel().setStatus(READY, SidePanel.STATUS_TYPE_READY);
 							mainWindow.setStatusBarText(CLUSTERING_FINISHED);
 						} else {
+							mainWindow.getSidePanel().setStatus(READY, SidePanel.STATUS_TYPE_READY);
 							mainWindow.setStatusBarText(CLUSTERING_CANCELLED);
 						}
 					} catch (EmptyFileException e){
 						progressDialog.close();
-						mainWindow.showErrorMessage(ERROR, EMPTY_FILE);
+						mainWindow.getSidePanel().setStatus(EMPTY_FILE, SidePanel.STATUS_TYPE_ERROR);
 					} catch (InvalidFileException e){
 						progressDialog.close();
-						mainWindow.showErrorMessage(ERROR, INVALID_CSV);
+						mainWindow.getSidePanel().setStatus(INVALID_CSV, SidePanel.STATUS_TYPE_ERROR);
 					} catch (IOException e) {
 						progressDialog.close();
 						mainWindow.showErrorMessage(ERROR, CANT_READ_FILE + NEWLINE + NEWLINE + e.getMessage());
 					} catch (IllegalSeedException e) {
 						progressDialog.close();
-						mainWindow.showErrorMessage(ERROR, INVALID_SEED);
+						mainWindow.getSidePanel().setStatus(INVALID_SEED, SidePanel.STATUS_TYPE_ERROR);
 					} catch (IllegalClusterNumberException e) {
 						progressDialog.close();
-						mainWindow.showErrorMessage(ERROR, INVALID_CLUSTER_NUMBER);
+						mainWindow.getSidePanel().setStatus(INVALID_CLUSTER_NUMBER, SidePanel.STATUS_TYPE_ERROR);
 					} catch (IllegalArgumentException e){
 						e.printStackTrace();
 						progressDialog.close();
@@ -259,6 +267,7 @@ public class Controller {
 	
 	public void saveCSV(){
 		//TODO 
+		mainWindow.getSidePanel().setStatus(READY, SidePanel.STATUS_TYPE_READY);
 		isModified = false;
 	}
 
@@ -270,6 +279,7 @@ public class Controller {
 			dataSet.addData(editorDialog.getValues());
 			visualizer.addVertex(dataSet.getNumberOfRows() - 1);
 			isModified = true;
+			mainWindow.getSidePanel().setStatus(MODIFIED_STATUS, SidePanel.STATUS_TYPE_WARNING);
 			mainWindow.setStatusBarText(NODE_ID + (dataSet.getNumberOfRows() - 1) + ADDED);
 		}
 	}
@@ -283,7 +293,8 @@ public class Controller {
 			dataSet.removeRow(id);
 			visualizer.removeVertex(id);
 			isModified = true;
-			mainWindow.setStatusBarText(NODE_ID + id + " deleted successfully.");
+			mainWindow.getSidePanel().setStatus(MODIFIED_STATUS, SidePanel.STATUS_TYPE_WARNING);
+			mainWindow.setStatusBarText(NODE_ID + id + DELETED_SUCCESSFULLY);
 		}
 	}
 	
@@ -296,6 +307,7 @@ public class Controller {
 			clusteringResult[id] = -1;
 			visualizer.removeVertexColor(id);
 			isModified = true;
+			mainWindow.getSidePanel().setStatus(MODIFIED_STATUS, SidePanel.STATUS_TYPE_WARNING);
 			mainWindow.setStatusBarText(NODE_ID + id + MODIFIED);
 		}
 	}
