@@ -4,6 +4,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.URISyntaxException;
 import java.util.Scanner;
@@ -46,15 +47,11 @@ public class HTMLWriter {
 		sb.append("<!DOCTYPE html>" + NEWLINE + "<html>" + NEWLINE + "<head>" + NEWLINE +
 				"<meta charset=\"UTF-8\">" + NEWLINE);
 		
-		try {
-			Scanner scanner = new Scanner(new File(this.getClass().getResource("/text/css.txt").toURI()));
-			scanner.useDelimiter("\\Z");
-			String css = scanner.next();
-			scanner.close();
-			sb.append(css);
-		} catch (URISyntaxException e) {
-			Main.getController().getMainWindow().showUnhandledException(e);
-		}
+		Scanner scanner = new Scanner(this.getClass().getResourceAsStream("/text/css.txt"));
+		scanner.useDelimiter("\\Z");
+		String css = scanner.next();
+		scanner.close();
+		sb.append(css);
 		
 		sb.append("</head>" + NEWLINE + "<body>" + NEWLINE);
 
