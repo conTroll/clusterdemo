@@ -37,10 +37,11 @@ public class ClusteringProgress extends JDialog {
 	/**
 	 * Create the dialog.
 	 */
-	public ClusteringProgress(JFrame parent) {
-		super(parent, false);
-		this.parent = parent;
+	public ClusteringProgress() {
+		super(Main.getController().getMainWindow().getFrame(), false);
 		this.controller = Main.getController();
+		this.parent = controller.getMainWindow().getFrame();
+		
 		
 		//do not block program execution, but block main window
 		setModalityType(ModalityType.MODELESS);
@@ -107,6 +108,16 @@ public class ClusteringProgress extends JDialog {
 	}
 	
 	/**
+	 * Closes the dialog.
+	 */
+	public void close(){
+		setVisible(false);
+		dispose();
+		this.parent.setEnabled(true);
+		this.parent.toFront();
+	}
+	
+	/**
 	 * Set the progress of clustering.
 	 * @param value
 	 * 		a number between 0 and 100 (indicating progress)
@@ -115,15 +126,5 @@ public class ClusteringProgress extends JDialog {
 		progressBar.setIndeterminate(false);
 		progressBar.setValue((iteration * 100) / maxIterations);
 		status.setText(ITERATIONS + ": " + iteration + "/" + maxIterations);
-	}
-	
-	/**
-	 * Closes the dialog.
-	 */
-	public void close(){
-		setVisible(false);
-		dispose();
-		this.parent.setEnabled(true);
-		this.parent.toFront();
 	}
 }

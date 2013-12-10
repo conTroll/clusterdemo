@@ -255,6 +255,40 @@ public class SidePanel extends JPanel {
 		setStatus(STATUS_ON_START, STATUS_TYPE_WARNING);
 	}
 	
+	public int getClusterNumber(){
+		return (int)spinnerClusters.getValue();
+	}
+	
+	public int getIterations(){
+		return (int)spinnerMaxIterations.getValue();
+	}
+	
+	//below are getters for the input fields
+	
+	public int getSeed(){
+		return (int)spinnerSeed.getValue();
+	}
+	
+	public Algorithms getSelectedAlgorithm(){
+		if (comboBoxAlgo.getSelectedItem().equals(OLARY))
+			return Algorithms.OLARY;
+		else if (comboBoxAlgo.getSelectedItem().equals(KMEANS))
+			return Algorithms.KMEANS;
+		else
+			return null;
+	}
+	
+	public boolean isManualSeed(){
+		return this.manualSeed.isSelected();
+	}
+	
+	/**
+	 * Enable/disable the run button.
+	 */
+	public void setRunEnabled(boolean enable){
+		this.btnRun.setEnabled(enable);
+	}
+	
 	/**
 	 * Set the status display above the Run Clustering button.
 	 * @param text
@@ -279,40 +313,6 @@ public class SidePanel extends JPanel {
 		
 		//set the text of the label
 		statusLabel.setText(text);
-	}
-	
-	/**
-	 * Enable/disable the run button.
-	 */
-	public void setRunEnabled(boolean enable){
-		this.btnRun.setEnabled(enable);
-	}
-	
-	//below are getters for the input fields
-	
-	public boolean isManualSeed(){
-		return this.manualSeed.isSelected();
-	}
-	
-	public int getSeed(){
-		return (int)spinnerSeed.getValue();
-	}
-	
-	public int getClusterNumber(){
-		return (int)spinnerClusters.getValue();
-	}
-	
-	public int getIterations(){
-		return (int)spinnerMaxIterations.getValue();
-	}
-	
-	public Algorithms getSelectedAlgorithm(){
-		if (comboBoxAlgo.getSelectedItem().equals(OLARY))
-			return Algorithms.OLARY;
-		else if (comboBoxAlgo.getSelectedItem().equals(KMEANS))
-			return Algorithms.KMEANS;
-		else
-			return null;
 	}
 
 }

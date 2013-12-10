@@ -14,12 +14,12 @@ public class IllegalClusterNumberException extends IllegalArgumentException {
 		super(s);
 	}
 
-	public IllegalClusterNumberException(Throwable cause) {
-		super(cause);
-	}
-
 	public IllegalClusterNumberException(String message, Throwable cause) {
 		super(message, cause);
+	}
+
+	public IllegalClusterNumberException(Throwable cause) {
+		super(cause);
 	}
 
 }

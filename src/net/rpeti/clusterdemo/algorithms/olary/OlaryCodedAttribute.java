@@ -43,6 +43,8 @@ public class OlaryCodedAttribute {
 		this.name = name;
 		codesByValues = new HashMap<String, boolean[]>();
 		
+		//TODO randomly assign codes
+		
 		int i = 0;
 		for(String value : values){
 			if(!(codesByValues.containsKey(value))){
@@ -52,15 +54,15 @@ public class OlaryCodedAttribute {
 		}
 	}
 
+	public int getLength(){
+		return this.code.getLength();
+	}
+	
 	/**
 	 * @return the original name of the attribute.
 	 */
 	public String getName() {
 		return this.name;
-	}
-	
-	public int getLength(){
-		return this.code.getLength();
 	}
 	
 	/**

@@ -60,14 +60,16 @@ public class OlaryDataSet extends DataSet {
 		super.addData(row);
 	}
 	
-	@Override
-	public void removeRow(int rowNumber){
-		List<String> row = this.getDataRow(rowNumber);
-		super.removeRow(rowNumber);
+	/**
+	 * Executes Olary Transformation on the data.
+	 */
+	public void doTransformation(){
+		transformed = true;
+		dirtyTransformation = false;
 		
-		dirtyTransformation = true;
-		
-		updateDifferentValuesOnRemoval(row);
+		for(int i = 0; i < attributes.size(); i++){
+			transformedAttributes.add(new OlaryCodedAttribute(attributes.get(i), differentValues[i], getDataColumn(i)));
+		}
 	}
 	
 	@Override
@@ -79,18 +81,6 @@ public class OlaryDataSet extends DataSet {
 		
 		updateDifferentValuesOnRemoval(oldRow);
 		updateDifferentValuesOnInsertion(newValues);
-	}
-	
-	/**
-	 * Executes Olary Transformation on the data.
-	 */
-	public void doTransformation(){
-		transformed = true;
-		dirtyTransformation = false;
-		
-		for(int i = 0; i < attributes.size(); i++){
-			transformedAttributes.add(new OlaryCodedAttribute(attributes.get(i), differentValues[i], getDataColumn(i)));
-		}
 	}
 	
 	/**
@@ -160,6 +150,16 @@ public class OlaryDataSet extends DataSet {
 	public int getNumberOfDifferentDataValues(String attribute){
 		int index = getIndexOfAttr(attribute);
 		return differentValues[index];
+	}
+	
+	@Override
+	public void removeRow(int rowNumber){
+		List<String> row = this.getDataRow(rowNumber);
+		super.removeRow(rowNumber);
+		
+		dirtyTransformation = true;
+		
+		updateDifferentValuesOnRemoval(row);
 	}
 	
 	private void updateDifferentValuesOnInsertion(List<String> newRow){

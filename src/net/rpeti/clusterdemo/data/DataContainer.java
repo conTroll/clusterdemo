@@ -6,21 +6,12 @@ import java.util.List;
  * Specifies the query methods a data container object should implement.
  */
 public interface DataContainer {
+	public void editRow(int rowNumber, List<String> newValues);
+	
 	/**
 	 * @return the list of attributes in the data set.
 	 */
 	public List<String> getAttributes();
-	
-	public int getNumberOfRows();
-	
-	public int getNumberOfColumns();
-	
-	/**
-	 * @return the given data row from the data set
-	 * @param rowNumber 
-	 * 		the row number
-	 */
-	public List<String> getDataRow(int rowNumber);
 	
 	/**
 	 * @return the given column from the data set
@@ -28,6 +19,13 @@ public interface DataContainer {
 	 * 		the column number
 	 */
 	public List<String> getDataColumn(int colNumber);
+	
+	/**
+	 * @return the given data row from the data set
+	 * @param rowNumber 
+	 * 		the row number
+	 */
+	public List<String> getDataRow(int rowNumber);
 	
 	/**
 	 * @return a single data value (in table terms the content of a cell).
@@ -38,7 +36,9 @@ public interface DataContainer {
 	 */
 	public String getDataValue(int id, String attribute);
 	
-	public void removeRow(int rowNumber);
+	public int getNumberOfColumns();
 	
-	public void editRow(int rowNumber, List<String> newValues);
+	public int getNumberOfRows();
+	
+	public void removeRow(int rowNumber);
 }

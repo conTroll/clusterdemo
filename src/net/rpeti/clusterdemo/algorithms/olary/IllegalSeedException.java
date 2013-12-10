@@ -14,12 +14,12 @@ public class IllegalSeedException extends IllegalArgumentException {
 		super(arg0);
 	}
 
-	public IllegalSeedException(Throwable arg0) {
-		super(arg0);
-	}
-
 	public IllegalSeedException(String arg0, Throwable arg1) {
 		super(arg0, arg1);
+	}
+
+	public IllegalSeedException(Throwable arg0) {
+		super(arg0);
 	}
 
 }

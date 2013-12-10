@@ -27,19 +27,6 @@ public class OlaryAlgo implements ClusteringAlgorithm {
 	private Controller controller;
 	
 	/**
-	 * Initializes Olary Algorithm with a random seed.
-	 * @param k
-	 * 		the desired number of clusters
-	 * @param maxIterations
-	 * 		the maximum number of iterations the algorithm can make before terminating
-	 * @param dataSet
-	 * 		the data set (an object of type OlaryDataSet)
-	 */
-	public OlaryAlgo(int k, int maxIterations, OlaryDataSet dataSet){
-		this(k, -1, maxIterations, dataSet);
-	}
-	
-	/**
 	 * Initializes Olary Algorithm with a predefined seed.
 	 * @param k
 	 * 		the desired number of clusters
@@ -81,6 +68,19 @@ public class OlaryAlgo implements ClusteringAlgorithm {
 	}
 	
 	/**
+	 * Initializes Olary Algorithm with a random seed.
+	 * @param k
+	 * 		the desired number of clusters
+	 * @param maxIterations
+	 * 		the maximum number of iterations the algorithm can make before terminating
+	 * @param dataSet
+	 * 		the data set (an object of type OlaryDataSet)
+	 */
+	public OlaryAlgo(int k, int maxIterations, OlaryDataSet dataSet){
+		this(k, -1, maxIterations, dataSet);
+	}
+	
+	/**
 	 * Must initialize centers1 before calling this.
 	 * Will assign the data points to clusters.
 	 * Ensures, that the centers will be assigned to their own clusters.
@@ -108,81 +108,6 @@ public class OlaryAlgo implements ClusteringAlgorithm {
 		}
 	}
 
-	/**
-	 * @return the distance between 2 binary sequences.
-	 */
-	private int getDistance(boolean[] value1, boolean[] value2){
-		if(value1.length != value2.length){
-			throw new IllegalArgumentException("The length of the 2 attributes differ. "
-					+ "You can only supply values of the same attribute.");
-		}
-		
-		int distance = 0;
-		for(int i = 0; i < value1.length; i++){
-			if(value1[i] != value2[i])
-				distance++;
-		}
-		
-		return distance;
-	}
-	
-	/**
-	 * @param clusterID
-	 * 		the ID of the cluster 
-	 * @param id
-	 * 		the ID of the data point
-	 * @return the distance between the center of the specified cluster, and some data point
-	 */
-	private int getDistanceFromClusterCenter(int clusterID, int id){
-		if(clusterID >= k || clusterID < 0)
-			throw new IllegalArgumentException("clusterID must be at least 0 and less than " + k);
-		if(id >= rowCount || id < 0)
-			throw new IllegalArgumentException("id must be at least 0 and less than " + rowCount);
-		
-		int i = 0;
-		int distance = 0;
-		for(String attribute : dataSet.getAttributes()){
-			distance += this.getDistance(
-					dataSet.getEncodedAttributeValue(id, attribute),
-					centers1.get(clusterID).get(i));
-			i++;
-		}
-		return distance;
-	}
-	
-	/**
-	 * Implementation of initCenters() method, as specified in the documentation.
-	 * Initializes the centers before the first iteration.
-	 */
-	private void initCenters(){
-		int optimalCenter;
-		//the first center will be supplied, or randomly selected
-		centers1.add(dataSet.getEncodedRow(seed));
-		//set up the remaining k-1 centers
-		for(int i = 1; i < k; i++){
-			int maxDistance = 0;
-			optimalCenter = 0;
-			//we examine all data points, and select one which will be
-			//the best center for the new cluster
-			for (int j = 0; j < rowCount; j++){
-				if(!centers1.contains(j)){
-					int currentDistance = 0;
-					//sum the distances between the actual point and the
-					//previously selected centers
-					for(int s = 0; s < i; s++){
-						currentDistance += this.getDistanceFromClusterCenter(s, j);
-					}
-					//the one with the maximal sum wins
-					if(currentDistance > maxDistance){
-						maxDistance = currentDistance;
-						optimalCenter = j;
-					}
-				}
-			}
-			centers1.add(dataSet.getEncodedRow(optimalCenter));
-		}
-	}
-	
 	/**
 	 * Implementation of the computeCenters() subroutine as specified in the documentation.
 	 * We determine the dominant binary attributes for every cluster.
@@ -229,6 +154,93 @@ public class OlaryAlgo implements ClusteringAlgorithm {
 		}
 	}
 	
+	/**
+	 * @return the distance between 2 binary sequences.
+	 */
+	private int getDistance(boolean[] value1, boolean[] value2){
+		if(value1.length != value2.length){
+			throw new IllegalArgumentException("The length of the 2 attributes differ. "
+					+ "You can only supply values of the same attribute.");
+		}
+		
+		int distance = 0;
+		for(int i = 0; i < value1.length; i++){
+			if(value1[i] != value2[i])
+				distance++;
+		}
+		
+		return distance;
+	}
+	
+	/**
+	 * @param clusterID
+	 * 		the ID of the cluster 
+	 * @param id
+	 * 		the ID of the data point
+	 * @return the distance between the center of the specified cluster, and some data point
+	 */
+	private int getDistanceFromClusterCenter(int clusterID, int id){
+		if(clusterID >= k || clusterID < 0)
+			throw new IllegalArgumentException("clusterID must be at least 0 and less than " + k);
+		if(id >= rowCount || id < 0)
+			throw new IllegalArgumentException("id must be at least 0 and less than " + rowCount);
+		
+		int i = 0;
+		int distance = 0;
+		for(String attribute : dataSet.getAttributes()){
+			distance += this.getDistance(
+					dataSet.getEncodedAttributeValue(id, attribute),
+					centers1.get(clusterID).get(i));
+			i++;
+		}
+		return distance;
+	}
+	
+	/**
+	 * Returns the result of the algorithm.
+	 * @return
+	 * 		an integer array, where the n-th item
+	 * 		represents the cluster that was assigned
+	 * 		to the data point with ID n
+	 */
+	@Override
+	public int[] getResult(){
+		return this.index;
+	}
+	
+	/**
+	 * Implementation of initCenters() method, as specified in the documentation.
+	 * Initializes the centers before the first iteration.
+	 */
+	private void initCenters(){
+		int optimalCenter;
+		//the first center will be supplied, or randomly selected
+		centers1.add(dataSet.getEncodedRow(seed));
+		//set up the remaining k-1 centers
+		for(int i = 1; i < k; i++){
+			int maxDistance = 0;
+			optimalCenter = 0;
+			//we examine all data points, and select one which will be
+			//the best center for the new cluster
+			for (int j = 0; j < rowCount; j++){
+				if(!centers1.contains(j)){
+					int currentDistance = 0;
+					//sum the distances between the actual point and the
+					//previously selected centers
+					for(int s = 0; s < i; s++){
+						currentDistance += this.getDistanceFromClusterCenter(s, j);
+					}
+					//the one with the maximal sum wins
+					if(currentDistance > maxDistance){
+						maxDistance = currentDistance;
+						optimalCenter = j;
+					}
+				}
+			}
+			centers1.add(dataSet.getEncodedRow(optimalCenter));
+		}
+	}
+	
 	private boolean isConvergence(){
 		int i = 0;
 		for(List<boolean[]> attribute : centers1){
@@ -272,18 +284,6 @@ public class OlaryAlgo implements ClusteringAlgorithm {
 	@Override
 	public void setController(Controller controller){
 		this.controller = controller;
-	}
-	
-	/**
-	 * Returns the result of the algorithm.
-	 * @return
-	 * 		an integer array, where the n-th item
-	 * 		represents the cluster that was assigned
-	 * 		to the data point with ID n
-	 */
-	@Override
-	public int[] getResult(){
-		return this.index;
 	}
 
 }

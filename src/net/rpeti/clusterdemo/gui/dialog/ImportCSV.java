@@ -11,17 +11,17 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.JLabel;
 
-import java.awt.Desktop;
 import java.awt.FileDialog;
 import java.awt.Font;
 
 import javax.swing.JCheckBox;
 import javax.swing.JTextField;
 
+import net.rpeti.clusterdemo.Main;
+
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.io.File;
-import java.net.URI;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import java.awt.GridBagLayout;
@@ -134,17 +134,7 @@ public class ImportCSV extends JDialog {
 		JButton btnHelp = new JButton("Help");
 		btnHelp.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
-				if(desktop != null && desktop.isSupported(Desktop.Action.BROWSE)){
-					try {
-						desktop.browse(new URI(REGEX_TUTORIAL_LINK));
-					} catch (Exception e) {
-						e.printStackTrace();
-						JOptionPane.showMessageDialog(ImportCSV.this, "Error happened while trying to open a link in the default browser.",  "Error", JOptionPane.ERROR_MESSAGE);
-					}
-				} else {
-					JOptionPane.showMessageDialog(ImportCSV.this, "Can't reach browser in the current platform.",  "Error", JOptionPane.ERROR_MESSAGE);
-				}
+				Main.getController().getMainWindow().openBrowser(REGEX_TUTORIAL_LINK);
 			}
 		});
 		GridBagConstraints gbc_btnHelp = new GridBagConstraints();
@@ -211,6 +201,14 @@ public class ImportCSV extends JDialog {
 	}
 	
 	/**
+	 * @return true if and only if the checkbox 
+	 * 'attributes in first line' was checked by the user
+	 */
+	public boolean getIsAttributesInFirstLine(){
+		return checkBoxAttributes.isSelected();
+	}
+	
+	/**
 	 * @return true if and only if the user clicked on OK button,
 	 * and the data provided validates correctly.
 	 */
@@ -233,13 +231,5 @@ public class ImportCSV extends JDialog {
 	 */
 	public String getSeparator(){
 		return textFieldSeparator.getText();
-	}
-	
-	/**
-	 * @return true if and only if the checkbox 
-	 * 'attributes in first line' was checked by the user
-	 */
-	public boolean getIsAttributesInFirstLine(){
-		return checkBoxAttributes.isSelected();
 	}
 }

@@ -1,6 +1,5 @@
 package net.rpeti.clusterdemo;
 
-import java.awt.FileDialog;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -24,6 +23,7 @@ import net.rpeti.clusterdemo.gui.visualization.DataSetVisualizer;
 import net.rpeti.clusterdemo.input.CSVReader;
 import net.rpeti.clusterdemo.input.EmptyFileException;
 import net.rpeti.clusterdemo.input.InvalidFileException;
+import net.rpeti.clusterdemo.output.CSVWriter;
 import net.rpeti.clusterdemo.output.HTMLWriter;
 
 /**
@@ -32,6 +32,10 @@ import net.rpeti.clusterdemo.output.HTMLWriter;
  *
  */
 public class Controller {
+
+	private static final String FILE_WRITTEN_TEXT = "File written successfully.";
+
+	private static final String WRITE_ERROR = "<html>Can't access file for write.<br>May it's in use by another process.</html>";
 
 	private static final String NEWLINE = System.getProperty("line.separator");
 	
@@ -48,8 +52,9 @@ public class Controller {
 	private static final String CLUSTERING_CANCELLED = "Clustering cancelled.";
 	private static final String INVALID_CLUSTER_NUMBER = "Invalid cluster number provided.";
 	private static final String INVALID_SEED = "Invalid seed ID provided.";
-	private static final String IO_ERROR_HTML_REPORT = "IO error happened saving the HTML report.";
+	private static final String IO_ERROR_HTML_REPORT = "<html>IO error happened while saving the HTML report.<br>Check if free space and write privileges are present on the destination drive.</html>";
 	private static final String CONFIRMATION_TITLE = "Are you sure?";
+	private static final String SAVE_CONFIRMATION_TITLE = "Do you want to save?";
 	private static final String DELETE_CONFIRMATION_MESSAGE = "Do you want to delete the node #";
 	private static final String MODIFIED = " modified.";
 	private static final String ADDED = " added.";
@@ -59,6 +64,8 @@ public class Controller {
 	private static final String DELETED_SUCCESSFULLY = " deleted successfully.";
 	private static final String SAVE_HTML_REPORT = "Save HTML Report";
 	private static final String MODIFIED_STATUS = "Modified. Please save.";
+	private static final String SAVE_BEFORE_RECLUSTER_QUESTION = "<html>The data set has been modified.<br>" + 
+	"If you re-cluster the data now, you'll lose all the changes.<br>Do you want to save the changes before re-clustering?</html>";
 
 	private boolean attributesInFirstLine;
 	private String separator;
@@ -66,12 +73,92 @@ public class Controller {
 	private MainWindow mainWindow;
 	private DataSet dataSet;
 	private int k;
-	private int[] clusteringResult;
+	private int[] clusterResult;
 	private Thread backgroundThread;
 	private ClusteringProgress progressDialog;
 	private DataSetVisualizer visualizer;
 	private boolean shouldStop;
 	private boolean isModified = false;
+	
+	public void addNode(){
+		NodeEditor editorDialog = 
+				new NodeEditor(ADD_DATA, dataSet.getAttributes());
+		
+		if(editorDialog.isOk()){
+			dataSet.addData(editorDialog.getValues());
+			visualizer.addVertex(dataSet.getNumberOfRows() - 1);
+			isModified = true;
+			mainWindow.getSidePanel().setStatus(MODIFIED_STATUS, SidePanel.STATUS_TYPE_WARNING);
+			mainWindow.setStatusBarText(NODE_ID + (dataSet.getNumberOfRows() - 1) + ADDED);
+		}
+	}
+	
+	/**
+	 * Calling this function indicates that the algorithm should stop.
+	 */
+	public void cancelClustering(){
+		shouldStop = true;
+	}
+	
+	/**
+	 * Changes the mouse mode on the canvas according to the
+	 * selected mouse mode on the toolbar.
+	 */
+	public void changeMouseMode(){
+		if (visualizer != null)
+			visualizer.setMouseMode(mainWindow.getMouseMode());
+		updateCanvasSize();
+		
+	}
+	
+	public void deleteNode(Integer id){
+		int selected = JOptionPane.showConfirmDialog(mainWindow.getFrame(),
+				DELETE_CONFIRMATION_MESSAGE + id + "?", CONFIRMATION_TITLE,
+				JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+		
+		if(selected == JOptionPane.YES_OPTION){
+			dataSet.removeRow(id);
+			visualizer.removeVertex(id);
+			isModified = true;
+			mainWindow.getSidePanel().setStatus(MODIFIED_STATUS, SidePanel.STATUS_TYPE_WARNING);
+			mainWindow.setStatusBarText(NODE_ID + id + DELETED_SUCCESSFULLY);
+		}
+	}
+	
+	public void editNode(Integer id){
+		NodeEditor editorDialog =
+				new NodeEditor(EDIT_DATA, dataSet.getAttributes(), dataSet.getDataRow(id));
+		
+		if(editorDialog.isOk()){
+			dataSet.editRow(id, editorDialog.getValues());
+			clusterResult[id] = -1;
+			visualizer.removeVertexColor(id);
+			isModified = true;
+			mainWindow.getSidePanel().setStatus(MODIFIED_STATUS, SidePanel.STATUS_TYPE_WARNING);
+			mainWindow.setStatusBarText(NODE_ID + id + MODIFIED);
+		}
+	}
+	
+	/**
+	 * Export the clustering result to an HTML report.
+	 */
+	public void exportToHtml(){
+		File destination = mainWindow.selectSavePath(SAVE_HTML_REPORT, 
+				"report_" + new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date()) + ".html");
+		if(destination == null) return;
+		HTMLWriter htmlWriter = new HTMLWriter(
+				destination, dataSet, clusterResult, k, visualizer.getCanvasAsImage());
+		try {
+			htmlWriter.write();
+			mainWindow.setStatusBarText(EXPORT_FINISHED);
+		} catch (IOException e) {
+			mainWindow.showErrorMessage(ERROR, IO_ERROR_HTML_REPORT);
+		}
+	}
+	
+	public MainWindow getMainWindow(){
+		return mainWindow;
+	}
 	
 	/**
 	 * Start importing the CSV file.
@@ -99,8 +186,10 @@ public class Controller {
 		}
 	}
 	
-	public void setMainWindow(MainWindow mainWindow){
-		this.mainWindow = mainWindow;
+	public void rearrangeCanvas(){
+		visualizer.rearrange();
+		mainWindow.setGraphDrawingComponent(visualizer.getCanvas());
+		visualizer.setMouseMode(mainWindow.getMouseMode());
 	}
 	
 	/**
@@ -116,34 +205,47 @@ public class Controller {
 	 */
 	public void runClustering(){
 		shouldStop = false;
+		
+		//if the data set has been modified, warn the user, and ask for action to take
+		if(isModified){
+			int selection = JOptionPane.showConfirmDialog(mainWindow.getFrame(), SAVE_BEFORE_RECLUSTER_QUESTION,
+					SAVE_CONFIRMATION_TITLE, JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+			if(selection == JOptionPane.CANCEL_OPTION){
+				return;
+			}
+			else if(selection == JOptionPane.YES_OPTION){
+				this.saveCSV();
+			}
+		}
 			
-		progressDialog = new ClusteringProgress(mainWindow.getFrame());
+		progressDialog = new ClusteringProgress();
 		
 		Runnable thread = new Runnable(){
 
 			@Override
 			public void run() {
 				
+				//get the parameters set on the side panel
 				Algorithms algo = Controller.this.mainWindow.getSidePanel().getSelectedAlgorithm();
 				int k = Controller.this.mainWindow.getSidePanel().getClusterNumber();
 				int maxIterations = Controller.this.mainWindow.getSidePanel().getIterations();
 				boolean manualSeed = Controller.this.mainWindow.getSidePanel().isManualSeed();
 				int seed = Controller.this.mainWindow.getSidePanel().getSeed();
 
+				//check if an input file path is provided
 				if(file == null){
 					progressDialog.close();
 					mainWindow.showErrorMessage(ERROR, PLEASE_IMPORT_DATA_FIRST);
 					return;
 				}
 
+				//run the algorithms
 				if(algo == Algorithms.OLARY){
 					OlaryDataSet dataSet = new OlaryDataSet();
 					Controller.this.dataSet = dataSet;
 					CSVReader reader = new CSVReader(dataSet);
 					try {
 						reader.read(file, attributesInFirstLine, separator);
-						visualizer = new DataSetVisualizer(dataSet, mainWindow.getSizeForCanvas());
-						visualizer.setMouseMode(mainWindow.getMouseMode());
 						OlaryAlgo algorithm;
 						if(manualSeed)
 							algorithm = new OlaryAlgo(k, seed, maxIterations, dataSet);
@@ -152,18 +254,7 @@ public class Controller {
 						algorithm.setController(Controller.this);
 						algorithm.run();
 						progressDialog.close();
-						if(!shouldStop){
-							mainWindow.setGraphDrawingComponent(visualizer.getCanvas());
-							Controller.this.k = k;
-							Controller.this.clusteringResult = algorithm.getResult();
-							visualizer.showClusteringResult(algorithm.getResult(), k);
-							mainWindow.enableSave();
-							mainWindow.getSidePanel().setStatus(READY, SidePanel.STATUS_TYPE_READY);
-							mainWindow.setStatusBarText(CLUSTERING_FINISHED);
-						} else {
-							mainWindow.getSidePanel().setStatus(READY, SidePanel.STATUS_TYPE_READY);
-							mainWindow.setStatusBarText(CLUSTERING_CANCELLED);
-						}
+						showClusteringResult(algorithm.getResult(), k);
 					} catch (EmptyFileException e){
 						progressDialog.close();
 						mainWindow.getSidePanel().setStatus(EMPTY_FILE, SidePanel.STATUS_TYPE_ERROR);
@@ -196,41 +287,34 @@ public class Controller {
 		backgroundThread.start();
 	}
 	
-	/**
-	 * Updates the size of the canvas.
-	 * It is typically called upon resize of the main window.
-	 */
-	public void updateCanvasSize(){
-		if (visualizer != null)
-			visualizer.setSize(mainWindow.getSizeForCanvas());
+	public void saveCSV(){
+		try {
+			CSVWriter.write(dataSet, file);
+			mainWindow.setStatusBarText(FILE_WRITTEN_TEXT);
+			mainWindow.getSidePanel().setStatus(READY, SidePanel.STATUS_TYPE_READY);
+			attributesInFirstLine = true;
+			separator = ";";
+			isModified = false;
+		} catch (IOException e) {
+			mainWindow.showErrorMessage(ERROR, WRITE_ERROR);
+		}
 	}
 	
-	/**
-	 * Changes the mouse mode on the canvas according to the
-	 * selected mouse mode on the toolbar.
-	 */
-	public void changeMouseMode(){
-		if (visualizer != null)
-			visualizer.setMouseMode(mainWindow.getMouseMode());
-		updateCanvasSize();
-		
+	public void saveCSVAs(){
+		File destination = mainWindow.selectSavePath("Save As...", 
+				"data_" + new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date()) + ".csv");
+		try {
+			CSVWriter.write(dataSet, destination);
+			mainWindow.setStatusBarText(FILE_WRITTEN_TEXT);
+			mainWindow.getSidePanel().setStatus(READY, SidePanel.STATUS_TYPE_READY);
+			isModified = false;
+		} catch (IOException e) {
+			mainWindow.showErrorMessage(ERROR, "IO error while saving CSV file.");
+		}
 	}
 	
-	/**
-	 * Indicates whether the algorithm should stop
-	 * @return
-	 * 		true if the user requested a cancellation,
-	 * 		false otherwise
-	 */
-	public boolean shouldStop(){
-		return shouldStop;
-	}
-	
-	/**
-	 * Calling this function indicates that the algorithm should stop.
-	 */
-	public void cancelClustering(){
-		shouldStop = true;
+	public void setMainWindow(MainWindow mainWindow){
+		this.mainWindow = mainWindow;
 	}
 	
 	/**
@@ -243,76 +327,49 @@ public class Controller {
 	}
 	
 	/**
-	 * Export the clustering result to an HTML report.
+	 * Indicates whether the algorithm should stop
+	 * @return
+	 * 		true if the user requested a cancellation,
+	 * 		false otherwise
 	 */
-	public void exportToHtml(){
-		FileDialog chooser = new FileDialog(mainWindow.getFrame(), SAVE_HTML_REPORT, FileDialog.SAVE);
-		mainWindow.getFrame().setEnabled(false);
-		chooser.setFile("report_" + new SimpleDateFormat("yy-MM-dd_HH-mm").format(new Date()) + ".html");
-		chooser.setVisible(true);
-		mainWindow.getFrame().setEnabled(true);
-		mainWindow.getFrame().toFront();
-		if(chooser.getDirectory() == null || chooser.getFile() == null)
-			return;
-		String path = chooser.getDirectory() + chooser.getFile();
-		HTMLWriter htmlWriter = new HTMLWriter(
-				new File(path), dataSet, clusteringResult, k, visualizer.getCanvasAsImage());
-		try {
-			htmlWriter.write();
-			mainWindow.setStatusBarText(EXPORT_FINISHED);
-		} catch (IOException e) {
-			mainWindow.showErrorMessage(ERROR, IO_ERROR_HTML_REPORT);
-		}
-	}
-	
-	public void saveCSV(){
-		//TODO 
-		mainWindow.getSidePanel().setStatus(READY, SidePanel.STATUS_TYPE_READY);
-		isModified = false;
+	public boolean shouldStop(){
+		return shouldStop;
 	}
 
-	public void addNode(){
-		NodeEditor editorDialog = 
-				new NodeEditor(ADD_DATA, dataSet.getAttributes());
-		
-		if(editorDialog.isOk()){
-			dataSet.addData(editorDialog.getValues());
-			visualizer.addVertex(dataSet.getNumberOfRows() - 1);
-			isModified = true;
-			mainWindow.getSidePanel().setStatus(MODIFIED_STATUS, SidePanel.STATUS_TYPE_WARNING);
-			mainWindow.setStatusBarText(NODE_ID + (dataSet.getNumberOfRows() - 1) + ADDED);
+	public void showClusteringResult(int[] result, int k){
+		visualizer = new DataSetVisualizer(dataSet, mainWindow.getSizeForCanvas());
+		visualizer.setMouseMode(mainWindow.getMouseMode());
+		if(!shouldStop){
+			mainWindow.setGraphDrawingComponent(visualizer.getCanvas());
+			Controller.this.k = k;
+			Controller.this.clusterResult = result;
+			visualizer.showClusteringResult(result, k);
+			mainWindow.enableSave();
+			isModified = false;
+			mainWindow.getSidePanel().setStatus(READY, SidePanel.STATUS_TYPE_READY);
+			mainWindow.setStatusBarText(CLUSTERING_FINISHED);
+		} else {
+			mainWindow.getSidePanel().setStatus(READY, SidePanel.STATUS_TYPE_READY);
+			mainWindow.setStatusBarText(CLUSTERING_CANCELLED);
 		}
 	}
 	
-	public void deleteNode(Integer id){
-		int selected = JOptionPane.showConfirmDialog(mainWindow.getFrame(),
-				DELETE_CONFIRMATION_MESSAGE + id + "?", CONFIRMATION_TITLE,
-				JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-		
-		if(selected == JOptionPane.YES_OPTION){
-			dataSet.removeRow(id);
-			visualizer.removeVertex(id);
-			isModified = true;
-			mainWindow.getSidePanel().setStatus(MODIFIED_STATUS, SidePanel.STATUS_TYPE_WARNING);
-			mainWindow.setStatusBarText(NODE_ID + id + DELETED_SUCCESSFULLY);
-		}
+	/**
+	 * Updates the size of the canvas.
+	 * It is typically called upon resize of the main window.
+	 */
+	public void updateCanvasSize(){
+		if (visualizer != null)
+			visualizer.setSize(mainWindow.getSizeForCanvas());
 	}
 	
-	public void editNode(Integer id){
-		NodeEditor editorDialog =
-				new NodeEditor(EDIT_DATA, dataSet.getAttributes(), dataSet.getDataRow(id));
-		
-		if(editorDialog.isOk()){
-			dataSet.editRow(id, editorDialog.getValues());
-			clusteringResult[id] = -1;
-			visualizer.removeVertexColor(id);
-			isModified = true;
-			mainWindow.getSidePanel().setStatus(MODIFIED_STATUS, SidePanel.STATUS_TYPE_WARNING);
-			mainWindow.setStatusBarText(NODE_ID + id + MODIFIED);
-		}
+	public void zoomIn(){
+		if(visualizer != null)
+			visualizer.zoomIn();
 	}
 	
-	public MainWindow getMainWindow(){
-		return mainWindow;
+	public void zoomOut(){
+		if(visualizer != null)
+			visualizer.zoomOut();
 	}
 }

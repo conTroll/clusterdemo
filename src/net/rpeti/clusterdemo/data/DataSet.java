@@ -35,12 +35,39 @@ public class DataSet implements DataContainer, DataReceiver {
 		data.add(row);
 	}
 
+	@Override
+	public void editRow(int rowNumber, List<String> newValues) {
+		if(rowNumber >= data.size() || rowNumber < 0){
+			throw new IllegalArgumentException("Wrong index.");
+		}
+		
+		if(newValues.size() != attributes.size()){
+			throw new IllegalArgumentException("Wrong number of attributes.");
+		}
+		
+		data.set(rowNumber, newValues);
+	}
+	
 	/**
 	 * @return the list of attributes in the data set.
 	 */
 	@Override
 	public List<String> getAttributes(){
 		return new ArrayList<String>(attributes);
+	}
+
+	/**
+	 * @return the given data column from the data set
+	 * @param id
+	 * 		the column ID
+	 */
+	@Override
+	public List<String> getDataColumn(int id){
+		List<String> result = new ArrayList<>();
+		for (int i = 0; i < getNumberOfRows(); i++){
+			result.add(data.get(i).get(id));
+		}
+		return result;
 	}
 	
 	/**
@@ -54,16 +81,6 @@ public class DataSet implements DataContainer, DataReceiver {
 			throw new IllegalArgumentException("Wrong index.");
 		}
 		return data.get(id) == null ? new ArrayList<String>() : new ArrayList<String>(data.get(id));
-	}
-
-	@Override
-	public int getNumberOfRows(){
-		return data.size();
-	}
-	
-	@Override
-	public int getNumberOfColumns(){
-		return attributes.size();
 	}
 
 	/**
@@ -80,46 +97,29 @@ public class DataSet implements DataContainer, DataReceiver {
 	}
 	
 	
-	/**
-	 * @return the given data column from the data set
-	 * @param id
-	 * 		the column ID
-	 */
-	@Override
-	public List<String> getDataColumn(int id){
-		List<String> result = new ArrayList<>();
-		for (int i = 0; i < getNumberOfRows(); i++){
-			result.add(data.get(i).get(id));
-		}
-		return result;
-	}
-	
-	@Override
-	public void removeRow(int rowNumber) {
-		if(rowNumber >= data.size() || rowNumber < 0){
-			throw new IllegalArgumentException("Wrong index.");
-		}
-		data.set(rowNumber, null);
-	}
-	
 	protected int getIndexOfAttr(String attribute){
 		int index = attributes.indexOf(attribute);
 		if (index == -1)
 			throw new IllegalArgumentException("The specified attribute doesn't exist.");
 		return index;
 	}
+	
+	@Override
+	public int getNumberOfColumns(){
+		return attributes.size();
+	}
+	
+	@Override
+	public int getNumberOfRows(){
+		return data.size();
+	}
 
 	@Override
-	public void editRow(int rowNumber, List<String> newValues) {
+	public void removeRow(int rowNumber) {
 		if(rowNumber >= data.size() || rowNumber < 0){
 			throw new IllegalArgumentException("Wrong index.");
 		}
-		
-		if(newValues.size() != attributes.size()){
-			throw new IllegalArgumentException("Wrong number of attributes.");
-		}
-		
-		data.set(rowNumber, newValues);
+		data.set(rowNumber, null);
 	}
 
 }
