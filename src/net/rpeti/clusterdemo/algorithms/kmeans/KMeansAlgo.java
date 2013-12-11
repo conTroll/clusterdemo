@@ -158,6 +158,7 @@ public class KMeansAlgo extends ClusteringAlgorithm {
 		do{
 			controller.setProgress(iterations, this.maxIterations);
 			this.prevResult = Arrays.copyOf(result, result.length);
+			if(controller.shouldStop()) return;
 			this.assignDataPointsToClusters();
 			iterations++;
 		} while (!Arrays.equals(result, prevResult) && iterations < this.maxIterations);

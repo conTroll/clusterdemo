@@ -271,6 +271,7 @@ public class OlaryAlgo extends ClusteringAlgorithm {
 			this.assignToClusters();
 			this.copyCenters();
 			this.computeCenters();
+			if(controller.shouldStop()) return;
 			iterations++;
 			
 			if(isConvergence()) break;

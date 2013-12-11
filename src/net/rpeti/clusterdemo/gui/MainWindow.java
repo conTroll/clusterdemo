@@ -60,7 +60,7 @@ public class MainWindow {
 	private static final String NEWLINE = System.getProperty("line.separator");
 	
 	private static final String TITLE = "ClusterDemo";
-	private static final String VERSION = "v0.8 Beta";
+	private static final String VERSION = "v0.81 Beta";
 	private static final String ABOUT_MESSAGE = "<html><h2>ClusterDemo</h2><b>Version: </b>" + VERSION + "<br><br>" + "Rónai Péter<br>(ROPSAAI.ELTE | KD1OUR)<br><br><b>Icons:</b><br>";
 	private static final String ABOUT_WINDOW_TITLE = "About ClusterDemo";
 	
@@ -70,6 +70,8 @@ public class MainWindow {
 	
 	private static final String ERROR_TITLE = "Error";
 	private static final String ERROR_OPEN_BROWSER = "Error happened while trying to open a link in the default browser.";
+	private static final String SAVE_BEFORE_IMPORT_QUESTION = "<html>The data set has been modified.<br>"
+			+ "If you import another data set now, you'll lose all the changes.<br>Do you want to save the changes before importing?</html>";
 	private static final String ABOUT_MENU_TEXT = "About";
 	private static final String HELP_MENU_TEXT = "Help";
 	private static final String FILE_MENU_TEXT = "File";
@@ -156,6 +158,9 @@ public class MainWindow {
 	}
 	
 	private void importFromCSV(){
+		if(controller.handleModification(SAVE_BEFORE_IMPORT_QUESTION))
+			return;
+		
 		ImportCSV dialog = new ImportCSV(frmClusterDemo);
 		if(dialog.getIsOk()){
 			controller.importCSV(dialog.getIsAttributesInFirstLine(),
@@ -566,5 +571,17 @@ public class MainWindow {
 		stacktrace.setEditable(false);
 		showErrorMessage(UNHANDLED_EXCEPTION_TITLE, 
 				new Object[]{UNHANDLED_EXCEPTION_TEXT + NEWLINE, stacktrace});
+	}
+	
+	/**
+	 * Updates the window title according to file changes.
+	 * @param isModified
+	 * 		set it <code>true</code> if the data has unsaved changes,
+	 * 		and <code>false</code> otherwise
+	 * @param openedFileName
+	 * 		the currently opened file, which will be clustered
+	 */
+	public void updateWindowTitle(boolean isModified, String openedFileName){
+		this.getFrame().setTitle((isModified ? "* " : "") + openedFileName + " - " + TITLE);
 	}
 }

@@ -22,9 +22,10 @@ import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.UndirectedSparseGraph;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
+import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
 import edu.uci.ics.jung.visualization.control.EditingModalGraphMouse;
-import edu.uci.ics.jung.visualization.control.LayoutScalingControl;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
+import edu.uci.ics.jung.visualization.control.ScalingControl;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
 import edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position;
 
@@ -37,7 +38,7 @@ public class DataSetVisualizer {
 	private int[] clusterResult;
 	private UndirectedSparseGraph<Integer, Integer> representation;
 	private VisualizationViewer<Integer, Integer> canvas;
-	private LayoutScalingControl scaler;
+	private ScalingControl scaler;
 	private VertexTransformer vertexTransformer;
 	private ContextMenuPlugin contextMenu;
 	private EditingModalGraphMouse<Integer, Integer> mouse;
@@ -141,7 +142,7 @@ public class DataSetVisualizer {
 		canvas.setVertexToolTipTransformer(vertexTransformer);
 		mouse = new EditingModalGraphMouse<>(canvas.getRenderContext(), null, null);
 		contextMenu = new ContextMenuPlugin(canvas);
-		scaler = new LayoutScalingControl();
+		scaler = new CrossoverScalingControl();
 		mouse.remove(mouse.getPopupEditingPlugin());
 		mouse.add(contextMenu);
 		mouse.setMode(ModalGraphMouse.Mode.TRANSFORMING);

@@ -33,6 +33,7 @@ public class ClusteringProgress extends JDialog {
 	private JFrame parent;
 	private JLabel status;
 	private JLabel label;
+	private JButton cancelButton;
 
 	/**
 	 * Create the dialog.
@@ -63,14 +64,11 @@ public class ClusteringProgress extends JDialog {
 				gbl_buttonPane.columnWeights = new double[]{0.0, 1.0, 0.0, 0.0};
 				gbl_buttonPane.rowWeights = new double[]{0.0, Double.MIN_VALUE};
 				buttonPane.setLayout(gbl_buttonPane);
-		JButton cancelButton = new JButton("Cancel");
+		cancelButton = new JButton("Cancel");
 		cancelButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				controller.cancelClustering();
-				setVisible(false);
-				dispose();
-				ClusteringProgress.this.parent.setEnabled(true);
-				ClusteringProgress.this.parent.toFront();
+				cancelButton.setEnabled(false);
 			}
 		});
 		

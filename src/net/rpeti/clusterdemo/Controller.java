@@ -34,18 +34,15 @@ import net.rpeti.clusterdemo.output.HTMLWriter;
  *
  */
 public final class Controller {
-	
-	private static final String ERROR_UNIMPLEMENTED_ALGORITHM = "Unimplemented algorithm.";
 
 	public static final Controller INSTANCE = new Controller();
-
-	private static final String NEWLINE = System.getProperty("line.separator");
 	
+	private static final String ERROR_UNIMPLEMENTED_ALGORITHM = "Unimplemented algorithm.";
 	private static final String EXPORT_FINISHED = "Report has been saved.";
-	private static final String BAD_FORMATTING = "An error has occurred processing the file." + NEWLINE + "The CSV file is badly formatted." + NEWLINE;
+	private static final String BAD_FORMATTING = "<html>An error has occurred processing the file.<br>The CSV file is badly formatted.<br></html>";
 	private static final String EMPTY_FILE = "Empty data file.";
 	private static final String PLEASE_IMPORT_DATA_FIRST = "Please import data first.";
-	private static final String CANT_READ_FILE = "Couldn't read input file." + NEWLINE + "Please import file, and try again.";
+	private static final String CANT_READ_FILE = "<html>Couldn't read input file.<br>Please import file, and try again.</html>";
 	private static final String INVALID_CSV = "Invalid CSV file.";
 	private static final String ERROR = "Error";
 	private static final String CSV_SELECTED = "CSV data file has been selected. You can now run the algorithm.";
@@ -84,10 +81,18 @@ public final class Controller {
 	private boolean shouldStop;
 	private boolean isModified = false;
 	
+	/**
+	 * The class is singleton. 
+	 * Get the instance from the static field <code>INSTANCE</code>.
+	 */
 	private Controller(){
 		//disable instantiation
 	}
 	
+	/**
+	 * Handles addition of a node from the context menu. Opens node editor window,
+	 * gets the result, makes the change in the data set and sets the modified tag to true.
+	 */
 	public void addNode(){
 		NodeEditor editorDialog = 
 				new NodeEditor(ADD_DATA, dataSet.getAttributes());
@@ -96,6 +101,7 @@ public final class Controller {
 			dataSet.addData(editorDialog.getValues());
 			visualizer.addVertex(dataSet.getNumberOfRows() - 1);
 			isModified = true;
+			mainWindow.updateWindowTitle(true, file.getName());
 			mainWindow.getSidePanel().setStatus(MODIFIED_STATUS, SidePanel.STATUS_TYPE_WARNING);
 			mainWindow.setStatusBarText(NODE_ID + (dataSet.getNumberOfRows() - 1) + ADDED);
 		}
@@ -119,6 +125,12 @@ public final class Controller {
 		
 	}
 	
+	/**
+	 * Handles the deletion of a node from the context menu. Makes the change
+	 * in the data set, and sets the modified tag to true.
+	 * @param id
+	 * 		the id of the node being edited
+	 */
 	public void deleteNode(Integer id){
 		int selected = JOptionPane.showConfirmDialog(mainWindow.getFrame(),
 				DELETE_CONFIRMATION_MESSAGE + id + "?", CONFIRMATION_TITLE,
@@ -128,11 +140,19 @@ public final class Controller {
 			dataSet.removeRow(id);
 			visualizer.removeVertex(id);
 			isModified = true;
+			mainWindow.updateWindowTitle(true, file.getName());
 			mainWindow.getSidePanel().setStatus(MODIFIED_STATUS, SidePanel.STATUS_TYPE_WARNING);
 			mainWindow.setStatusBarText(NODE_ID + id + DELETED_SUCCESSFULLY);
 		}
 	}
 	
+	/**
+	 * Handles editing a node from the context menu. Opens node editor window,
+	 * gets the result, makes the change in the data set, marks the data as
+	 * unclustered, and sets the modified tag to true.
+	 * @param id
+	 * 		the id of the node being edited
+	 */
 	public void editNode(Integer id){
 		NodeEditor editorDialog =
 				new NodeEditor(EDIT_DATA, dataSet.getAttributes(), dataSet.getDataRow(id));
@@ -142,13 +162,14 @@ public final class Controller {
 			clusterResult[id] = -1;
 			visualizer.removeVertexColor(id);
 			isModified = true;
+			mainWindow.updateWindowTitle(true, file.getName());
 			mainWindow.getSidePanel().setStatus(MODIFIED_STATUS, SidePanel.STATUS_TYPE_WARNING);
 			mainWindow.setStatusBarText(NODE_ID + id + MODIFIED);
 		}
 	}
 	
 	/**
-	 * Export the clustering result to an HTML report.
+	 * Exports the clustering result to an HTML report.
 	 */
 	public void exportToHtml(){
 		File destination = mainWindow.selectSavePath(SAVE_HTML_REPORT, 
@@ -169,6 +190,27 @@ public final class Controller {
 	}
 	
 	/**
+	 * If the data set has been modified, warn the user, and ask for action to take
+	 * @param question
+	 * 		the question to show the user upon asking if a save should occur or not
+	 * @return
+	 * 		true, if the operation should cancel, false otherwise
+	 */
+	public boolean handleModification(String question){
+		if(isModified){
+			int selection = JOptionPane.showConfirmDialog(mainWindow.getFrame(), question,
+					SAVE_CONFIRMATION_TITLE, JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+			if(selection == JOptionPane.CANCEL_OPTION){
+				return true;
+			}
+			else if(selection == JOptionPane.YES_OPTION){
+				this.saveCSV();
+			}
+		}
+		return false;
+	}
+	
+	/**
 	 * Start importing the CSV file.
 	 * @param attributesInFirstLine
 	 * 		are the attribute names present in the first row of the file?
@@ -178,6 +220,8 @@ public final class Controller {
 	 * 		the File object containing the absolute path
 	 */
 	public void importCSV(boolean attributesInFirstLine, String separator, File file){
+		//if the data set has been modified, warn the user, and ask for action to take
+
 		if(!(file.isAbsolute() && file.isFile() && file.exists())){
 			throw new IllegalArgumentException("Invalid file.");
 		}
@@ -186,6 +230,7 @@ public final class Controller {
 			this.attributesInFirstLine = attributesInFirstLine;
 			this.separator = separator;
 			this.file = file;
+			mainWindow.updateWindowTitle(false, file.getName());
 			mainWindow.setStatusBarText(CSV_SELECTED);
 			mainWindow.getSidePanel().setStatus(READY, SidePanel.STATUS_TYPE_READY);
 			mainWindow.getSidePanel().setRunEnabled(true);
@@ -194,6 +239,9 @@ public final class Controller {
 		}
 	}
 	
+	/**
+	 * Rebuilds the visualization without reclustering the data set.
+	 */
 	public void rearrangeCanvas(){
 		visualizer.rearrange();
 		mainWindow.setGraphDrawingComponent(visualizer.getCanvas());
@@ -201,30 +249,17 @@ public final class Controller {
 	}
 	
 	/**
-	 * Start the clustering algorithm.
-	 * @param algo
-	 * 		the type of the algorithm
-	 * @param k
-	 * 		the number of desired clusters
-	 * @param seed
-	 * 		the ID of data that will be used as seed (if you pass -1, one will be selected randomly)
-	 * @param maxIterations
-	 * 		the maximal number of iterations before the algorithm will terminate
+	 * Starts the clustering algorithm in a separate thread.
+	 * You can add clustering algorithms here.
+	 * You'll have to specify the data set implementation being used,
+	 * instantiate it, fill it with data, then instantiate your algorithm.
+	 * See the currently implemented algorithms for an example.
 	 */
 	public void runClustering(){
 		shouldStop = false;
 		
-		//if the data set has been modified, warn the user, and ask for action to take
-		if(isModified){
-			int selection = JOptionPane.showConfirmDialog(mainWindow.getFrame(), SAVE_BEFORE_RECLUSTER_QUESTION,
-					SAVE_CONFIRMATION_TITLE, JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
-			if(selection == JOptionPane.CANCEL_OPTION){
-				return;
-			}
-			else if(selection == JOptionPane.YES_OPTION){
-				this.saveCSV();
-			}
-		}
+		if(this.handleModification(SAVE_BEFORE_RECLUSTER_QUESTION))
+			return;
 			
 		progressDialog = new ClusteringProgress();
 		
@@ -284,7 +319,7 @@ public final class Controller {
 					mainWindow.getSidePanel().setStatus(INVALID_CSV, SidePanel.STATUS_TYPE_ERROR);
 				} catch (IOException e) {
 					progressDialog.close();
-					mainWindow.showErrorMessage(ERROR, CANT_READ_FILE + NEWLINE + NEWLINE + e.getMessage());
+					mainWindow.showErrorMessage(ERROR, CANT_READ_FILE + "<html><br><br></html>" + e.getMessage());
 				} catch (IllegalSeedException e) {
 					progressDialog.close();
 					mainWindow.getSidePanel().setStatus(INVALID_SEED, SidePanel.STATUS_TYPE_ERROR);
@@ -307,6 +342,9 @@ public final class Controller {
 		backgroundThread.start();
 	}
 	
+	/**
+	 * Saves the changes to the current file.
+	 */
 	public void saveCSV(){
 		try {
 			CSVWriter.write(dataSet, file);
@@ -315,14 +353,21 @@ public final class Controller {
 			this.attributesInFirstLine = true;
 			this.separator = ";";
 			this.isModified = false;
+			this.mainWindow.updateWindowTitle(false, this.file.getName());
 		} catch (IOException e) {
 			this.mainWindow.showErrorMessage(ERROR, WRITE_ERROR);
 		}
 	}
 	
+	/**
+	 * Opens a file browser where the user can set a file location.
+	 * Saves the changed data set as a CSV file to the selected destination.
+	 * Changes the currently selected file to the newly saved file.
+	 */
 	public void saveCSVAs(){
 		File destination = mainWindow.selectSavePath("Save As...", 
 				"data_" + new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date()) + ".csv");
+		if(destination == null) return;
 		try {
 			CSVWriter.write(dataSet, destination);
 			this.mainWindow.setStatusBarText(FILE_WRITTEN_TEXT);
@@ -331,6 +376,7 @@ public final class Controller {
 			this.attributesInFirstLine = true;
 			this.separator = ";";
 			this.isModified = false;
+			this.mainWindow.updateWindowTitle(false, destination.getName());
 		} catch (IOException e) {
 			this.mainWindow.showErrorMessage(ERROR, "IO error while saving CSV file.");
 		}
@@ -342,8 +388,10 @@ public final class Controller {
 	
 	/**
 	 * Sets the progress on the progress dialog.
-	 * @param value
-	 * 		percentage of progress completion
+	 * @param iterations
+	 * 		iterations already done
+	 * @param maxIterations
+	 * 		maximum number of iterations set by the user
 	 */
 	public void setProgress(int iterations, int maxIterations){
 		progressDialog.setProgress(iterations, maxIterations);
@@ -359,6 +407,13 @@ public final class Controller {
 		return shouldStop;
 	}
 
+	/**
+	 * Displays the result of a clustering algorithm on the visualizer.
+	 * @param result
+	 * 		the result achieved from the clustering algo
+	 * @param k
+	 * 		the number of clusters set by the user
+	 */
 	public void showClusteringResult(int[] result, int k){
 		visualizer = new DataSetVisualizer(dataSet, mainWindow.getSizeForCanvas());
 		visualizer.setMouseMode(mainWindow.getMouseMode());
@@ -369,6 +424,7 @@ public final class Controller {
 			visualizer.showClusteringResult(result, k);
 			mainWindow.enableSave();
 			isModified = false;
+			mainWindow.updateWindowTitle(false, file.getName());
 			mainWindow.getSidePanel().setStatus(READY, SidePanel.STATUS_TYPE_READY);
 			mainWindow.setStatusBarText(CLUSTERING_FINISHED);
 		} else {
