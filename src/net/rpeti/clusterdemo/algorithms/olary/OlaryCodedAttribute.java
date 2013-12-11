@@ -1,8 +1,10 @@
 package net.rpeti.clusterdemo.algorithms.olary;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 
 /**
@@ -13,7 +15,9 @@ public class OlaryCodedAttribute {
 	
 	private String name;
 	private OlaryCode code;
-	public Map<String, boolean[]> codesByValues;
+	private Random random;
+	private List<Integer> indices;
+	private Map<String, boolean[]> codesByValues;
 	
 	
 	/**
@@ -36,20 +40,25 @@ public class OlaryCodedAttribute {
 		if(numberOfDifferentValues < 1)
 			throw new IllegalArgumentException("The number of different values must be greater than zero.");
 		else if(numberOfDifferentValues == 1)
-			code = new OlaryCode(1);
+			this.code = new OlaryCode(1);
 		else
-			code = new OlaryCode(numberOfDifferentValues - 1);
+			this.code = new OlaryCode(numberOfDifferentValues - 1);
 		
 		this.name = name;
-		codesByValues = new HashMap<String, boolean[]>();
+		this.random = new Random(System.currentTimeMillis());
+		this.indices = new ArrayList<Integer>(numberOfDifferentValues);
+		this.codesByValues = new HashMap<String, boolean[]>();
 		
-		//TODO randomly assign codes
+		for (int i = 0; i < numberOfDifferentValues; i++){
+			indices.add(i);
+		}
 		
-		int i = 0;
 		for(String value : values){
 			if(!(codesByValues.containsKey(value))){
-				codesByValues.put(value, code.getSequence(i));
-				i++;
+				int pickFromIndices = this.random.nextInt(this.indices.size());
+				int index = this.indices.get(pickFromIndices);
+				this.indices.remove(pickFromIndices);
+				codesByValues.put(value, code.getSequence(index));
 			}
 		}
 	}

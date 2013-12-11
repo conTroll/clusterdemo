@@ -1,21 +1,17 @@
 package net.rpeti.clusterdemo.algorithms;
 
 import net.rpeti.clusterdemo.Controller;
+import net.rpeti.clusterdemo.Main;
 
-public interface ClusteringAlgorithm {
+public abstract class ClusteringAlgorithm {
+	
+	protected Controller controller = Main.getController();
 	
 	/**
 	 * Run the Clustering algorithm with the supplied parameters
 	 * on the supplied data set.
 	 */
-	public void run();
-	
-	/**
-	 * Sets the application controller for the algorithm to be
-	 * able to communicate with it.
-	 * @param controller
-	 */
-	public void setController(Controller controller);
+	public abstract void run();
 	
 	/**
 	 * Returns the result of the algorithm.
@@ -24,5 +20,5 @@ public interface ClusteringAlgorithm {
 	 * 		represents the cluster that was assigned
 	 * 		to the data point with ID n
 	 */
-	public int[] getResult();
+	public abstract int[] getResult();
 }

@@ -1,4 +1,4 @@
-package net.rpeti.clusterdemo.algorithms.olary;
+package net.rpeti.clusterdemo.algorithms;
 
 /**
  * Identifies that the seed value provided was invalid.

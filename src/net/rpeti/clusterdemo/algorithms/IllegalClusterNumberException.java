@@ -1,4 +1,4 @@
-package net.rpeti.clusterdemo.algorithms.olary;
+package net.rpeti.clusterdemo.algorithms;
 
 /**
  * Indicates that the number of clusters provided was illegal.

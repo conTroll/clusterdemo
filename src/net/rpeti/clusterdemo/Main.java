@@ -5,7 +5,7 @@ import java.awt.EventQueue;
 import net.rpeti.clusterdemo.gui.MainWindow;
 
 public class Main {
-	private static final Controller controller = new Controller();
+	private static final Controller controller = Controller.INSTANCE;
 	
 	public static Controller getController(){
 		return controller;

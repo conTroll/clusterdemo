@@ -10,8 +10,10 @@ import java.util.regex.PatternSyntaxException;
 import javax.swing.JOptionPane;
 
 import net.rpeti.clusterdemo.algorithms.Algorithms;
-import net.rpeti.clusterdemo.algorithms.olary.IllegalClusterNumberException;
-import net.rpeti.clusterdemo.algorithms.olary.IllegalSeedException;
+import net.rpeti.clusterdemo.algorithms.ClusteringAlgorithm;
+import net.rpeti.clusterdemo.algorithms.IllegalClusterNumberException;
+import net.rpeti.clusterdemo.algorithms.IllegalSeedException;
+import net.rpeti.clusterdemo.algorithms.kmeans.KMeansAlgo;
 import net.rpeti.clusterdemo.algorithms.olary.OlaryAlgo;
 import net.rpeti.clusterdemo.data.DataSet;
 import net.rpeti.clusterdemo.data.olary.OlaryDataSet;
@@ -31,11 +33,11 @@ import net.rpeti.clusterdemo.output.HTMLWriter;
  * instantiates the correct classes for the action, and run them.
  *
  */
-public class Controller {
+public final class Controller {
+	
+	private static final String ERROR_UNIMPLEMENTED_ALGORITHM = "Unimplemented algorithm.";
 
-	private static final String FILE_WRITTEN_TEXT = "File written successfully.";
-
-	private static final String WRITE_ERROR = "<html>Can't access file for write.<br>May it's in use by another process.</html>";
+	public static final Controller INSTANCE = new Controller();
 
 	private static final String NEWLINE = System.getProperty("line.separator");
 	
@@ -65,7 +67,9 @@ public class Controller {
 	private static final String SAVE_HTML_REPORT = "Save HTML Report";
 	private static final String MODIFIED_STATUS = "Modified. Please save.";
 	private static final String SAVE_BEFORE_RECLUSTER_QUESTION = "<html>The data set has been modified.<br>" + 
-	"If you re-cluster the data now, you'll lose all the changes.<br>Do you want to save the changes before re-clustering?</html>";
+			"If you re-cluster the data now, you'll lose all the changes.<br>Do you want to save the changes before re-clustering?</html>";
+	private static final String FILE_WRITTEN_TEXT = "File written successfully.";
+	private static final String WRITE_ERROR = "<html>Can't access file for write.<br>May it's in use by another process.</html>";
 
 	private boolean attributesInFirstLine;
 	private String separator;
@@ -79,6 +83,10 @@ public class Controller {
 	private DataSetVisualizer visualizer;
 	private boolean shouldStop;
 	private boolean isModified = false;
+	
+	private Controller(){
+		//disable instantiation
+	}
 	
 	public void addNode(){
 		NodeEditor editorDialog = 
@@ -224,7 +232,7 @@ public class Controller {
 
 			@Override
 			public void run() {
-				
+
 				//get the parameters set on the side panel
 				Algorithms algo = Controller.this.mainWindow.getSidePanel().getSelectedAlgorithm();
 				int k = Controller.this.mainWindow.getSidePanel().getClusterNumber();
@@ -239,46 +247,58 @@ public class Controller {
 					return;
 				}
 
-				//run the algorithms
-				if(algo == Algorithms.OLARY){
-					OlaryDataSet dataSet = new OlaryDataSet();
-					Controller.this.dataSet = dataSet;
-					CSVReader reader = new CSVReader(dataSet);
-					try {
+				try {
+					ClusteringAlgorithm algorithm;
+
+					//here are the handlers for the algorithms
+					//you can add new algorithms here
+					if(algo == Algorithms.OLARY){
+						OlaryDataSet dataSet = new OlaryDataSet();
+						Controller.this.dataSet = dataSet;
+						CSVReader reader = new CSVReader(dataSet);
 						reader.read(file, attributesInFirstLine, separator);
-						OlaryAlgo algorithm;
 						if(manualSeed)
 							algorithm = new OlaryAlgo(k, seed, maxIterations, dataSet);
 						else
 							algorithm = new OlaryAlgo(k, maxIterations, dataSet);
-						algorithm.setController(Controller.this);
-						algorithm.run();
+					} else if (algo == Algorithms.KMEANS){
+						OlaryDataSet dataSet = new OlaryDataSet();
+						Controller.this.dataSet = dataSet;
+						CSVReader reader = new CSVReader(dataSet);
+						reader.read(file, attributesInFirstLine, separator);
+						algorithm = new KMeansAlgo(k, maxIterations, dataSet);
+					} else {
+						mainWindow.getSidePanel().setStatus(ERROR_UNIMPLEMENTED_ALGORITHM, SidePanel.STATUS_TYPE_ERROR);
 						progressDialog.close();
-						showClusteringResult(algorithm.getResult(), k);
-					} catch (EmptyFileException e){
-						progressDialog.close();
-						mainWindow.getSidePanel().setStatus(EMPTY_FILE, SidePanel.STATUS_TYPE_ERROR);
-					} catch (InvalidFileException e){
-						progressDialog.close();
-						mainWindow.getSidePanel().setStatus(INVALID_CSV, SidePanel.STATUS_TYPE_ERROR);
-					} catch (IOException e) {
-						progressDialog.close();
-						mainWindow.showErrorMessage(ERROR, CANT_READ_FILE + NEWLINE + NEWLINE + e.getMessage());
-					} catch (IllegalSeedException e) {
-						progressDialog.close();
-						mainWindow.getSidePanel().setStatus(INVALID_SEED, SidePanel.STATUS_TYPE_ERROR);
-					} catch (IllegalClusterNumberException e) {
-						progressDialog.close();
-						mainWindow.getSidePanel().setStatus(INVALID_CLUSTER_NUMBER, SidePanel.STATUS_TYPE_ERROR);
-					} catch (IllegalArgumentException e){
-						e.printStackTrace();
-						progressDialog.close();
-						mainWindow.showErrorMessage(ERROR, BAD_FORMATTING + e.getMessage());
-					} catch (Exception e) {
-						progressDialog.close();
-						e.printStackTrace();
-						mainWindow.showUnhandledException(e);
+						return;
 					}
+
+					algorithm.run();
+					progressDialog.close();
+					showClusteringResult(algorithm.getResult(), k);
+				} catch (EmptyFileException e){
+					progressDialog.close();
+					mainWindow.getSidePanel().setStatus(EMPTY_FILE, SidePanel.STATUS_TYPE_ERROR);
+				} catch (InvalidFileException e){
+					progressDialog.close();
+					mainWindow.getSidePanel().setStatus(INVALID_CSV, SidePanel.STATUS_TYPE_ERROR);
+				} catch (IOException e) {
+					progressDialog.close();
+					mainWindow.showErrorMessage(ERROR, CANT_READ_FILE + NEWLINE + NEWLINE + e.getMessage());
+				} catch (IllegalSeedException e) {
+					progressDialog.close();
+					mainWindow.getSidePanel().setStatus(INVALID_SEED, SidePanel.STATUS_TYPE_ERROR);
+				} catch (IllegalClusterNumberException e) {
+					progressDialog.close();
+					mainWindow.getSidePanel().setStatus(INVALID_CLUSTER_NUMBER, SidePanel.STATUS_TYPE_ERROR);
+				} catch (IllegalArgumentException e){
+					e.printStackTrace();
+					progressDialog.close();
+					mainWindow.showErrorMessage(ERROR, BAD_FORMATTING + e.getMessage());
+				} catch (Exception e) {
+					progressDialog.close();
+					e.printStackTrace();
+					mainWindow.showUnhandledException(e);
 				}
 			}
 		};

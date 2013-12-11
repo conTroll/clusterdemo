@@ -5,11 +5,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
-import net.rpeti.clusterdemo.Controller;
 import net.rpeti.clusterdemo.algorithms.ClusteringAlgorithm;
+import net.rpeti.clusterdemo.algorithms.IllegalClusterNumberException;
+import net.rpeti.clusterdemo.algorithms.IllegalSeedException;
 import net.rpeti.clusterdemo.data.olary.OlaryDataSet;
 
-public class OlaryAlgo implements ClusteringAlgorithm {
+public class OlaryAlgo extends ClusteringAlgorithm {
 	
 	private OlaryDataSet dataSet;
 	private int k;
@@ -23,8 +24,6 @@ public class OlaryAlgo implements ClusteringAlgorithm {
 	//so we can check the convergence criteria after the next iteration
 	private List<List<boolean[]>> centers2;
 	private int[] index;
-	
-	private Controller controller;
 	
 	/**
 	 * Initializes Olary Algorithm with a predefined seed.
@@ -52,9 +51,11 @@ public class OlaryAlgo implements ClusteringAlgorithm {
 		if(this.seed >= this.rowCount || this.seed < 0){
 			throw new IllegalSeedException();
 		}
+		
 		if(maxIterations < 1){
 			throw new IllegalArgumentException("Maximum iterations must be a positive integer!");
 		}
+		
 		if(k > this.rowCount || k < 1){
 			throw new IllegalClusterNumberException();
 		}
@@ -274,16 +275,6 @@ public class OlaryAlgo implements ClusteringAlgorithm {
 			
 			if(isConvergence()) break;
 		}
-	}
-	
-	/**
-	 * Sets the application controller for the algorithm to be
-	 * able to communicate with it.
-	 * @param controller
-	 */
-	@Override
-	public void setController(Controller controller){
-		this.controller = controller;
 	}
 
 }
