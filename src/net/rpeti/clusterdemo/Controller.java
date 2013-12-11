@@ -310,13 +310,13 @@ public final class Controller {
 	public void saveCSV(){
 		try {
 			CSVWriter.write(dataSet, file);
-			mainWindow.setStatusBarText(FILE_WRITTEN_TEXT);
-			mainWindow.getSidePanel().setStatus(READY, SidePanel.STATUS_TYPE_READY);
-			attributesInFirstLine = true;
-			separator = ";";
-			isModified = false;
+			this.mainWindow.setStatusBarText(FILE_WRITTEN_TEXT);
+			this.mainWindow.getSidePanel().setStatus(READY, SidePanel.STATUS_TYPE_READY);
+			this.attributesInFirstLine = true;
+			this.separator = ";";
+			this.isModified = false;
 		} catch (IOException e) {
-			mainWindow.showErrorMessage(ERROR, WRITE_ERROR);
+			this.mainWindow.showErrorMessage(ERROR, WRITE_ERROR);
 		}
 	}
 	
@@ -325,11 +325,14 @@ public final class Controller {
 				"data_" + new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date()) + ".csv");
 		try {
 			CSVWriter.write(dataSet, destination);
-			mainWindow.setStatusBarText(FILE_WRITTEN_TEXT);
-			mainWindow.getSidePanel().setStatus(READY, SidePanel.STATUS_TYPE_READY);
-			isModified = false;
+			this.mainWindow.setStatusBarText(FILE_WRITTEN_TEXT);
+			this.mainWindow.getSidePanel().setStatus(READY, SidePanel.STATUS_TYPE_READY);
+			this.file = destination;
+			this.attributesInFirstLine = true;
+			this.separator = ";";
+			this.isModified = false;
 		} catch (IOException e) {
-			mainWindow.showErrorMessage(ERROR, "IO error while saving CSV file.");
+			this.mainWindow.showErrorMessage(ERROR, "IO error while saving CSV file.");
 		}
 	}
 	

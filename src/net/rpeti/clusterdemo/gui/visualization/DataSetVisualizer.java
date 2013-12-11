@@ -108,8 +108,8 @@ public class DataSetVisualizer {
 				new DAGLayout<Integer, Integer>(subGraph);
 		subLayout.setInitializer(canvas.getGraphLayout());
 		subLayout.setSize(new Dimension(
-				(int)(size.getWidth() * ((double)vertices.size() / (double)data.getNumberOfRows() / 1.66d)),
-				(int)(size.getHeight() * ((double)vertices.size() / (double)data.getNumberOfRows() / 1.66d))));
+				(int)(size.getWidth() * ((double)vertices.size() / (double)data.getNumberOfRows() / 1.0d)),
+				(int)(size.getHeight() * ((double)vertices.size() / (double)data.getNumberOfRows() / 1.0d))));
 
 		layout.put(subLayout,center);
 	}
