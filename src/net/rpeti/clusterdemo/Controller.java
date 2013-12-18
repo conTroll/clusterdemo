@@ -287,20 +287,23 @@ public final class Controller {
 
 					//here are the handlers for the algorithms
 					//you can add new algorithms here
+					
+					//!!!IMPORTANT!!! only set the Controller's dataSet
+					//to the new dataSet after the reading has finished
 					if(algo == Algorithms.OLARY){
 						OlaryDataSet dataSet = new OlaryDataSet();
-						Controller.this.dataSet = dataSet;
 						CSVReader reader = new CSVReader(dataSet);
 						reader.read(file, attributesInFirstLine, separator);
+						Controller.this.dataSet = dataSet;
 						if(manualSeed)
 							algorithm = new OlaryAlgo(k, seed, maxIterations, dataSet);
 						else
 							algorithm = new OlaryAlgo(k, maxIterations, dataSet);
 					} else if (algo == Algorithms.KMEANS){
 						OlaryDataSet dataSet = new OlaryDataSet();
-						Controller.this.dataSet = dataSet;
 						CSVReader reader = new CSVReader(dataSet);
 						reader.read(file, attributesInFirstLine, separator);
+						Controller.this.dataSet = dataSet;
 						algorithm = new KMeansAlgo(k, maxIterations, dataSet);
 					} else {
 						mainWindow.getSidePanel().setStatus(ERROR_UNIMPLEMENTED_ALGORITHM, SidePanel.STATUS_TYPE_ERROR);

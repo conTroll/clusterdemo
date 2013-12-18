@@ -60,8 +60,10 @@ public class MainWindow {
 	private static final String NEWLINE = System.getProperty("line.separator");
 	
 	private static final String TITLE = "ClusterDemo";
-	private static final String VERSION = "v0.81 Beta";
+	private static final String VERSION = "v0.82 Beta";
 	private static final String ABOUT_MESSAGE = "<html><h2>ClusterDemo</h2><b>Version: </b>" + VERSION + "<br><br>" + "Rónai Péter<br>(ROPSAAI.ELTE | KD1OUR)<br><br><b>Icons:</b><br>";
+	private static final String ABOUT_WEB_MESSAGE = "<html><b>Web:</b></html>";
+	private static final String PROJECT_HOMEPAGE = "Project Homepage";
 	private static final String ABOUT_WINDOW_TITLE = "About ClusterDemo";
 	
 	private static final String UNHANDLED_EXCEPTION_TITLE = "Unhandled Exception";
@@ -290,6 +292,7 @@ public class MainWindow {
 			public void actionPerformed(ActionEvent e) {
 				JButton aha = new JButton("Aha-Soft");
 				JButton glyph = new JButton("GLYPHICONS.com");
+				JButton homepage = new JButton(PROJECT_HOMEPAGE);
 				aha.addActionListener(new ActionListener(){
 					@Override
 					public void actionPerformed(ActionEvent e){
@@ -302,7 +305,13 @@ public class MainWindow {
 						MainWindow.this.openBrowser("http://www.glyphicons.com/");
 					}
 				});
-				JOptionPane.showMessageDialog(frmClusterDemo, new Object[]{ABOUT_MESSAGE, aha, glyph}, ABOUT_WINDOW_TITLE,
+				homepage.addActionListener(new ActionListener(){
+					@Override
+					public void actionPerformed(ActionEvent arg0) {
+						MainWindow.this.openBrowser("http://www.github.com/controll/clusterdemo");
+					}
+				});
+				JOptionPane.showMessageDialog(frmClusterDemo, new Object[]{ABOUT_MESSAGE, aha, glyph, ABOUT_WEB_MESSAGE, homepage}, ABOUT_WINDOW_TITLE,
 						JOptionPane.INFORMATION_MESSAGE, new ImageIcon(this.getClass().getResource("/icons/about.png")));
 			}
 		});
