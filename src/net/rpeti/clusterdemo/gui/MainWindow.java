@@ -60,7 +60,7 @@ public class MainWindow {
 	private static final String NEWLINE = System.getProperty("line.separator");
 	
 	private static final String TITLE = "ClusterDemo";
-	private static final String VERSION = "v0.82 Beta";
+	private static final String VERSION = "v0.83 Beta";
 	private static final String ABOUT_MESSAGE = "<html><h2>ClusterDemo</h2><b>Version: </b>" + VERSION + "<br><br>" + "Rónai Péter<br>(ROPSAAI.ELTE | KD1OUR)<br><br><b>Icons:</b><br>";
 	private static final String ABOUT_WEB_MESSAGE = "<html><b>Web:</b></html>";
 	private static final String PROJECT_HOMEPAGE = "Project Homepage";

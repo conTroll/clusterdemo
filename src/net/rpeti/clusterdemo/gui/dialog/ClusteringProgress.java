@@ -2,6 +2,8 @@ package net.rpeti.clusterdemo.gui.dialog;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
@@ -16,6 +18,7 @@ import javax.swing.JLabel;
 
 import net.rpeti.clusterdemo.Controller;
 import net.rpeti.clusterdemo.Main;
+
 import javax.swing.ImageIcon;
 
 
@@ -40,6 +43,16 @@ public class ClusteringProgress extends JDialog {
 	 */
 	public ClusteringProgress() {
 		super(Main.getController().getMainWindow().getFrame(), false);
+		this.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+		
+		this.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                controller.cancelClustering();
+            	cancelButton.setEnabled(false);
+            }
+        });
+		
 		this.controller = Main.getController();
 		this.parent = controller.getMainWindow().getFrame();
 		
